@@ -378,6 +378,7 @@ const Home = () => {
                 axisLine={false}
                 tickLine={false}
                 tick={{ fontSize: 12, fill: "#7A7A7A" }}
+                allowDecimals={false}
               />
               {/* REVISI: Menghapus Tooltip default, hanya menyisakan CustomTooltipHome */}
               <Tooltip content={<CustomTooltipHome />} />
