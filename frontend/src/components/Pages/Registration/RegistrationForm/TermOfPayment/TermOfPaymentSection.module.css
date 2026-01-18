@@ -1,0 +1,890 @@
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  text-align: left;
+  font-size: 16px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  padding: 0 16px 0 16px;
+  margin-top: 24px;
+}
+
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.headerText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  color: var(--main-text);
+}
+
+.contentWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  column-gap: 55px; /* <-- Jarak horizontal tetap 55px */
+  row-gap: 20px; /* <-- PERUBAHAN: Jarak vertikal diperkecil */
+  background-color: var(--cream);
+
+  padding-bottom: 8px;
+  margin: 0 10px;
+}
+
+.discountSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+}
+
+.paymentSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: var(--cream);
+}
+
+.sectionTitle {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+
+.sectionTitleText {
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-primary);
+  font-size: 16px;
+}
+
+.optionGroup {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.optionItem {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+}
+
+/* Radio button styles */
+.radioLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.radioLabel:hover {
+  background-color: rgba(95, 132, 254, 0.05);
+  border-radius: 4px;
+}
+
+.radioButton {
+  width: 28px;
+  position: relative;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.radioButtonCircle {
+  position: absolute;
+  height: 110.71%;
+  width: 110.71%;
+  top: -5.36%;
+  right: -5.36%;
+  bottom: -5.36%;
+  left: -5.36%;
+  border-radius: 50%;
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.radioButtonSelected {
+  position: absolute;
+  height: 57.14%;
+  width: 57.14%;
+  top: 21.43%;
+  right: 21.43%;
+  bottom: 21.43%;
+  left: 21.43%;
+  border-radius: 50%;
+  background-color: var(--main-accent);
+  transform: scale(1);
+  opacity: 1;
+  animation: grow-in 0.25s forwards;
+}
+
+@keyframes grow-in {
+  /* Tahap Awal: Mulai dari ukuran 0 (tidak terlihat) */
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  /* Tahap Akhir: Selesai di ukuran normal */
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Checkbox styles */
+.checkboxLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+}
+
+.checkBox {
+  width: 24px;
+  position: relative;
+  height: 24px;
+}
+
+.checkBoxSquare {
+  position: absolute;
+  height: 108.33%;
+  width: 108.33%;
+  top: -4.17%;
+  right: -4.17%;
+  bottom: -4.17%;
+  left: -4.17%;
+  border-radius: 4px;
+  background-color: var(--secondary-background);
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+}
+
+.checkBoxIcon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0%;
+  right: 0%;
+  bottom: 0%;
+  left: 0%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+.label {
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 1000px) {
+  .container {
+    margin-bottom: 80px;
+  }
+
+  .contentWrapper {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .optionGroup {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dropdownField {
+    width: 100%;
+  }
+
+  /* === PERUBAHAN RESPONSIVE VIRTUAL ACCOUNT DIMULAI DI SINI === */
+  .virtualAccountContainer {
+    flex-direction: column; /* Mengubah jadi susun ke bawah */
+
+    gap: 16px; /* Memberi jarak antar item saat tersusun ke bawah */
+  }
+
+  .virtualAccountItem {
+    min-width: 100%; /* Pastikan item mengambil lebar penuh */
+    width: 100%;
+    margin-bottom: 0; /* Dihapus karena sudah dihandle 'gap' di container */
+  }
+
+  .virtualAccountNumber {
+    width: 100%; /* Buat garis bawah jadi penuh */
+  }
+  /* === AKHIR PERUBAHAN === */
+}
+
+/* Hidden inputs untuk accessibility */
+.hiddenRadio,
+.hiddenCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.inputField,
+.dropdownSelect,
+.textareaField,
+input[type='text'],
+input[type='number'],
+select,
+textarea {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  transition: all 0.2s ease;
+}
+
+.inputField:focus,
+.inputField.hasValue,
+.dropdownSelect:focus,
+.dropdownSelect.hasValue,
+.textareaField:focus,
+.textareaField.hasValue,
+input[type='text']:focus,
+input[type='text'].hasValue,
+input[type='number']:focus,
+input[type='number'].hasValue,
+select:focus,
+select.hasValue,
+textarea:focus,
+textarea.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+.inputField::placeholder,
+.dropdownSelect::placeholder,
+.textareaField::placeholder,
+input[type='text']::placeholder,
+input[type='number']::placeholder,
+select::placeholder,
+textarea::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+.dropdownSelect {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-primary);
+
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  padding: 5px 0px 0px 0px;
+  margin: 0;
+  cursor: pointer;
+}
+.dropdownSelect:focus,
+.dropdownSelect.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+.dropdownSelect option {
+  background: var(--secondary-background);
+  color: var(--main-text);
+}
+
+/* Error label untuk sub label Term of Payment */
+.termOfPaymentErrorLabel {
+  color: var(--red) !important;
+  font-weight: var(--font-weight-semibold);
+}
+
+.discountSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.discountInputWrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 24px;
+  width: 70%;
+  padding: 0px 30px;
+}
+
+.discountInline {
+  align-self: auto;
+}
+
+.discountSelectWrapper {
+  width: 50%;
+  min-width: 0;
+}
+
+.notesWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+  margin-top: -3px;
+}
+
+.notesLabel {
+  font-weight: var(--font-weight-semibold);
+  font-size: 16px;
+  white-space: nowrap;
+  font-family: var(--font-primary);
+}
+
+.notesInput {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  padding: 8px 4px;
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-family: var(--font-primary);
+}
+
+.virtualAccountContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Agar responsif di layar kecil */
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px; /* Menggunakan gap untuk spasi */
+}
+
+.virtualAccountItem {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.virtualAccountLabel {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: 16px;
+  color: var(--main-text);
+}
+
+.virtualAccountNumber {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  color: var(--main-text);
+  padding-bottom: 4px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  width: 90%;
+}
+
+.container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 0;
+  text-align: left;
+  font-size: 16px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  padding: 0 16px 0 16px;
+  margin-top: 24px;
+}
+
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+.headerText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  color: var(--main-text);
+}
+
+.contentWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-start;
+  column-gap: 55px; /* <-- Jarak horizontal tetap 55px */
+  row-gap: 20px; /* <-- PERUBAHAN: Jarak vertikal diperkecil */
+  background-color: var(--cream);
+
+  padding-bottom: 8px;
+  margin: 0 10px;
+}
+
+.discountSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 50%;
+}
+
+.paymentSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: var(--cream);
+}
+
+.sectionTitle {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  white-space: nowrap;
+}
+
+.sectionTitleText {
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-primary);
+  font-size: 16px;
+}
+
+.optionGroup {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.optionItem {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+}
+
+/* Radio button styles */
+.radioLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.radioLabel:hover {
+  background-color: rgba(95, 132, 254, 0.05);
+  border-radius: 4px;
+}
+
+.radioButton {
+  width: 28px;
+  position: relative;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.radioButtonCircle {
+  position: absolute;
+  height: 110.71%;
+  width: 110.71%;
+  top: -5.36%;
+  right: -5.36%;
+  bottom: -5.36%;
+  left: -5.36%;
+  border-radius: 50%;
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.radioButtonSelected {
+  position: absolute;
+  height: 57.14%;
+  width: 57.14%;
+  top: 21.43%;
+  right: 21.43%;
+  bottom: 21.43%;
+  left: 21.43%;
+  border-radius: 50%;
+  background-color: var(--main-accent);
+  transform: scale(1);
+  opacity: 1;
+  animation: grow-in 0.25s forwards;
+}
+
+@keyframes grow-in {
+  /* Tahap Awal: Mulai dari ukuran 0 (tidak terlihat) */
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  /* Tahap Akhir: Selesai di ukuran normal */
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Checkbox styles */
+.checkboxLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+}
+
+.checkBox {
+  width: 24px;
+  position: relative;
+  height: 24px;
+}
+
+.checkBoxSquare {
+  position: absolute;
+  height: 108.33%;
+  width: 108.33%;
+  top: -4.17%;
+  right: -4.17%;
+  bottom: -4.17%;
+  left: -4.17%;
+  border-radius: 4px;
+  background-color: var(--secondary-background);
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+}
+
+.checkBoxIcon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0%;
+  right: 0%;
+  bottom: 0%;
+  left: 0%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+.label {
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 1000px) {
+  .container {
+    margin-bottom: 80px;
+  }
+
+  .contentWrapper {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .optionGroup {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .dropdownField {
+    width: 100%;
+  }
+
+  /* === PERUBAHAN RESPONSIVE VIRTUAL ACCOUNT DIMULAI DI SINI === */
+  .virtualAccountContainer {
+    flex-direction: column; /* Mengubah jadi susun ke bawah */
+
+    gap: 16px; /* Memberi jarak antar item saat tersusun ke bawah */
+  }
+
+  .virtualAccountItem {
+    min-width: 100%; /* Pastikan item mengambil lebar penuh */
+    width: 100%;
+    margin-bottom: 0; /* Dihapus karena sudah dihandle 'gap' di container */
+  }
+
+  .virtualAccountNumber {
+    width: 100%; /* Buat garis bawah jadi penuh */
+  }
+  /* === AKHIR PERUBAHAN === */
+}
+
+/* Hidden inputs untuk accessibility */
+.hiddenRadio,
+.hiddenCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.inputField,
+.dropdownSelect,
+.textareaField,
+input[type='text'],
+input[type='number'],
+select,
+textarea {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  transition: all 0.2s ease;
+}
+
+.inputField:focus,
+.inputField.hasValue,
+.dropdownSelect:focus,
+.dropdownSelect.hasValue,
+.textareaField:focus,
+.textareaField.hasValue,
+input[type='text']:focus,
+input[type='text'].hasValue,
+input[type='number']:focus,
+input[type='number'].hasValue,
+select:focus,
+select.hasValue,
+textarea:focus,
+textarea.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+.inputField::placeholder,
+.dropdownSelect::placeholder,
+.textareaField::placeholder,
+input[type='text']::placeholder,
+input[type='number']::placeholder,
+select::placeholder,
+textarea::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+.dropdownSelect {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-primary);
+
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  padding: 5px 0px 0px 0px;
+  margin: 0;
+  cursor: pointer;
+}
+.dropdownSelect:focus,
+.dropdownSelect.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+.dropdownSelect option {
+  background: var(--secondary-background);
+  color: var(--main-text);
+}
+
+/* Error label untuk sub label Term of Payment */
+.termOfPaymentErrorLabel {
+  color: var(--red) !important;
+  font-weight: var(--font-weight-semibold);
+}
+
+.discountSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.discountInputWrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  gap: 24px;
+  width: 70%;
+  padding: 0px 30px;
+}
+
+.discountInline {
+  align-self: auto;
+}
+
+.discountSelectWrapper {
+  width: 50%;
+  min-width: 0;
+}
+
+.notesWrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  flex-shrink: 0;
+  margin-top: -3px;
+}
+
+.notesLabel {
+  font-weight: var(--font-weight-semibold);
+  font-size: 16px;
+  white-space: nowrap;
+  font-family: var(--font-primary);
+}
+
+.notesInput {
+  width: 100%;
+  border: none;
+  background-color: transparent;
+  padding: 8px 4px;
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-family: var(--font-primary);
+}
+
+.virtualAccountContainer {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; /* Agar responsif di layar kecil */
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px; /* Menggunakan gap untuk spasi */
+}
+
+.virtualAccountItem {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.virtualAccountLabel {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: var(--main-text);
+}
+
+.virtualAccountNumber {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  color: var(--main-text);
+  padding-bottom: 4px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  width: 90%;
+}
+
+/* --- TAMBAHAN: Style placeholder dan focus untuk input VA --- */
+.virtualAccountNumber::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+.virtualAccountNumber:focus {
+  border-bottom-style: solid;
+  border-bottom-color: var(--main-text);
+  border-bottom-width: 1px;
+  padding-bottom: 3px;
+}
+
+:global(.react-select__control),
+:global(.react-select__control--is-focused) {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:global(.react-select__placeholder) {
+  font-family: var(--font-primary) !important;
+}
+
+:global(.react-select__control),
+:global(.react-select__control--is-focused) {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+:global(.react-select__placeholder) {
+  font-family: var(--font-primary) !important;
+}

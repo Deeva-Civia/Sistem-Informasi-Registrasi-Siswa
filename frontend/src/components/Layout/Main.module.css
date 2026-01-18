@@ -1,0 +1,83 @@
+.contentWrapper {
+  display: flex;
+  position: relative;
+  padding-top: 76px; /* Default Desktop */
+  width: 100%;
+  z-index: 1; /* Pastikan content di layer bawah */
+}
+
+.mainContent {
+  flex-grow: 1;
+  padding: 0 18px 0 18px;
+  background-color: var(--main-background);
+  transition: margin-left 0.3s ease-in-out;
+  min-height: calc(100vh - 76px);
+  box-sizing: border-box;
+  margin-left: 0;
+}
+
+@media (min-width: 769px) {
+  .mainContent.sidebarOpen {
+    margin-left: 280px;
+  }
+
+  body.sidebar-compact .mainContent.sidebarOpen {
+    margin-left: calc(var(--sidebar-compact-width) + var(--sidebar-gap));
+  }
+}
+
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 16px;
+  }
+  .mainContent.sidebarOpen {
+    margin-left: 0 !important;
+  }
+}
+
+.mainContent.sidebarClosed {
+  margin-left: 0;
+}
+
+:root {
+  --sidebar-compact-width: 56px;
+  --sidebar-gap: 16px;
+}
+
+/* --- FIX: Sinkronisasi Padding dengan Tinggi Header Mobile --- */
+
+@media (max-width: 900px) {
+  .contentWrapper {
+    padding-top: 54px;
+  }
+  .mainContent {
+    min-height: calc(100vh - 54px);
+  }
+}
+
+@media (max-width: 768px) {
+  .contentWrapper {
+    padding-top: 50px;
+  }
+  .mainContent {
+    min-height: calc(100vh - 50px);
+  }
+}
+
+@media (max-width: 480px) {
+  .contentWrapper {
+    padding-top: 48px;
+  }
+  .mainContent {
+    min-height: calc(100vh - 48px);
+  }
+}
+
+@media (max-width: 360px) {
+  .contentWrapper {
+    padding-top: 44px;
+  }
+  .mainContent {
+    min-height: calc(100vh - 44px);
+  }
+}

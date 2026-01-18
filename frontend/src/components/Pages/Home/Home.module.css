@@ -1,0 +1,394 @@
+/* Home.module.css */
+
+.homeContainer {
+  width: 100%;
+  padding: 32px;
+  background-color: var(--main-background);
+  font-family: var(--font-primary);
+  box-sizing: border-box;
+  min-height: 100vh;
+  /* Gap antar section 32px */
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  padding-bottom: 100px;
+}
+
+/* ==================== TOP STATS GRID ==================== */
+.topStatsGrid {
+  display: grid;
+  /* PERBAIKAN: Ubah ratio kanan dari 1.8fr menjadi 1.3fr agar card Active Student lebih kecil/ramping */
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.leftColumnStack,
+.rightColumnStack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex: 1;
+}
+
+/* --- White Stat Card Style (Updated to exactly match Analytics) --- */
+.statCard {
+  background: var(--secondary-background);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  min-height: 120px;
+}
+
+/* Row atas: Judul di kiri, Trend di kanan */
+.cardTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.cardLabel {
+  font-size: 14px;
+  color: var(--main-grey);
+  font-weight: 500;
+  margin: 0;
+}
+
+.trendTextContainer {
+  font-size: 10px;
+  color: var(--main-grey);
+  text-align: right;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Row bawah: Value + Icon */
+.cardMainStat {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.cardSubStatRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #f7f7f7;
+}
+
+.subStatItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--main-grey);
+  font-weight: 500;
+}
+
+.dotConfirmed {
+  color: var(--green);
+  font-size: 10px;
+}
+
+.dotCancelled {
+  color: var(--red);
+  font-size: 10px;
+}
+
+.cardBigValue {
+  /* Diubah ke 32px agar sama dengan Analytics .statValue */
+  font-size: 32px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  color: var(--main-text);
+}
+
+.cardIcon {
+  font-size: 20px; /* Ukuran icon disesuaikan */
+  color: var(--main-grey);
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.trendPositive {
+  color: var(--green);
+  font-weight: var(--font-weight-semibold);
+}
+
+.trendNegative {
+  color: var(--red);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* --- Dark Active Student Card Style --- */
+.darkCard {
+  background: linear-gradient(188.76deg, #000 43.82%, #454545);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  min-height: 120px;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+}
+
+.grossInfo {
+  flex: 1;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.cardTitleWhite {
+  font-size: 14px;
+  color: #fff;
+  margin-bottom: 12px;
+  font-weight: 500;
+}
+
+.cardMainStatDark {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.statValueWhite {
+  font-size: 32px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1;
+  color: #fff;
+}
+
+.statIconWhite {
+  color: #fff;
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.darkTrendText {
+  font-size: 10px;
+  color: #ccc;
+  margin-top: 8px;
+}
+
+.grossChart {
+  flex: 1.5;
+  height: 100%;
+  position: absolute;
+  right: -20px;
+  top: 0;
+  bottom: 0;
+  width: 65%;
+  mask-image: linear-gradient(to right, transparent, black 10%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 10%);
+}
+
+/* ==================== TABLE SECTION ==================== */
+.sectionHeader {
+  font-size: 18px;
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+.tableContainer {
+  background: var(--secondary-background);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  overflow: hidden;
+  border: 1px solid #e0e0e0;
+}
+
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr 0.8fr 1.2fr 1.2fr 1fr 1.2fr;
+  padding: 16px 24px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.tableHeader {
+  background-color: var(--secondary-background);
+  border-bottom: 2px solid #f0f0f0;
+  font-weight: var(--font-weight-semibold);
+  color: var(--main-text);
+}
+
+.tableRow {
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--main-text);
+  transition: background 0.2s;
+}
+
+.tableRow:hover {
+  background-color: #fafafa;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  text-align: center;
+  width: fit-content;
+  min-width: 80px;
+}
+
+.statusConfirmed {
+  background-color: var(--green);
+  color: #fff;
+}
+.statusCancelled {
+  background-color: var(--red);
+  color: #fff;
+}
+.statusPending {
+  background-color: var(--yellow);
+  color: var(--black);
+}
+
+/* ==================== BOTTOM CHART SECTION ==================== */
+.chartSection {
+  background: var(--secondary-background);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid #f0f0f0;
+  position: relative;
+}
+
+.chartTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.chartTitleGroup {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.chartLegend {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--main-grey);
+}
+
+.legendBox {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.linkText {
+  font-size: 12px;
+  color: var(--main-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.floatingBtn {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  background-color: var(--main-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-accent);
+  font-size: 20px;
+  box-shadow: 0 4px 12px rgba(95, 132, 254, 0.4);
+  cursor: pointer;
+  border: none;
+  z-index: 1000;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+.floatingBtn:hover {
+  transform: scale(1.05);
+  background-color: var(--main-accent-hoverstate);
+}
+
+.centerMessage {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 70vh;
+  gap: 16px;
+  color: var(--main-grey);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid var(--main-accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .topStatsGrid {
+    grid-template-columns: 1fr;
+  }
+  .darkCard {
+    min-height: 200px;
+  }
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: 100px 150px 80px 100px 100px 80px 100px;
+    overflow-x: auto;
+  }
+  .tableContainer {
+    overflow-x: auto;
+  }
+  .chartTitleGroup {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,91 @@
+.date {
+  align-self: stretch;
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-regular);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+}
+.contentDate {
+  align-self: stretch;
+  width: 1720px;
+  position: relative;
+  line-height: 150%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+}
+.txtDate {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+}
+.studentName {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  padding-bottom: 1px;
+}
+.txtStudentNameAndSignature {
+  align-self: stretch;
+  border-top: 0.9px solid var(--main-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+.studentNameAndSignature {
+  flex: 1;
+  height: 198px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0px;
+  font-size: 24px;
+}
+.txtAcknowledgeBy {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+.parentGuardianSignature {
+  flex: 1;
+  height: 198px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0px;
+  font-size: 24px;
+}
+.signature {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+  gap: 12px;
+  text-align: left;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+}
+

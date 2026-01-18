@@ -1,0 +1,256 @@
+.usersContainer {
+  padding: 20px 32px 20px 32px;
+  background-color: var(--secondary-background);
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.pageTitle {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 32px;
+}
+
+.usersHeaderContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.button2Parent {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 27px;
+}
+
+.searchAndFilterContainer {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: -5px;
+  margin-bottom: 32px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 426px;
+  border: 2px solid var(--main-grey);
+  border-radius: 5px;
+  background-color: var(--secondary-background);
+  height: 40px;
+}
+
+.searchInput {
+  flex: 1;
+  height: 100%;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput::placeholder {
+  color: var(--main-accent);
+  opacity: 0.8;
+  font-size: 15px;
+  font-family: var(--font-primary);
+}
+
+.searchIconImg {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.tableContainer {
+  background: var(--secondary-background);
+  border: 1px solid var(--main-grey);
+  width: 100%;
+}
+
+.tableHeader,
+.tableRow {
+  display: grid;
+  grid-template-columns:
+    minmax(142px, 1fr) 
+    minmax(201px, 1fr) 
+    minmax(250px, 1fr) 
+    minmax(201px, 1fr) 
+    minmax(150px, 1fr) 
+    minmax(150px, 1fr); 
+  border-bottom: 4px solid var(--main-grey);
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.tableRow {
+  border-bottom: 1px solid var(--main-grey);
+  background-color: var(--secondary-background);
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableCell {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  white-space: normal;
+  text-overflow: unset;
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.messageCell {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--main-grey);
+  font-size: 16px;
+}
+
+.actionCell {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.actionContainer {
+  display: flex;
+  gap: 12px;
+}
+
+.actionButton {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.actionButton:hover {
+  background-color: var(--secondary-accent);
+}
+
+.icon {
+  width: 25px;
+  height: 25px;
+  transition: color 0.2s;
+}
+
+.deletingText {
+  font-size: 12px;
+  color: var(--main-grey);
+  margin-left: 4px;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999 !important;
+}
+
+.modal {
+  background: var(--secondary-background);
+  padding: 24px 32px;
+  border-radius: 10px;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease;
+  z-index: 99999 !important;
+}
+
+.modal h3 {
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.modalActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+.popup {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 14px 24px;
+  border-radius: 8px;
+  color: var(--text-accent);
+  font-weight: 500;
+  z-index: 2002;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  animation: fadeInOut 3s ease forwards;
+}
+
+.success {
+  background-color: var(--green);
+}
+
+.error {
+  background-color: var(--red);
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  10%,
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

@@ -1,0 +1,177 @@
+/* Container Utama */
+.idCardBackBase {
+  width: 398px;
+  height: 631px;
+  position: relative;
+  padding: 18px 36px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  /* Menggunakan Global Font */
+  font-family: var(--font-primary);
+  font-size: 16px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* =========================================
+         VARIAN WARNA SESUAI DESAIN FIGMA
+         ========================================= */
+
+/* --- 1. ECP / ES (Background Merah) --- */
+.bgEcp {
+  background-color: #a31e23; /* Merah Branding */
+  color: #facd28; /* Kuning Emas (Default Text Color di Figma ECP) */
+}
+
+/* Override Text Colors ECP */
+.bgEcp .addressText,
+  .bgEcp .value,
+  .bgEcp .disclaimer,
+  .bgEcp .spanHighlight,
+  /* PERUBAHAN: Rules Title & List jadi Putih */
+  .bgEcp .rulesTitle,
+  .bgEcp .rulesList li {
+  color: var(--text-accent); /* Putih */
+}
+
+.bgEcp .label,
+.bgEcp .nisnLabel {
+  color: #facd28; /* Kuning Emas */
+}
+
+/* --- 2. Middle School (Background Biru/Ungu) --- */
+.bgMs {
+  background-color: #6a70a4; /* Biru Branding */
+  color: var(--main-text); /* Hitam */
+}
+
+/* Override Text Colors MS */
+.bgMs .addressText,
+  .bgMs .disclaimer,
+  .bgMs .value,
+  .bgMs .spanHighlight,
+  /* PERUBAHAN: Rules Title & List jadi Putih */
+  .bgMs .rulesTitle,
+  .bgMs .rulesList li {
+  color: var(--text-accent); /* Putih */
+}
+
+.bgMs .label,
+.bgMs .nisnLabel {
+  color: var(
+    --main-text
+  ); /* Hitam (Defaultnya label MS di desain adalah hitam/gelap) */
+}
+
+/* --- 3. High School (Background Kuning) --- */
+.bgHs {
+  background-color: #facd28; /* Kuning Branding */
+  color: var(--main-text); /* Hitam */
+}
+
+/* Override Text Colors HS */
+.bgHs .addressText,
+.bgHs .disclaimer {
+  color: #2b2b2b; /* Abu-abu Gelap (Sesuai Figma) */
+}
+
+.bgHs .value,
+.bgHs .spanHighlight {
+  color: #00206b; /* Biru Navy (Sesuai Figma) */
+}
+
+/* Rules tetap Hitam untuk HS */
+.bgHs .label,
+.bgHs .rulesTitle,
+.bgHs .rulesList li,
+.bgHs .nisnLabel {
+  color: var(--main-text); /* Hitam */
+}
+
+/* =========================================
+         LAYOUT INTERNAL
+         ========================================= */
+
+.contentWrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 30px;
+}
+
+/* Header (Logo & Alamat) */
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.logoSmall {
+  width: 140px;
+  object-fit: contain;
+}
+
+.addressText {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
+/* Data Siswa (NISN & DOB) */
+.studentDataGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.dataRow {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: var(--font-weight-semibold);
+}
+
+.nisnLabel {
+  font-weight: var(--font-weight-semibold);
+}
+
+.value {
+  font-weight: 500;
+}
+
+/* Dates (Entry & Valid Until) */
+.datesGroup {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Rules List */
+.rulesGroup {
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rulesTitle {
+  line-height: 130%;
+}
+
+.rulesList {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 130%;
+}
+
+.disclaimer {
+  font-size: 12px;
+  text-align: center;
+  margin-top: 10px;
+  line-height: 1.3;
+}

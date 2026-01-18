@@ -1,0 +1,407 @@
+.statusLabel {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: var(--main-text);
+  line-height: 100%;
+}
+.headerTitle {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  color: var(--main-text);
+}
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+}
+
+/* Radio button styles */
+.radioLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.radioLabel:hover {
+  background-color: rgba(95, 132, 254, 0.05);
+  border-radius: 4px;
+}
+
+.radioButton {
+  width: 28px;
+  position: relative;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.radioButtonCircle {
+  position: absolute;
+  height: 110.71%;
+  width: 110.71%;
+  top: -5.36%;
+  right: -5.36%;
+  bottom: -5.36%;
+  left: -5.36%;
+  border-radius: 50%;
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.radioButtonSelected {
+  position: absolute;
+  height: 57.14%;
+  width: 57.14%;
+  top: 21.43%;
+  right: 21.43%;
+  bottom: 21.43%;
+  left: 21.43%;
+  border-radius: 50%;
+  background-color: var(--main-accent);
+  transform: scale(1);
+  opacity: 1;
+  animation: grow-in 0.25s forwards;
+}
+
+@keyframes grow-in {
+  /* Tahap Awal: Mulai dari ukuran 0 (tidak terlihat) */
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+
+  /* Tahap Akhir: Selesai di ukuran normal */
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.optionNew {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 10px;
+}
+.optionTransferee {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 10px;
+}
+
+.studentIdValue {
+  flex: 1;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  transition: all 0.2s ease;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 3px;
+  margin: 0;
+  width: auto;
+  min-width: 240px;
+  max-width: 100%;
+  border-bottom: 2px solid transparent;
+}
+
+.studentIdValue:focus,
+.studentIdValue.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+.studentIdValue::placeholder {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+}
+.studentIdField {
+  width: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 10px;
+  position: relative;
+}
+
+.inlineErrorText {
+  font-family: var(--font-primary);
+  font-size: 13px;
+  font-weight: var(--font-weight-regular);
+  color: var(--red);
+  margin-left: 16px;
+  white-space: nowrap;
+  font-style: italic;
+}
+
+.searchContainer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Search input row to contain input and searching indicator */
+.searchInputRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  width: auto;
+}
+
+/* Popup dropdown styling */
+.searchDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--secondary-background);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.searchInputError {
+  font-family: var(--font-primary);
+  font-size: 12px;
+  color: var(--red);
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+/* Styling untuk border input saat error */
+.studentIdValue.errorInput {
+  border-bottom: 2px solid var(--red) !important;
+  padding-bottom: 1px;
+}
+
+.dropdownItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  min-width: 100%;
+  box-sizing: border-box;
+}
+
+.dropdownItem:last-child {
+  border-bottom: none;
+}
+
+.dropdownItem:hover {
+  background-color: var(--main-background);
+}
+
+.dropdownItem:active {
+  background-color: #e9ecef;
+}
+
+.studentName {
+  font-family: var(--font-primary);
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+  color: var(--main-text);
+  flex: 1;
+  text-align: left;
+}
+
+.studentId {
+  font-family: var(--font-primary);
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+  color: var(--main-grey);
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+/* Searching indicator */
+.searching {
+  font-family: var(--font-primary);
+  font-size: 12px;
+  font-weight: var(--font-weight-regular);
+  color: var(--main-grey);
+  font-style: italic;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Dropdown results select that grows horizontally based on content */
+.searchResultsSelect {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-family: var(--font-primary);
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  background: var(--secondary-background);
+  width: auto;
+  max-width: 100%;
+}
+.optionOld {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+.statusOptions {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-content: center;
+  padding: 0px 12px;
+  gap: 32px;
+}
+.noteText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: var(--red);
+  line-height: 100%;
+}
+.noteTextBold {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  color: var(--red);
+  line-height: 100%;
+}
+.noteWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-content: center;
+  padding: 12px;
+  gap: 10px;
+}
+.noteSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0px 12px;
+  font-size: 14px;
+  color: var(--red);
+}
+.contentWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+  min-width: 422px;
+  font-size: 16px;
+  background-color: var(--cream);
+}
+.container {
+  position: relative;
+  background-color: var(--secondary-background);
+  overflow: visible !important;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 16px 0 16px;
+  text-align: left;
+  font-size: 20px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  margin-bottom: 24px;
+}
+.noteLabel {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 14px;
+  color: var(--red);
+  line-height: 100%;
+}
+.noteWarning {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 14px;
+  color: var(--red);
+  line-height: 100%;
+}
+.noteWarningBold {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 14px;
+  color: var(--red);
+  line-height: 100%;
+}
+
+/* Error state styling untuk StudentStatusSection */
+
+.studentStatusErrorLabel {
+  color: var(--red) !important;
+  font-weight: var(--font-weight-semibold);
+}
+
+.dropdownHeader {
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-accent);
+  background-color: var(--main-grey);
+  border-bottom: 1px solid var(--main-background);
+  text-transform: capitalize;
+  font-family: var(--font-primary);
+}
+
+/* --- Aturan Final Highlight Item Teratas --- */
+
+/* Ini adalah kelas yang memberi warna biru pada item */
+.topItemHighlight {
+  background-color: var(--secondary-accent);
+  border-top: 1px solid var(--secondary-accent);
+  border-bottom: 1px solid var(--secondary-accent);
+}
+
+/* (Opsional) Efek hover untuk item yang sedang di-highlight */
+.topItemHighlight:hover {
+  background-color: var(--main-accent);
+}

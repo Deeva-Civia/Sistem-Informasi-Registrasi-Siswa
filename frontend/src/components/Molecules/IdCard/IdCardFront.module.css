@@ -1,0 +1,156 @@
+/* Container Utama */
+.idCardBase {
+  width: 398px;
+  height: 631px;
+  position: relative;
+  background-color: var(--secondary-background);
+  overflow: hidden;
+  text-align: left;
+  font-family: var(--font-primary);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.headerBg {
+  position: absolute;
+  top: 0px;
+  left: -50px;
+  width: 643px;
+  height: 298px;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.photoContainer {
+  position: absolute;
+  top: 43px;
+  left: 145px;
+  right: 0;
+  width: 252.6px;
+  height: 336px;
+  z-index: 2;
+  overflow: hidden; 
+  border: 1px solid var(--main-grey);
+}
+
+.photoDraggable {
+  position: absolute;
+  min-width: 100%;
+  min-height: 100%;
+  width: 100%; 
+  height: 100%;
+  object-fit: cover;
+  user-select: none; 
+  cursor: grab; 
+}
+
+.photoDraggable:active {
+  cursor: grabbing; 
+}
+
+.photoStatic {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.variantEcp {
+  color: var(--text-accent);
+}
+.variantMs {
+  color: var(--text-accent);
+}
+.variantHs {
+  color: #12295e;
+}
+
+.bottomWrapper {
+  position: absolute;
+  top: 288px;
+  left: 0px;
+  width: 398px;
+  height: 344px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.waveBg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.contentOverlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  padding: 60px 14px 20px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.infoGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lastName {
+  font-weight: var(--font-weight-semibold);
+  font-size: 36px;
+  line-height: 100%;
+}
+
+.firstName {
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 120%;
+  margin-top: 8px;
+}
+
+.studentId {
+  font-size: 16px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.footerGroup {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.schoolInfo {
+  width: 248px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionName {
+  font-size: 20px;
+  font-weight: var(--font-weight-semibold);
+  line-height: 100%;
+  margin-top: 18px;
+  display: block;
+}
+
+.logoMis {
+  margin-top: 35px;
+  width: 100%;
+  object-fit: contain;
+  object-position: left bottom;
+  display: block;
+}
+
+.qrCode {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  background-color: #fff;
+  padding: 4px;
+}

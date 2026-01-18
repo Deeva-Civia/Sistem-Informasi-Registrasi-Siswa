@@ -1,0 +1,199 @@
+.studentListContainer {
+  padding: 25px 32px 25px 32px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  background-color: var(--secondary-background);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.pageTitle {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 32px;
+}
+
+.searchAndFilterContainer {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 20px;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 426px;
+  border: 2px solid var(--main-grey);
+  border-radius: 5px;
+  background-color: var(--secondary-background);
+  height: 40px;
+}
+
+.searchInput {
+  flex: 1;
+  height: 100%;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: var(--font-weight-regular);
+  display: flex;
+  align-items: center;
+}
+
+.searchInput::placeholder {
+  color: var(--main-accent);
+  opacity: 0.8;
+  font-size: 15px;
+  font-family: var(--font-primary);
+}
+
+.searchIcon {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.tableContainer {
+  background: var(--secondary-background);
+  border: 1px solid var(--main-grey);
+  width: 100%;
+}
+
+.tableHeaderGrid,
+.studentDataRow {
+  display: grid;
+  grid-template-columns:
+    minmax(107.97px, 1fr)
+    minmax(150px, 1fr)
+    minmax(200px, 1fr)
+    minmax(104.51px, 1fr)
+    minmax(125px, 1fr)
+    minmax(150px, 1fr)
+    minmax(145px, 1fr)
+    minmax(178px, 1fr);
+  border-bottom: 4px solid var(--main-grey);
+}
+
+.studentDataRow {
+  box-sizing: border-box;
+  border-top: none;
+  border-bottom: 1px solid var(--main-grey);
+  min-height: 100px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.studentDataRow:hover {
+  background-color: #fafbff;
+}
+
+.tableHeaderGrid > * {
+  min-width: 0;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.messageCell {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--main-grey);
+  font-size: 16px;
+  border-top: 1px solid var(--main-grey);
+}
+
+.tableCell {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  overflow: visible;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 14px;
+  color: var(--main-text);
+  font-weight: var(--font-weight-regular);
+}
+
+.photo {
+  width: 60px;
+  height: 81px;
+  object-fit: cover;
+  border: 3px solid var(--main-grey);
+}
+
+.placeholderPhoto {
+  width: 60px;
+  height: 81px;
+  object-fit: contain;
+  background-color: var(--secondary-background);
+  padding: 8px;
+  box-sizing: border-box;
+ 
+}
+
+.statusText {
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-semibold);
+}
+
+.active {
+  border-radius: 6px;
+  background-color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  color: var(--text-accent);
+}
+
+.status {
+  border-radius: 6px;
+  background-color: var(--main-grey);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  color: var(--text-accent);
+}
+
+.studentDataRow > .tableCell {
+  justify-content: flex-start;
+}
+
+.autoGraduateParent {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  text-align: left;
+  font-size: 16px;
+  color: var(--main-accent);
+  font-family: var(--font-primary);
+  margin-bottom: 5px;
+}
+.autoGraduate {
+  position: relative;
+  text-decoration: underline;
+  font-weight: var(--font-weight-semibold);
+}
+.infoIcon {
+  height: 24px;
+  width: 24px;
+  position: relative;
+}

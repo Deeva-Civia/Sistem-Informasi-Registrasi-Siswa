@@ -1,0 +1,72 @@
+.tableContainer {
+    background: var(--secondary-background);
+    border: 1px solid var(--main-grey);
+    width: 100%;
+    font-family: var(--font-primary);
+  }
+  
+  .tableHeader,
+  .tableRow {
+    display: grid;
+    grid-template-columns:
+      minmax(200px, 1fr)
+      minmax(200px, 1fr)
+      minmax(200px, 1fr)
+      minmax(150px, 1fr);
+    border-bottom: 4px solid var(--main-grey);
+    align-items: center;
+  }
+  
+  .tableRow {
+    box-sizing: border-box;
+    border-top: none;
+    border-bottom: 1px solid var(--main-grey);
+    min-height: 80px;
+    transition: background-color 0.2s ease;
+    color: var(--main-text);
+  }
+  
+  .tableRow:hover {
+    background-color: #fafbff;
+  }
+  
+  .tableRow:last-child {
+    border-bottom: none;
+  }
+  
+  .tableBody {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .tableCell {
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .statusBadge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+    width: 140px;
+    border-radius: 6px;
+    color: var(--text-accent);
+    font-weight: var(--font-weight-semibold);
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .statusOngoing {
+    background-color: var(--main-accent);
+  }
+  
+  .statusEnded {
+    background-color: var(--main-grey);
+  }

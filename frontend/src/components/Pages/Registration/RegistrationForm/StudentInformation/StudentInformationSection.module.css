@@ -1,0 +1,791 @@
+input,
+select,
+textarea {
+  border: none;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  padding: 12px 0 8px 0;
+  padding-bottom: 2px;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+/* Error label styling - Label merah yang rapi */
+.errorLabel {
+  color: var(--red) !important;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular) !important;
+  margin: 0;
+  line-height: 1.2;
+  text-align: left;
+  width: 100%;
+  transition: color 0.2s ease;
+}
+
+/* Error input styling - Hanya ubah warna text, JANGAN tambah border baru */
+.errorInput {
+  border: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--red) !important;
+  transition: color 0.2s ease;
+}
+
+.errorInput:focus {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: var(--red) !important;
+}
+
+/* Error state styling untuk SEMUA input field - Override border bottom yang sudah ada */
+.errorFieldWrapper input,
+.errorFieldWrapper .react-select__control,
+.errorFieldWrapper .dateInput,
+.errorFieldWrapper .otherInput {
+  background-color: transparent !important;
+
+  transition: all 0.2s ease;
+}
+
+/* Error state untuk Select component - Override border bottom yang sudah ada */
+
+/* Error state untuk date input - Override border bottom yang sudah ada */
+.errorFieldWrapper .dateInput {
+  color: var(--red) !important;
+}
+
+/* Error state untuk academic status other input - Override border bottom yang sudah ada */
+.errorFieldWrapper .otherInput {
+  border-bottom: 2px solid var(--red) !important;
+  color: var(--red) !important;
+}
+
+/* Hapus semua error container dan message yang tidak diperlukan */
+.errorContainer,
+.errorMessage {
+  display: none !important;
+}
+
+/* Inline error message untuk NIK, NISN, KITAS - Lebih rapi */
+.inputWithError {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inlineErrorMessage {
+  color: var(--red);
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  background-color: rgba(255, 68, 68, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid var(--red);
+}
+
+/* Error select styling */
+.errorSelect {
+  border: 2px solid var(--red) !important;
+  border-radius: 4px !important;
+}
+
+/* Wrapper untuk academic status other input */
+.otherInputWrapper {
+  position: relative;
+  width: 100%;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--main-text);
+  font-weight: var(--font-weight-bold);
+}
+
+input::placeholder,
+select::placeholder,
+textarea::placeholder {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+}
+
+/* Memastikan input dengan nilai tetap terlihat jelas */
+input:not(:placeholder-shown),
+textarea:not(:placeholder-shown) {
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+/* Styling untuk input fields dengan nilai */
+input.hasValue,
+textarea.hasValue {
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+/* Memastikan input tidak kembali ke placeholder style */
+input[value]:not([value=""]),
+textarea[value]:not([value=""]) {
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+.headerTitle {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  color: var(--main-text);
+}
+
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.label {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: var(--main-text);
+  line-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* STANDARDIZED FIELD STYLES - Semua field menggunakan style yang sama */
+.nameField,
+.nicknameField,
+.genderField,
+.citizenshipField,
+.districtField,
+.academicStatusField,
+.phoneField,
+.previousSchoolField,
+.otherField {
+  flex: 1;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 12px;
+  margin: 0;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.emailField {
+  flex: 1;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  margin: 0;
+  min-width: 0;
+  border-bottom: 1px solid var(--main-text);
+}
+/* Khusus untuk field age dan email address - tambah gap yang lebih besar */
+.ageField,
+.emailField {
+  gap: 20px;
+}
+
+/* Row layout - Standardized spacing */
+.row,
+.topRow,
+.addressRow {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+/* Khusus untuk row 3 (Citizenship, NISN, Rank, Age) - tambah margin top lebih besar */
+.row:nth-child(3) {
+  margin-top: 20px;
+}
+
+/* Khusus untuk row 4 (Gender, Email, Previous School) - tambah margin top */
+.row:nth-child(4) {
+  margin-top: 15px;
+}
+
+/* Khusus untuk row 5 (Phone, Academic Status, Other) - tambah margin top */
+.row:nth-child(5) {
+  margin-top: 20px;
+}
+
+/* Khusus untuk row 7 (Phone, Academic Status) - tambah margin top */
+.topRow:nth-of-type(2) {
+  margin-top: 15px;
+}
+
+/* Jarak vertikal spesifik di atas baris Gender */
+.genderRow {
+  margin-top: 20px;
+}
+
+/* Address section styling - KURANGI gap yang terlalu besar */
+.addressSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6px 0px;
+  margin-top: 24px;
+}
+
+.valueHighlight {
+  align-self: stretch;
+  position: relative;
+  line-height: 100%;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* Khusus untuk field yang tidak memerlukan border bottom - HAPUS noBorder */
+.noBorder {
+  border-bottom: 1px solid var(--main-text) !important;
+}
+
+/* Field khusus untuk RT/RW */
+.rtField {
+  flex: 1;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 12px;
+  margin: 0;
+  gap: 8px;
+  min-width: 0;
+}
+
+.rtrwGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex: 1;
+  width: calc(50% - 8px);
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+.academicStatusField {
+  flex: 1;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 12px;
+  gap: 8px;
+}
+
+.academicStatusWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding-bottom: 8px;
+  position: relative;
+}
+
+.selectWrapper {
+  flex: 1;
+}
+
+/* Wrapper untuk komponen Select agar bisa mengatur lebarnya */
+.academicStatusWrapper .selectWrapper {
+  flex: 1;
+}
+
+/* Academic status styling - HAPUS line yang double */
+.academicStatusOptions {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+  padding-bottom: 2px;
+  min-height: 40px;
+  align-items: flex-end;
+}
+
+.academicStatusOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.otherLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+}
+
+.hiddenRadio {
+  display: none;
+}
+
+.otherText {
+  font-weight: var(--font-weight-regular);
+  color: var(--main-text);
+}
+
+/* Style untuk input 'Other' saat muncul */
+.otherInput {
+  color: var(--main-text);
+  padding: 6px 2px;
+  width: 70%;
+  border-bottom: 1px solid var(--main-grey);
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+}
+
+.otherInput:focus {
+  outline: none;
+  color: var(--main-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.otherInput:not(:placeholder-shown) {
+  color: var(--main-grey);
+  font-weight: var(--font-weight-regular) !important;
+}
+
+/* Date input styling */
+.dateInputWrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.dateInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  padding: 12px 0 8px 0;
+  padding-bottom: 2px;
+  padding-right: 30px;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.calendarIcon {
+  width: 24px;
+  position: relative;
+  height: 24px;
+  overflow: hidden;
+  flex-shrink: 0;
+  color: var(--main-text); /* Diubah dari #000 */
+  pointer-events: none;
+}
+
+.dateInputWrapper .calendarIcon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Menyembunyikan icon kalender default browser */
+.dateInput::-webkit-calendar-picker-indicator {
+  background: transparent;
+  bottom: 0;
+  color: transparent;
+  cursor: pointer;
+  height: auto;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: auto;
+  opacity: 0;
+}
+
+.dateInput::-webkit-datetime-edit,
+.dateInput::-webkit-datetime-edit-fields-wrapper,
+.dateInput::-webkit-datetime-edit-text,
+.dateInput::-webkit-datetime-edit-month-field,
+.dateInput::-webkit-datetime-edit-day-field,
+.dateInput::-webkit-datetime-edit-year-field {
+  padding: 0;
+}
+
+.dateInput:focus {
+  outline: none;
+  border: none;
+  background: transparent;
+  color: var(--main-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.dateInput.hasValue {
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+.dateInput::placeholder {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+}
+
+/* Value styling */
+.valueSmall {
+  min-width: 120px;
+  max-width: 180px;
+  width: 100%;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.valueRegular {
+  flex: 1;
+  position: relative;
+  line-height: 100%;
+}
+
+.apartementUnit {
+  align-self: stretch;
+  width: 254px;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Bracket styling */
+.bracket {
+  align-self: stretch;
+  width: 8px;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.otherAddressParent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+}
+
+.otherAddressWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+/* Section styling */
+.infoSection {
+  align-self: stretch;
+  background-color: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+}
+
+/* Content wrapper - kurangi gap yang terlalu besar */
+.contentWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 422px;
+  font-size: 16px;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
+}
+
+.container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
+  text-align: left;
+  font-size: 20px;
+  padding: 0 16px 0 16px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* React Select styling */
+.react-select__control {
+  border: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  background: transparent !important;
+  padding: 0 !important;
+  padding-bottom: 2px !important;
+}
+
+.react-select__indicators,
+.react-select__indicator-separator {
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+}
+
+:global(.react-select__indicator-separator),
+:global([class*="indicatorSeparator"]) {
+  display: none !important;
+  border: none !important;
+  background: none !important;
+}
+
+/* DatePicker styling */
+.react-datepicker__input-container > div {
+  border: none;
+  border-bottom: 1px solid var(--main-text);
+  min-height: 40px;
+  height: 40px;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding-bottom: 2px;
+  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  position: relative;
+  z-index: 999;
+}
+
+.react-datepicker__input-container input {
+  border: none !important;
+  border-bottom: 1px solid var(--main-text) !important;
+  background: transparent !important;
+  font-family: var(--font-primary) !important;
+  font-weight: var(--font-weight-regular) !important;
+  font-size: 16px !important;
+  color: rgba(128, 128, 128, 0.6) !important;
+  padding: 12px 0 8px 0 !important;
+  padding-bottom: 2px !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  height: 40px !important;
+  outline: none !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 999 !important;
+}
+
+.react-datepicker__input-container input:focus {
+  outline: none !important;
+  border: none !important;
+  background: transparent !important;
+  border-bottom: 1px solid var(--main-text) !important;
+}
+
+.react-datepicker__input-container input.hasValue {
+  font-weight: var(--font-weight-bold) !important;
+  color: var(--main-text) !important;
+}
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  position: relative !important;
+  z-index: 999 !important;
+  pointer-events: auto !important;
+  width: 100% !important;
+  cursor: pointer !important;
+}
+
+.react-datepicker-popper {
+  z-index: 1000 !important;
+  position: absolute !important;
+}
+
+.react-datepicker {
+  font-family: var(--font-primary) !important;
+  border: 1px solid var(--main-grey) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Select styling */
+select {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+select.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+/* Standard padding untuk semua input */
+input,
+select,
+textarea,
+.valueSmall,
+.valueHighlight,
+.valueRegular,
+.apartementUnit,
+.react-select__control,
+.react-datepicker__input-container > div {
+  padding-bottom: 2px !important;
+}
+
+/* Responsive design - pastikan field tetap sejajar */
+@media (max-width: 1000px) {
+  .row,
+  .addressRow,
+  .topRow {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .nameField,
+  .nicknameField,
+  .genderField,
+  .citizenshipField,
+  .academicStatusField,
+  .districtField,
+  .rtField,
+  .rtrwGroup,
+  .phoneField,
+  .emailField,
+  .previousSchoolField,
+  .otherField {
+    min-width: 0;
+    width: 100%;
+    height: 80px;
+  }
+
+  /* Khusus untuk field age dan email di mobile */
+  .ageField,
+  .emailField {
+    gap: 16px;
+  }
+
+  .addressRow .genderField {
+    width: 100%;
+  }
+
+  .rtrwGroup {
+    width: 100%;
+    gap: 16px;
+  }
+
+  .rtField {
+    width: calc(50% - 8px);
+  }
+
+  .districtField {
+    width: 100%;
+  }
+
+  .contentWrapper {
+    min-width: 0;
+    width: 100%;
+  }
+
+  input,
+  select,
+  textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 480px) {
+  .row,
+  .addressRow,
+  .topRow {
+    gap: 16px;
+  }
+
+  .contentWrapper {
+    padding: 0 8px;
+  }
+
+  .infoSection {
+    padding: 8px 12px;
+  }
+}
+
+/* Placeholder text merah untuk field yang error */
+.errorFieldWrapper input::placeholder,
+.errorFieldWrapper .react-select__placeholder {
+  color: var(--red) !important;
+  opacity: 0.8;
+}

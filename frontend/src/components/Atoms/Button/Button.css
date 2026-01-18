@@ -1,0 +1,141 @@
+.atom-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 22px;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 100%;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* VARIAN UTAMA (Button 1 & 2)  */
+
+/* (Button 1) */
+.button--outline {
+  background-color: var(--secondary-background);
+  color: var(--main-accent);
+  border: 2px solid var(--main-accent);
+}
+.button--outline:hover {
+  color: var(--main-accent-hoverstate);
+  border-color: var(--main-accent-hoverstate);
+}
+.button--outline.is-disabled,
+.button--outline:disabled {
+  color: var(--main-accent-disabledstate);
+  border-color: var(--main-accent-disabledstate);
+  cursor: not-allowed;
+}
+
+/* (Button 2) */
+.button--solid {
+  background-color: var(--main-accent);
+  color: var(--text-accent);
+  border: 2px solid var(--main-accent);
+}
+.button--solid:hover {
+  background-color: var(--main-accent-hoverstate);
+  border-color: var(--main-accent-hoverstate);
+}
+.button--solid.is-disabled,
+.button--solid:disabled {
+  background-color: var(--main-accent-disabledstate);
+  border-color: var(--main-accent-disabledstate);
+  color: var(--text-accent);
+  cursor: not-allowed;
+}
+
+.button--confirmed,
+.button--cancelled,
+.button--active,
+.button--not-active,
+.button--not-graduated,
+.button--graduated,
+.button--expelled,
+.button--withdraw {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  color: var(--text-accent);
+}
+
+.button--confirmed,
+.button--active {
+  background-color: var(--green);
+}
+
+.button--cancelled,
+.button--not-active {
+  background-color: var(--red);
+}
+
+.button--not-graduated {
+  background-color: var(--main-grey);
+}
+
+.button--graduated {
+  background-color: var(--orange);
+}
+
+.button--expelled {
+  background-color: var(--black);
+}
+
+.button--withdraw {
+  background-color: var(--yellow);
+  color: var(--main-text);
+}
+
+.button--chip-danger,
+.button--chip-primary {
+  border-radius: 35px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  line-height: 100%;
+}
+
+/* Style Merah (Unselect All) */
+.button--chip-danger {
+  background-color: var(--secondary-red); 
+  color: var(--red);
+}
+
+.button--chip-danger:hover {
+  filter: brightness(0.95); 
+  background-color: var(--secondary-red);
+  color: var(--red);
+}
+
+.button--chip-primary {
+  background-color: var(--secondary-accent);
+  color: var(--main-accent);
+}
+
+.button--chip-primary:hover {
+  filter: brightness(0.95);
+  background-color: var(--secondary-accent);
+  border-color: transparent;
+}
+
+.is-full {
+  width: 100%;
+}
+
+.has-dropdown-icon {
+  justify-content: space-between;
+}
+
+.dropdown-icon {
+  width: 20px;
+  height: 12px;
+  margin-left: 8px;
+  transform: scale(2); 
+}
+

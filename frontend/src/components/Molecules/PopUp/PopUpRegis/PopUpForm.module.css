@@ -1,0 +1,269 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999 !important;
+}
+
+.popUpForm {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  border-radius: 10px;
+  background-color: var(--secondary-background);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 30px 25px 30px 30px;
+  box-sizing: border-box;
+  gap: 30px;
+  text-align: left;
+  font-size: 16px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.createNewRegistration {
+  position: relative;
+  font-size: 20px;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: Regular;
+}
+
+.fieldWrapper {
+  width: 100%;
+  position: relative;
+}
+
+.textInput {
+  position: relative;
+  line-height: 100%;
+  width: 100%;
+  border-radius: 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--main-grey);
+  height: 40px;
+  padding: 0;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  color: var(--main-text);
+  transition: border-color 0.2s ease;
+}
+
+.textInput:focus {
+  border-bottom: 1.5px solid var(--main-accent);
+  font-weight: var(--font-weight-bold);
+}
+
+.textInput::placeholder {
+  color: var(--main-grey);
+  font-weight: var(--font-weight-regular);
+  opacity: 1;
+}
+
+.textInput:not(:placeholder-shown) {
+  font-weight: var(--font-weight-bold);
+}
+
+.dateField {
+  width: 100%;
+  position: relative;
+  line-height: 100%;
+  border-radius: 5px;
+  background-color: var(--main-background);
+  border: 1.5px solid var(--main-grey);
+  opacity: 0.7;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  color: var(--main-grey);
+  transition: all 0.2s ease;
+  -webkit-appearance: none;
+}
+
+.frameParent {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20px;
+  color: var(--main-grey);
+  width: 100%;
+}
+
+.bAddSubjectParent {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+  color: var(--main-accent);
+}
+
+.bAddSubjectParent button[disabled] {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+.loadingButton {
+  background-color: var(--main-accent-hoverstate) !important;
+  color: var(--text-accent) !important;
+  cursor: wait !important;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.loadingButton:hover {
+  background-color: var(--main-accent-hoverstate) !important;
+  cursor: wait !important;
+}
+
+.customSelectContainer {
+  position: relative;
+}
+
+.selectInput {
+  position: relative;
+  width: 100%;
+  border-radius: 0;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--main-grey);
+  height: 40px;
+  padding: 0 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  font-family: var(--font-primary);
+  color: var(--main-text);
+  font-weight: var(--font-weight-bold);
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+
+  /* Panah (default / abu-abu) */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%237A7A7A" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 24px 24px;
+
+  padding-right: 32px;
+  display: flex;
+  align-items: center;
+}
+
+/* Style untuk placeholder bawaan <input> (Select Year) */
+.selectInput::placeholder {
+  color: var(--main-grey);
+  font-weight: var(--font-weight-regular);
+  opacity: 1;
+}
+
+/* === INI YANG HILANG === */
+/* Style untuk placeholder kustom di <div> (Select Semester) */
+.selectInput.placeholder {
+  color: var(--main-grey);
+  font-weight: var(--font-weight-regular);
+}
+
+/* Style saat input fokus atau menu terbuka */
+.selectInput:focus,
+.customSelectContainer[data-open="true"] .selectInput {
+  border-bottom: 1.5px solid var(--main-accent);
+
+  /* Panah (aktif / biru) */
+  background-image: url('data:image/svg+xml;utf8,<svg fill="%235F84FE" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 24px 24px;
+}
+
+/* Style untuk container[disabled] */
+.customSelectContainer[data-disabled="true"] .selectInput {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background-color: var(--main-background);
+}
+
+/* Wrapper untuk menu dropdown */
+.optionsMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--secondary-background);
+  border: 1px solid var(--main-grey);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  margin-top: 8px;
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+/* Wrapper untuk list agar bisa di-scroll */
+.optionsList {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.optionItem {
+  padding: 10px 12px;
+  font-weight: var(--font-weight-regular);
+  color: var(--main-text);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.optionItem:hover {
+  background-color: var(--secondary-accent);
+}
+
+.optionItem.selectedOption {
+  background-color: var(--main-accent);
+  color: var(--text-accent);
+  font-weight: var(--font-weight-bold);
+}
+.optionItem.selectedOption:hover {
+  background-color: var(--main-accent-hoverstate);
+}
+
+.addMoreOption {
+  color: var(--main-accent) !important;
+  font-weight: var(--font-weight-bold) !important;
+  font-style: italic;
+}
+
+.addMoreOption:hover {
+  background-color: var(--secondary-accent) !important;
+}
+
+.addMoreOption.selectedOption {
+  background-color: var(--main-accent-hoverstate) !important;
+  color: var(--text-accent) !important;
+}

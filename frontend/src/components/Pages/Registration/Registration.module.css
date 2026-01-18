@@ -1,0 +1,271 @@
+.registrationContainer {
+  padding: 48px 32px 48px 32px;
+  background-color: var(--secondary-background);
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.frameParent {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  text-align: left;
+  font-size: 32px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+}
+
+.title {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 32px;
+}
+
+.rightHeaderSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.actionButtonsContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.totalRecords {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--main-text);
+  cursor: pointer;
+}
+
+.div {
+  position: relative;
+  font-weight: 600;
+  font-size: 24px;
+  font-family: var(--font-primary);
+}
+
+.totalRecordsIcon {
+  width: 18px;
+  height: 24px;
+}
+
+.searchAndFilterContainer {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  margin-top: 20px;
+}
+
+.searchBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 426px;
+  border: 2px solid var(--main-grey);
+  border-radius: 5px;
+  background-color: var(--secondary-background);
+  height: 40px;
+}
+
+.searchInput {
+  flex: 1;
+  height: 100%;
+  padding: 0 18px;
+  box-sizing: border-box;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput::placeholder {
+  opacity: 0.8;
+  font-size: 15px;
+  font-family: var(--font-primary);
+}
+
+.searchIconImg {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.editButtonContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  
+  margin-top: 42px; 
+}
+
+.editButtonText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: 14px;
+  color: var(--main-accent);
+  text-decoration: underline;
+  line-height: 1;
+}
+
+.editButtonIcon {
+  width: 14px;
+  height: 14px;
+}
+
+/* --- PERUBAHAN Task 3: Styling untuk tombol Edit di dalam Tabel --- */
+.tableEditButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+/* ---------------------------------------------------------------- */
+
+.tableContainer {
+  background: var(--secondary-background);
+  border: 1px solid var(--main-grey);
+  width: 100%;
+}
+
+.tableHeaderGrid,
+.registrationDataRow {
+  display: grid;
+  /* --- PERUBAHAN Task 1: Menambah kolom untuk Type (Total 7 kolom) --- */
+  grid-template-columns:
+    minmax(200px, 1fr)
+    minmax(200px, 1fr)
+    minmax(200px, 1fr)
+    minmax(104px, 1fr)
+    minmax(120px, 1fr)
+    minmax(100px, 1fr) /* Kolom Baru: Type */
+    minmax(100px, 1fr); /* Kolom Edit (Ex-Status) */
+  /* ------------------------------------------------------------------ */
+  border-bottom: 4px solid var(--main-grey);
+}
+
+.registrationDataRow {
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--main-grey);
+  border-top: none;
+  min-height: 60px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.registrationDataRow:hover {
+  background-color: #f7f7f7;
+}
+
+.registrationDataRow:last-child {
+  border-bottom: none;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.messageCell {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--main-grey);
+  font-size: 16px;
+}
+
+.tableCell {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+  word-break: break-word;
+  white-space: nornmal;
+  font-size: 14px;
+  color: var(--main-text);
+  font-weight: 500;
+}
+
+.tableCell:last-child {
+  border-right: none;
+}
+
+.actionCell {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.actionButton {
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 8px;
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: var(--secondary-accent);
+}
+
+.deleteIcon {
+  width: 25px;
+  height: 25px;
+}
+
+.statusText {
+  position: relative;
+  line-height: 100%;
+  font-weight: 600;
+  color: var(--text-accent);
+}
+
+.statusConfirmed,
+.statusCancelled {
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  font-family: var(--font-primary);
+  border: none;
+}
+
+.statusConfirmed {
+  background-color: var(--green);
+}
+
+.statusCancelled {
+  background-color: var(--red);
+  pointer-events: none;
+  cursor: default !important;
+  opacity: 0.5;
+}

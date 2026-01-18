@@ -1,0 +1,146 @@
+.heading {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-accent);
+}
+.header {
+  align-self: stretch;
+  background-color: var(--main-grey);
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.studentRequirementStatus {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 24px;
+}
+.txtSrs {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+.complete1 {
+  width: 104px;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.choice {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 11.3px;
+  gap: 9.4px;
+  font-family: var(--font-primary); 
+  font-weight: var(--font-weight-regular);
+}
+.status {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0px 11.3px;
+  gap: 30.2px;
+  font-size: 24px;
+}
+.txtIcDocs {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 11.3px;
+}
+.note {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0px 11.3px;
+  font-size: 24px;
+}
+.content {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+  box-sizing: border-box;
+  gap: 18.9px;
+  font-size: 24px;
+}
+.officeUseNote {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 9.4px;
+}
+.approvedBy1 {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+.txtApprovedBy {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 2.8px 0px;
+}
+.principal {
+  align-self: stretch;
+  border-bottom: 0.9px solid var(--main-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+.approvedBy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 40px;
+  font-size: 24px;
+}
+.otherDetail {
+  width: 100%;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+  gap: 12px;
+  text-align: left;
+  font-size: 24px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+}
+.incompleteDocuments {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+

@@ -1,0 +1,349 @@
+.container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
+  text-align: left;
+  font-size: 20px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  padding: 0 16px 0 16px;
+  margin-top: 24px;
+}
+
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  line-height: 100%;
+}
+
+.label {
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-regular);
+  font-family: var(--font-primary);
+  font-size: 16px;
+}
+
+.contentWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
+  font-size: 16px;
+  background-color: var(--cream);
+}
+
+.transportationSection {
+  align-self: stretch;
+  height: 132px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-content: center;
+  padding: 0px 12px;
+  box-sizing: border-box;
+  gap: 0px 32px;
+}
+
+.sectionTitle {
+  width: 200px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.sectionTitleText {
+  width: 200px;
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+  font-size: 16px;
+}
+
+.optionItem,
+.schoolBusWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+
+.hiddenRadio,
+.hiddenCheckbox {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radioLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.radioLabel:hover {
+  background-color: rgba(95, 132, 254, 0.05);
+  border-radius: 4px;
+}
+
+.radioButton {
+  width: 28px;
+  position: relative;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.radioButtonCircle {
+  position: absolute;
+  height: 110.71%;
+  width: 110.71%;
+  top: -5.36%;
+  right: -5.36%;
+  bottom: -5.36%;
+  left: -5.36%;
+  border-radius: 50%;
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.radioButtonSelected {
+  position: absolute;
+  height: 57.14%;
+  width: 57.14%;
+  top: 21.43%;
+  right: 21.43%;
+  bottom: 21.43%;
+  left: 21.43%;
+  border-radius: 50%;
+  background-color: var(--main-accent);
+  transform: scale(1);
+  opacity: 1;
+  animation: grow-in 0.25s forwards;
+}
+
+@keyframes grow-in {
+ 
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+.checkboxLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.checkBox {
+  width: 24px;
+  position: relative;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.checkBoxSquare {
+  position: absolute;
+  height: 108.33%;
+  width: 108.33%;
+  top: -4.17%;
+  right: -4.17%;
+  bottom: -4.17%;
+  left: -4.17%;
+  border-radius: 4px;
+  background-color: var(--secondary-background);
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.checkBoxIcon {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0%;
+  right: 0%;
+  bottom: 0%;
+  left: 0%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+  transition: all 0.2s ease;
+}
+
+.schoolBusWrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pickupPointField {
+  flex: 1;
+  border-bottom: 1px solid var(--main-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+}
+
+.pickupPointInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-primary);
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+  line-height: 100%;
+  padding: 4px 0;
+  transition: all 0.2s ease;
+}
+
+.pickupPointInput:focus,
+.pickupPointInput.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+.pickupPointInput::placeholder {
+  color: rgba(128, 128, 128, 0.6);
+  font-style: normal;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+}
+
+.valueRegular {
+  flex: 1;
+  position: relative;
+  line-height: 100%;
+}
+
+.pickupPointIcon {
+  width: 28px;
+  position: relative;
+  max-height: 100%;
+}
+
+.residenceHallSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  align-content: center;
+  padding: 0px 12px;
+  gap: 6px 32px;
+}
+
+.inputField,
+.dropdownSelect,
+.textareaField,
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  color: var(--main-text);
+}
+
+.inputField::placeholder,
+.dropdownSelect::placeholder,
+.textareaField::placeholder,
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+select::placeholder,
+textarea::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+/* Responsive design */
+@media (max-width: 1000px) {
+  .transportationSection {
+    flex-direction: column !important;
+    align-items: flex-start;
+    height: auto;
+    gap: 12px;
+  }
+  .optionItem,
+  .schoolBusWrapper {
+    width: 100%;
+
+    align-items: flex-start;
+    display: block;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .pickupPointField {
+    margin-top: 8px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .sectionTitle,
+  .sectionTitleText {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+
+.facilitiesSectionErrorLabel {
+  color: var(--red) !important;
+  font-weight: var(--font-weight-semibold);
+}

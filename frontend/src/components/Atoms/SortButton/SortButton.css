@@ -1,0 +1,29 @@
+.sort-icon {
+  opacity: 0.7;
+  transition: opacity 0.25s ease, transform 0.25s ease, filter 0.25s ease;
+  transform-origin: center;
+  filter: grayscale(100%) brightness(0.8);
+}
+
+/* Default (sort.svg) */
+.sort-icon.none {
+  opacity: 0.8;
+  filter: grayscale(0%) brightness(1);
+}
+
+/* ASC — kiri.svg */
+.sort-icon.asc {
+  opacity: 1;
+  filter: none;
+}
+
+/* DESC — kanan.svg */
+.sort-icon.desc {
+  opacity: 1;
+  filter: none;
+}
+
+.control-btn:hover .sort-icon {
+  opacity: 1;
+}
+

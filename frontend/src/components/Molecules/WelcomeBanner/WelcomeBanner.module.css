@@ -1,0 +1,74 @@
+.container {
+  height: 144px;
+  /* DIUBAH: dari width: 100% menjadi flex: 1 */
+  flex: 1;
+  position: relative;
+  box-shadow: -5px 3px 15px -4px rgba(0, 0, 0, 0.25);
+  border-radius: 6px;
+  background: linear-gradient(99.31deg, #fff, #f0f4ff);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px 40px;
+  box-sizing: border-box;
+  min-width: 432px;
+  text-align: left;
+  font-size: 32px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+}
+.frameParent {
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0px;
+}
+.frameGroup {
+  align-self: stretch;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.containerText {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.title {
+  align-self: stretch;
+  position: relative;
+  line-height: 100%;
+  font-size: 32px;
+  font-weight: var(--font-weight-bold);
+}
+.text1 {
+  align-self: stretch;
+  position: relative;
+  font-size: 12px;
+  line-height: 100%;
+  font-weight: var(--font-weight-regular);
+}
+.date {
+  align-self: stretch;
+  position: relative;
+  font-size: 12px;
+  line-height: 100%;
+  font-weight: var(--font-weight-regular);
+  color: var(--main-grey);
+}
+.mascotIcon {
+  height: 87px;
+  width: 82.3px;
+  position: relative;
+}
+

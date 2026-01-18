@@ -1,0 +1,317 @@
+.container {
+  width: 75.5%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 10px;
+  box-sizing: border-box;
+  text-align: left;
+  padding: 0 16px 0 16px;
+  font-size: 20px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+  margin-top: 48px;
+  margin-bottom: 24px;
+}
+
+.officeUseNote {
+  width: 100%;
+  height: auto;
+  min-height: 302px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+  box-sizing: border-box;
+  gap: 9.4px;
+}
+
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.headerText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+  color: var(--main-text);
+}
+
+.contentWrapper {
+  align-self: stretch;
+  flex: 1;
+  border: 1px solid var(--main-text);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 18.9px;
+  font-size: 16px;
+}
+
+.statusSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 16px;
+}
+
+.statusLabel {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: 16px;
+  color: var(--main-text);
+  position: relative;
+  line-height: 100%;
+}
+
+.statusOptions {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0px 11.3px;
+  gap: 30.2px;
+}
+
+.optionItem {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 11.3px;
+  gap: 9.4px;
+}
+
+/* Radio button styles */
+.radioLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.radioLabel:hover {
+  background-color: rgba(95, 132, 254, 0.05);
+  border-radius: 4px;
+}
+
+.radioButton {
+  width: 28px;
+  position: relative;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.radioButtonCircle {
+  position: absolute;
+  height: 110.71%;
+  width: 110.71%;
+  top: -5.36%;
+  right: -5.36%;
+  bottom: -5.36%;
+  left: -5.36%;
+  border-radius: 50%;
+  border: 3px solid var(--main-accent);
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.radioButtonSelected {
+  position: absolute;
+  height: 57.14%;
+  width: 57.14%;
+  top: 21.43%;
+  right: 21.43%;
+  bottom: 21.43%;
+  left: 21.43%;
+  border-radius: 50%;
+  background-color: var(--main-accent);
+  transform: scale(1);
+  opacity: 1;
+  animation: grow-in 0.25s forwards;
+}
+
+@keyframes grow-in {
+ 
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.label {
+  width: 104px;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: var(--main-text);
+}
+
+.documentsSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 11.3px;
+}
+
+.documentsLabel {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-semibold);
+  font-size: 16px;
+  color: var(--main-text);
+  position: relative;
+  line-height: 100%;
+}
+
+.documentsInput {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+  margin-left: 20px;
+}
+
+.inputField,
+.dropdownSelect,
+.textareaField,
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  transition: all 0.2s ease;
+}
+
+.inputField:focus,
+.inputField.hasValue,
+.dropdownSelect:focus,
+.dropdownSelect.hasValue,
+.textareaField:focus,
+.textareaField.hasValue,
+input[type="text"]:focus,
+input[type="text"].hasValue,
+input[type="number"]:focus,
+input[type="number"].hasValue,
+select:focus,
+select.hasValue,
+textarea:focus,
+textarea.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+}
+
+.inputField::placeholder,
+.dropdownSelect::placeholder,
+.textareaField::placeholder,
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+select::placeholder,
+textarea::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+.textareaField {
+  flex: 1;
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: var(--main-text);
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: var(--secondary-background);
+  resize: vertical;
+  min-height: 60px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.textareaField::placeholder {
+  color: rgba(128, 128, 128, 0.6);
+  font-family: var(--font-primary);
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+}
+
+
+.hiddenRadio {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+
+.radioLabel {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  cursor: pointer;
+  padding: 12px;
+}
+
+@media (max-width: 1000px) {
+  .container {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+  .officeUseNote {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .statusOptions {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .optionItem {
+    width: 100%;
+  }
+}

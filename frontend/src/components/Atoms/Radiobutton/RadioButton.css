@@ -1,0 +1,62 @@
+.atom-radio-button {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.atom-radio-button.read-only {
+  cursor: default;
+}
+
+.atom-radio-button input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.custom-radio {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background-image: url("../../../assets/RB_Deactive.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Normal mode (biru) - menggunakan SVG */
+.atom-radio-button input[type="radio"]:checked + .custom-radio {
+  background-image: url("../../../assets/RB_Active.svg");
+}
+
+/* Read-only mode (abu-abu) - menggunakan CSS */
+.atom-radio-button.read-only .custom-radio {
+  background-image: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--main-grey);
+  border-radius: 50%;
+  background-color: var(--secondary-background);
+  position: relative;
+}
+
+.atom-radio-button.read-only input[type="radio"]:checked + .custom-radio {
+  background-color: var(--main-grey);
+  border-color: var(--main-grey);
+}
+
+.atom-radio-button.read-only input[type="radio"]:checked + .custom-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--secondary-background);
+}
+
+

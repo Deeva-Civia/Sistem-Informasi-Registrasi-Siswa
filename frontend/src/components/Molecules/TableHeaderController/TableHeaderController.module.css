@@ -1,0 +1,35 @@
+.tableHeaderController {
+  background-color: var(--secondary-background);
+  padding: 16px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--main-grey);
+  min-width: auto; 
+  position: relative;
+}
+
+
+.headerLayout {
+  display: flex;
+  align-items: center; 
+  gap: 16px; 
+}
+
+.headerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.headerActions {
+  display: flex;
+  gap: 22px;
+  min-height: 28px; 
+}
+
+.headerTitle {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  line-height: 100%;
+  color: var(--main-text);
+}

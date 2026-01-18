@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics Dashboard Component</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f3f4f6;
+      }
+    </style>
+  </head>
+  <body class="p-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800">Registration Growth</h3>
+            <p class="text-sm text-gray-500 mt-1">
+              Total registration per year (2021 - 2025)
+            </p>
+          </div>
+          <span
+            class="bg-indigo-50 text-indigo-600 text-xs font-semibold px-3 py-1 rounded-full border border-indigo-100"
+          >
+            Long-term View
+          </span>
+        </div>
+
+        <div id="fiveYearChart"></div>
+      </div>
+
+      <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h3 class="text-lg font-bold text-gray-800">
+              Monthly Registration Trend
+            </h3>
+            <p class="text-sm text-gray-500 mt-1">
+              Comparison: Current vs Previous School Year
+            </p>
+          </div>
+          <div class="flex items-center space-x-4 text-xs">
+            <div class="flex items-center">
+              <span class="w-2 h-2 rounded-full bg-blue-500 mr-2"></span>
+              <span class="text-gray-600 font-medium">2025/2026</span>
+            </div>
+            <div class="flex items-center">
+              <span class="w-2 h-2 rounded-full bg-gray-400 mr-2"></span>
+              <span class="text-gray-400">2024/2025</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="monthlyTrendChart"></div>
+      </div>
+    </div>
+
+    <script>
+      // --- CHART 1: 5-Year Trend (Bar Chart) ---
+      // --- UPDATE CHART 1: 5-Year Trend (Stacked Bar) ---
+      var optionsFiveYear = {
+        series: [
+          {
+            name: 'Confirmed (Active)',
+            data: [850, 980, 1100, 1400, 1800], // Data Murid Masuk
+          },
+          {
+            name: 'Cancelled',
+            data: [130, 140, 240, 250, 300], // Data Batal
+          },
+        ],
+        chart: {
+          type: 'bar',
+          height: 320,
+          stacked: true, // INI KUNCINYA: Menumpuk data ke atas
+          toolbar: { show: false },
+          fontFamily: 'Inter, sans-serif',
+        },
+        plotOptions: {
+          bar: {
+            horizontal: false,
+            columnWidth: '45%', // Tetap ramping
+            borderRadius: 4, // Radius
+            dataLabels: {
+              total: {
+                enabled: false, // Matikan total angka di atas bar agar tidak semak
+              },
+            },
+          },
+        },
+        dataLabels: { enabled: false }, // Matikan angka di dalam batang
+        stroke: {
+          show: true,
+          width: 1,
+          colors: ['#fff'], // Garis putih tipis pemisah antara Confirmed & Cancelled
+        },
+        xaxis: {
+          categories: ['2021', '2022', '2023', '2024', '2025'],
+          axisBorder: { show: false },
+          axisTicks: { show: false },
+          labels: {
+            style: { colors: '#64748B', fontSize: '12px' },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#64748B', fontSize: '12px' },
+          },
+        },
+        // WARNA: Confirmed (Indigo/Utama), Cancelled (Merah Pudar/Abu)
+        colors: ['#4F46E5', '#CBD5E1'],
+
+        legend: {
+          position: 'top',
+          horizontalAlign: 'right',
+          offsetY: -20,
+          markers: { radius: 12 },
+          itemMargin: { horizontal: 10 },
+        },
+        tooltip: {
+          y: {
+            formatter: function (val) {
+              return val + ' Students';
+            },
+          },
+        },
+        grid: {
+          borderColor: '#F1F5F9',
+          strokeDashArray: 4,
+          yaxis: { lines: { show: true } },
+        },
+      };
+
+      var chart1 = new ApexCharts(
+        document.querySelector('#fiveYearChart'),
+        optionsFiveYear
+      );
+      chart1.render();
+
+      // --- CHART 2: Monthly Trend (Line Chart Comparison) ---
+      var optionsMonthly = {
+        series: [
+          {
+            name: 'Current SY (2025/2026)',
+            data: [120, 150, 180, 220, 300, 450, 400, 320, 280, 200, 150, 100], // Data Biru
+          },
+          {
+            name: 'Previous SY (2024/2025)',
+            data: [100, 110, 130, 170, 210, 300, 350, 290, 250, 180, 130, 90], // Data Abu
+          },
+        ],
+        chart: {
+          height: 320,
+          type: 'line',
+          zoom: { enabled: false },
+          toolbar: { show: false },
+          fontFamily: 'Inter, sans-serif',
+        },
+        colors: ['#3B82F6', '#9CA3AF'], // Biru Cerah vs Abu-abu
+        dataLabels: { enabled: false },
+        stroke: {
+          curve: 'smooth', // Garis melengkung halus
+          width: [3, 2], // Garis Current lebih tebal (3), Previous tipis (2)
+          dashArray: [0, 5], // Garis Current Solid (0), Previous Putus-putus (5)
+        },
+        xaxis: {
+          categories: [
+            'Jul',
+            'Aug',
+            'Sep',
+            'Oct',
+            'Nov',
+            'Dec',
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'May',
+            'Jun',
+          ],
+          axisBorder: { show: false },
+          axisTicks: { show: false },
+          labels: {
+            style: { colors: '#64748B', fontSize: '12px' },
+          },
+        },
+        yaxis: {
+          labels: {
+            style: { colors: '#64748B', fontSize: '12px' },
+          },
+        },
+        legend: { show: false }, // Kita pakai custom legend di HTML atas agar lebih rapi
+        grid: {
+          borderColor: '#F1F5F9',
+          strokeDashArray: 4,
+        },
+        markers: {
+          size: [4, 0], // Tampilkan titik bulat hanya di garis Current, garis Previous polosan
+          hover: { sizeOffset: 4 },
+        },
+      };
+
+      var chart2 = new ApexCharts(
+        document.querySelector('#monthlyTrendChart'),
+        optionsMonthly
+      );
+      chart2.render();
+    </script>
+  </body>
+</html>

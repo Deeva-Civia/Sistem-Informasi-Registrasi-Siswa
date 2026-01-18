@@ -1,0 +1,10 @@
+.resetFilters {
+    position: relative;
+    font-size: 16px;
+    text-decoration: underline;
+    font-weight: 600;
+    font-family: var(--font-primary);
+    color: var(--main-accent);
+    text-align: left;
+    cursor: pointer;
+}

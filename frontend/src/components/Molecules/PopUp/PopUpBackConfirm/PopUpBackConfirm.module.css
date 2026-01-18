@@ -1,0 +1,56 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999 !important;
+}
+
+.modal {
+  background: var(--secondary-background);
+  padding: 24px 32px;
+  border-radius: 10px;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease;
+  font-family: var(--font-primary);
+  color: var(--main-text);
+}
+
+.modal h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: var(--font-weight-semibold);
+}
+
+.modal p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--main-text);
+  margin-bottom: 24px;
+}
+
+.modalActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-around;
+  gap: 10px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

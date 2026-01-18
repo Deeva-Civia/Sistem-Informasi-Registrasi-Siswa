@@ -1,0 +1,109 @@
+.registrationContainer {
+  padding: 48px 32px 48px 32px;
+  background-color: var(--secondary-background);
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+.frameParent {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+  font-size: 32px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+}
+
+.headerTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.title {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 32px;
+  margin-bottom: 20px;
+}
+
+.searchAndFilterContainer {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+/* HAPUS .searchBar, .searchInput, .searchInput::placeholder, dan .searchIconImg */
+
+.actionButtonsContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 100%;
+  padding-top: 10px;
+}
+
+.tableContainer {
+  background: var(--secondary-background);
+  border: 1px solid var(--main-grey);
+  width: 100%;
+}
+
+.tableHeaderGrid,
+.registrationDataRow {
+  display: grid;
+  grid-template-columns:
+    minmax(140px, 1fr)   /* Registration Date */
+    minmax(140px, 1fr)   /* Cancellation Date */
+    minmax(220px, 1.5fr) /* Student Name */
+    minmax(120px, 1fr)   /* School Year */
+    minmax(100px, 1fr)   /* Section */
+    minmax(80px, 0.7fr)  /* Type */
+    minmax(150px, 1.2fr); /* Notes */
+  border-bottom: 4px solid var(--main-grey);
+}
+
+.registrationDataRow {
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--main-grey);
+    border-top: none;
+    min-height: 60px;
+    cursor: default;
+    transition: none;
+}
+
+.registrationDataRow:last-child {
+  border-bottom: none;
+}
+
+.tableBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.messageCell {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--main-grey);
+  font-size: 16px;
+}
+
+.tableCell {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: visible;
+  word-break: break-word;
+  white-space: normal;
+  font-size: 14px;
+  color: var(--main-text);
+  font-weight: 500;
+}

@@ -1,0 +1,197 @@
+.heading {
+	position: relative;
+	line-height: 100%;
+	font-family: var(--font-primary);
+	font-weight: var(--font-weight-bold);
+}
+.txtFather {
+	align-self: stretch;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+}
+.field {
+	position: relative;
+	line-height: 100%;
+	font-family: var(--font-primary);
+	font-weight: var(--font-weight-regular);
+}
+.name {
+	align-self: stretch;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 8px 12px;
+	gap: 10px;
+}
+.gmail {
+	position: relative;
+	line-height: 100%;
+	display: inline-block;
+	max-width: 357.5px;
+	font-family: var(--font-primary);
+	font-weight: var(--font-weight-regular);
+}
+.left {
+	align-self: stretch;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+}
+.nameCompany {
+	align-self: stretch;
+	position: relative;
+	line-height: 100%;
+	font-family: var(--font-primary);
+	font-weight: var(--font-weight-regular);
+}
+.compName {
+	align-self: stretch;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding: 8px 12px;
+	gap: 10px;
+}
+.position {
+	width: 100%;
+	position: relative;
+	line-height: 100%;
+	display: inline-block;
+	max-width: 228.5px;
+	font-family: var(--font-primary);
+	font-weight: var(--font-weight-regular);
+}
+.b3 {
+	align-self: stretch;
+	width: 8px;
+	position: relative;
+	line-height: 100%;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+.parent {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 3px;
+}
+.bottom {
+	align-self: stretch;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	padding: 8px 12px;
+	gap: 10px;
+}
+.right {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+	gap: 12px;
+}
+.father {
+	align-self: stretch;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	padding: 6px 0px;
+	gap: 12px;
+}
+.first {
+	align-self: stretch;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+}
+.guardianField {
+	flex: 1;
+	position: relative;
+	line-height: 100%;
+	font-family: var(--font-primary);
+	font-weight: var(--font-weight-regular);
+}
+.relation {
+	align-self: stretch;
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	padding: 8px 12px;
+	gap: 10px;
+}
+.top1 {
+	align-self: stretch;
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+}
+.left1 {
+	flex: 1;
+	height: 100px;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: center;
+}
+.address3 {
+	align-self: stretch;
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	align-content: center;
+	gap: 10px;
+}
+.right1 {
+	align-self: stretch;
+	flex: 0.9719;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+	align-content: flex-start;
+	padding: 8px 12px;
+}
+.guardianInfo {
+	align-self: stretch;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: flex-start;
+	gap: 12px;
+}
+.content {
+	width: 100%;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	text-align: left;
+	font-size: 24px;
+	color: var(--main-text);
+	font-family: var(--font-primary);
+}
+

@@ -1,0 +1,73 @@
+.atom-checkbox {
+  display: inline-flex; 
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.atom-checkbox.read-only {
+  cursor: default;
+}
+
+.atom-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.custom-checkbox {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  background-image: url("../../../assets/CB_Deactive.svg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Normal mode (biru) - menggunakan SVG */
+.atom-checkbox input[type="checkbox"]:checked + .custom-checkbox {
+  background-image: url("../../../assets/CB_Active.svg");
+}
+
+/* Read-only mode (abu-abu) - menggunakan CSS */
+.atom-checkbox.read-only .custom-checkbox {
+  background-image: none;
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--main-grey);
+  border-radius: 4px;
+  background-color: var(--secondary-background);
+  position: relative;
+}
+
+.atom-checkbox.read-only input[type="checkbox"]:checked + .custom-checkbox {
+  background-color: var(--main-grey);
+  border-color: var(--main-grey);
+}
+
+.atom-checkbox.read-only input[type="checkbox"]:checked + .custom-checkbox::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--secondary-background);
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+@media (max-width: 600px) {
+  .custom-checkbox {
+    width: 15px;
+    height: 15px;
+  }
+  
+  .atom-checkbox.read-only .custom-checkbox {
+    width: 15px;
+    height: 15px;
+  }
+}
+

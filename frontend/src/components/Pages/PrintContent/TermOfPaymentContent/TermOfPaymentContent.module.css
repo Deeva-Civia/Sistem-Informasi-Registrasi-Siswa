@@ -1,0 +1,185 @@
+.txtTuitionFee {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.full {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 10px;
+}
+.bottom {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0px 12px;
+  gap: 32px;
+  /* Pastikan tidak ada flex-wrap: wrap; di sini */
+}
+
+/* --- PERUBAHAN UTAMA: MENGGUNAKAN FLEXBOX (seperti Figma) --- */
+.contentParent {
+  width: 100%;
+  display: flex;
+  flex-direction: column; /* Mengatur 2 baris ke bawah */
+  align-items: flex-start;
+  gap: 24px; /* Jarak antar baris (sesuai Figma) */
+  text-align: left;
+  font-size: 24px;
+  color: #000;
+  font-family: Poppins;
+  margin-bottom: 24px; /* [DITAMBAHKAN] Memberi jarak ke komponen bawah */
+}
+
+.contentRow {
+  width: 100%;
+  display: flex;
+  flex-direction: row; /* Item di dalam baris akan berjajar */
+  align-items: flex-start;
+  justify-content: space-between; /* [DIUBAH] Distribusikan space! */
+  column-gap: 32px; /* Jarak antar kolom */
+}
+/* --- AKHIR PERUBAHAN UTAMA --- */
+
+.tuitionFee {
+  flex: 0 0 auto; /* [DIUBAH] Jangan grow/shrink, ambil space kontenmu saja */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.residenceHall {
+  position: relative;
+  line-height: 100%;
+  font-family: "Poppins", sans-serif;
+  font-weight: Bold;
+  width: auto;
+  min-width: 0;
+}
+
+.bottom2 {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 0px 12px;
+}
+
+.contentTuitionFee {
+  position: relative;
+  line-height: 100%;
+  font-family: "Poppins", sans-serif;
+  font-weight: Bold;
+}
+
+.fullPayment {
+  position: relative;
+  line-height: 100%;
+  font-family: "Poppins", sans-serif;
+  font-weight: Regular;
+  /* white-space: nowrap; <-- [DIHAPUS] Ini penyebab overlap */
+}
+
+/* ====== DISCOUNT AREA ====== */
+.discountSection {
+  flex: 0 0 auto; /* [DIUBAH] Jadikan kaku */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0; /* Hapus min-width agar fleksibel */
+}
+.discountText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 100%;
+}
+.discountName {
+  /* white-space: nowrap; <-- [DIHAPUS] */
+  line-height: 1.3;
+}
+.discountNotes {
+  white-space: normal;
+  /* Hapus word-wrap dan overflow-wrap */
+  word-break: break-all; /* [DIUBAH] Paksa patahkan kata yg panjang */
+  line-height: 1.3;
+  max-width: 100%;
+  margin-top: 2px;
+}
+
+/* ====== FINANCIAL POLICY & CONTRACT AREA ====== */
+.financialPolicySection {
+  flex: 0 0 auto; /* [DIUBAH] Jangan grow/shrink, ambil space kontenmu saja */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0; /* Hapus min-width agar fleksibel */
+}
+.financialPolicyLabel {
+  font-family: "Poppins", sans-serif;
+  font-weight: Bold;
+  line-height: 100%;
+  margin-bottom: 6px;
+}
+.financialPolicyContent {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.financialPolicyCheckbox {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+.financialPolicyText {
+  font-family: "Poppins", sans-serif;
+  font-size: 24px;
+  line-height: 100%;
+}
+
+/* ====== VIRTUAL ACCOUNT AREA ====== */
+.vaItem {
+  flex: 1 1 auto; /* [TETAP] Ini sudah benar untuk VA */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  min-width: 0; /* [DITAMBAHKAN] Ini kunci agar VA bisa menyusut */
+}
+
+.vaLabel {
+  position: relative;
+  line-height: 100%;
+  font-family: "Poppins", sans-serif;
+  font-weight: Bold;
+  font-size: 24px;
+  color: #000;
+  /* white-space: nowrap; <-- [DIHAPUS] */
+}
+
+.vaNumber {
+  position: relative;
+  line-height: 100%;
+  font-family: "Poppins", sans-serif;
+  font-weight: Regular;
+  font-size: 24px;
+  color: #000;
+  margin-top: 8px;
+  word-break: break-all;
+  padding-left: 16px; /* [DITAMBAHKAN] Memberi padding kiri pada angka */
+}
+

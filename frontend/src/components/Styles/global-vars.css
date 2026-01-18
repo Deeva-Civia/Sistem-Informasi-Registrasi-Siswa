@@ -1,0 +1,127 @@
+:root {
+  /* ==================== WARNA UTAMA ==================== */
+  --main-accent: #5F84FE;     
+  --secondary-accent: #D3E7FF;
+  /* ==================== WARNA LATAR ==================== */
+  --main-background: #F8F8F9;   
+  --secondary-background: #FFFFFF; 
+  --main-accent-hoverstate: #335BE2;
+  --main-accent-disabledstate: #CACDD9;
+  /* ==================== WARNA TAMBAHAN ==================== */  
+  --main-text: #000000;
+  --text-accent: #FFFFFF;
+  --cream: #FFFAEC;
+  --main-grey: #7A7A7A;
+  --green: #00F413;
+  --red: #EE0808;
+  --secondary-red: #FFD3D3;
+  --dark-red: #CD0000;
+  --black: #000000;
+  --yellow: #FFDD00;
+  --orange: #FF7B00;
+
+  /* ==================== FONT FAMILIES ==================== */
+  --font-primary: 'Poppins', sans-serif; 
+  --font-secondary: 'Inter Custom', sans-serif; 
+  /* ==================== FONT SIZES & WEIGHTS ==================== */
+  --font-size-base: 16px;      /* Ukuran font dasar */
+  --font-weight-regular: 400;  /* Berat font standar */
+  --font-weight-semibold: 600; /* Berat font semi-tebal <-- BARU */
+  --font-weight-bold: 650;     /* Berat font tebal */
+  --font-weight-black: 900;    /* Berat font ekstra (Black) */
+  --line-height-base: 1.5;     /* Tinggi baris standar */
+}
+
+/* Poppins Regular (400) */
+@font-face {
+font-family: 'Poppins';
+src: url('../../assets/fonts/Poppins-Regular.ttf') format('truetype');
+font-weight: 400; /* Sesuai --font-weight-regular */
+font-style: normal;
+font-display: swap; 
+}
+
+/* Poppins Medium (500) */
+@font-face {
+font-family: 'Poppins';
+src: url('../../assets/fonts/Poppins-Medium.ttf') format('truetype');
+font-weight: 500; /* Sesuai --font-weight-medium */
+font-style: normal;
+font-display: swap; 
+}
+
+/* Poppins Semi-Bold (600)  */
+@font-face {
+font-family: 'Poppins';
+src: url('../../assets/fonts/Poppins-SemiBold.ttf') format('truetype');
+font-weight: 600; /* Sesuai --font-weight-semibold */
+font-style: normal;
+font-display: swap;
+}
+
+/* Poppins Bold (700) */
+@font-face {
+font-family: 'Poppins';
+src: url('../../assets/fonts/Poppins-Bold.ttf') format('truetype');
+font-weight: 700; /* Sesuai --font-weight-bold */
+font-style: normal;
+font-display: swap;
+}
+
+/* Poppins Black (900) */
+@font-face {
+font-family: 'Poppins';
+src: url('../../assets/fonts/Poppins-Black.ttf') format('truetype');
+font-weight: 900; /* Sesuai --font-weight-black */
+font-style: normal;
+font-display: swap;
+}
+
+
+/* ==================== DEFINISI FONT INTER ==================== */
+/* (Kode @font-face Inter Anda yang sudah ada tetap di sini) */
+/* Inter Regular (Inter_18pt-Regular.ttf) */
+@font-face {
+font-family: 'Inter Custom';
+src: url('../../assets/fonts/Inter_18pt-Regular.ttf') format('truetype');
+font-weight: 400; 
+font-style: normal;
+font-display: swap; 
+}
+
+/* ==================== DEFINISI FONT INTER ==================== */
+/* Inter Regular (Inter_18pt-Regular.ttf) */
+@font-face {
+font-family: 'Inter Custom';
+src: url('../../assets/fonts/Inter_18pt-Regular.ttf') format('truetype');
+font-weight: 400; 
+font-style: normal;
+font-display: swap; 
+}
+
+/* Inter Semi-Bold (Inter_18pt-SemiBold.ttf)  */
+@font-face {
+font-family: 'Inter Custom';
+src: url('../../assets/fonts/Inter_18pt-SemiBold.ttf') format('truetype');
+font-weight: 600; /* Sesuai --font-weight-semibold */
+font-style: normal;
+font-display: swap;
+}
+
+/* Inter Bold (Inter_18pt-Bold.ttf) */
+@font-face {
+font-family: 'Inter Custom';
+src: url('../../assets/fonts/Inter_18pt-Bold.ttf') format('truetype');
+font-weight: 700;
+font-style: normal;
+font-display: swap;
+}
+
+/* Inter Black (Inter_18pt-Black.ttf) */
+@font-face {
+font-family: 'Inter Custom';
+src: url('../../assets/fonts/Inter_18pt-Black.ttf') format('truetype');
+font-weight: 900; 
+font-style: normal;
+font-display: swap;
+}

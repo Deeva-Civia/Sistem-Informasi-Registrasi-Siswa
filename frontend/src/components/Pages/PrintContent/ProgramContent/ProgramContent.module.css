@@ -1,0 +1,100 @@
+.section {
+  width: 100px;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+}
+.txtSection {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.answer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 10px;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+.option {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+.field {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+.grade {
+  border-bottom: 1px solid var(--main-text);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 100px 12px 12px;
+  gap: 10px;
+}
+.science {
+  flex: 1;
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+.major {
+  width: 250px;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px;
+  gap: 10px;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+.top {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0px 12px;
+  gap: 32px;
+}
+.other {
+  width: 458px;
+  border-bottom: 1px solid var(--main-text);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 0px 12px 12px;
+  gap: 10px;
+}
+.content {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  font-size: 24px;
+  color: var(--main-text);
+  font-family: var(--font-primary);
+}
+

@@ -1,0 +1,38 @@
+.control-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--main-grey);
+  cursor: pointer;
+}
+
+.control-btn:hover {
+  background: var(--secondary-accent);
+  color: var(--main-accent);
+}
+
+.control-btn.disabled,
+.control-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  background: transparent;
+  color: var(--main-grey);
+}
+
+.control-btn img {
+  opacity: 0.8;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.control-btn:hover img {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.control-btn.active img {
+  opacity: 1;
+  filter: brightness(1.1);
+}

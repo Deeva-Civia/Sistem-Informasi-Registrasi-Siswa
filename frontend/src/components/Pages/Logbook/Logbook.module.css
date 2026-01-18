@@ -1,0 +1,84 @@
+.logbookPage {
+  background-color: var(--main-background);
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+.logbookContainer {
+  padding: 28px 32px 28px 32px;
+  background-color: var(--secondary-background);
+  margin-top: 16px;
+  margin-bottom: 16px;
+  flex-direction: column;
+  display: flex;
+  gap: 32px;
+}
+
+.logbookHeader {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  padding-bottom: 16px;
+}
+
+.logbookHeader h1 {
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 32px;
+}
+
+.selectionControls {
+  display: flex;
+  gap: 16px;
+}
+
+.tableWrapper {
+  width: 100%;
+  border: 0.5px solid var(--main-grey);
+}
+
+.logbookTable {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.logbookTable td {
+  text-align: center;
+  padding: 16px;
+  border-bottom: 1px solid var(--main-grey);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--main-text);
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.logbookTable td:last-child {
+  border-right: none;
+}
+
+.logbookTable tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Foto menyesuaikan tinggi baris */
+.studentPhoto {
+  width: 60px;
+  height: 81px;
+  object-fit: cover;
+  border: 3px solid var(--main-grey);
+}
+
+.paginationContainer {
+  display: flex;
+  justify-content: flex-start; /* Mendorong pagination ke kiri */
+  width: 100%;
+}

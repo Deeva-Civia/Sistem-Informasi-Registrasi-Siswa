@@ -1,0 +1,314 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+@import url("../../Styles/global-vars.css");
+
+body {
+  margin: 0;
+  font-family: var(--font-primary), var(--font-secondary), sans-serif;
+}
+
+.login-page-new {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--secondary-background);
+}
+
+.login-left-new {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--secondary-background);
+  z-index: 2;
+}
+
+.login-card-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 450px;
+}
+
+.login-blob-top,
+.login-blob-bottom,
+.login-blob-top-reset,
+.login-blob-bottom-reset {
+  position: absolute;
+  z-index: 1;
+  animation: blobLoadIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+}
+
+.login-blob-top {
+  width: 210px;
+  height: auto;
+  top: -90px;
+  left: -70px;
+}
+
+.login-blob-bottom {
+  width: 150px;
+  height: auto;
+  bottom: -80px;
+  right: -60px;
+}
+
+.login-blob-top-reset {
+  width: 210px;
+  height: auto;
+  top: -70px;
+  right: -70px;
+}
+
+.login-blob-bottom-reset {
+  width: 150px;
+  height: auto;
+  bottom: -60px;
+  left: -60px;
+}
+
+.login-card {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid var(--secondary-background);
+  border-radius: 12px;
+  padding: 24px 56px;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 2;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 31px;
+  transition: opacity 0.5s cubic-bezier(0.65, 0, 0.35, 1),
+    transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  transform-origin: center;
+  transform: scale(1);
+  animation: cardLoadIn 0.5s cubic-bezier(0.65, 0, 0.35, 1) 0.5s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+  color: var(--main-accent);
+}
+
+.login-logo {
+  display: block;
+  height: auto;
+  width: 340px;
+}
+
+/* Tambahkan ini untuk override styling Logo component */
+.login-logo .logo-container {
+  margin-bottom: 0;
+  height: auto;
+}
+
+.login-logo .logo-img {
+  width: 340px !important;
+  transform: none !important;
+  max-width: 100%;
+}
+
+.login-form-new {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 31px;
+}
+
+.login-title-new {
+  font-family: var(--font-primary);
+  font-size: 24px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--main-accent);
+  margin: 0 0 0 0;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 0 60px 0 20px !important;
+  height: 60px;
+  font-size: 1rem !important;
+  border: none !important;
+  border-radius: 5px;
+  background-color: var(--main-background) !important;
+  box-sizing: border-box;
+}
+
+.input-group input:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(95, 132, 254, 0.2) !important;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.password-toggle-icon:hover {
+  opacity: 1;
+}
+
+.reset-login-link {
+  font-size: 0.875rem;
+  color: var(--main-accent);
+  text-decoration: underline;
+  align-self: flex-start;
+  font-weight: var(--font-weight-semibold);
+}
+
+.reset-login-link:hover {
+  text-decoration: underline;
+}
+
+.login-error-message {
+  color: var(--dark-red);
+  font-size: 14px;
+  text-align: left;
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.login-right-new {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-illustration-new {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: relative;
+  z-index: 0;
+  border-top-left-radius: 124px;
+  border-bottom-left-radius: 248px;
+}
+
+.login-image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.4);
+  z-index: 1;
+  border-top-left-radius: 124px;
+  border-bottom-left-radius: 248px;
+}
+
+.login-illustration-new,
+.login-image-overlay {
+  transition: border-radius 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: imageLoadIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0s;
+  animation-fill-mode: forwards;
+  opacity: 0;
+}
+
+.button-container {
+  width: 100%;
+  display: flex;
+}
+
+.button-container .atom-button {
+  width: 145px !important;
+  height: 45px !important;
+}
+
+/* Style untuk Mode Reset 
+ */
+
+.login-page-new.reset-mode {
+  flex-direction: row-reverse;
+}
+
+.login-page-new.reset-mode .login-illustration-new,
+.login-page-new.reset-mode .login-image-overlay {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: 124px;
+  border-bottom-right-radius: 248px;
+}
+
+.login-page-new:not(.reset-mode) .login-blob-top-reset,
+.login-page-new:not(.reset-mode) .login-blob-bottom-reset {
+  display: none;
+}
+
+.login-page-new.reset-mode .login-blob-top,
+.login-page-new.reset-mode .login-blob-bottom {
+  display: none;
+}
+
+@keyframes cardLoadIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes blobLoadIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes imageLoadIn {
+  from {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .login-page-new {
+    flex-direction: column;
+  }
+
+  .login-left-new {
+    flex-basis: auto;
+    width: 100%;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .login-right-new {
+    display: none;
+  }
+
+  .login-card {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+  }
+}

@@ -1,0 +1,423 @@
+.container {
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 24px;
+  text-align: left;
+  font-size: 20px;
+  color: var(--main-text);
+  padding: 0 16px 0 16px;
+  font-family: var(--font-primary);
+  margin-top: 24px;
+}
+
+.sectionHeader {
+  align-self: stretch;
+  background-color: #e4eefa;
+  border-left: 7px solid #8dc1ff;
+  box-sizing: border-box;
+  height: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.headerText {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 20px;
+}
+
+.contentWrapper {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 36px;
+  font-size: 16px;
+  background-color: var(--cream);
+}
+
+.parentSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 36px;
+}
+
+.parentInfoSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.sectionTitle {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.sectionTitleText {
+  position: relative;
+  line-height: 100%;
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-primary);
+  font-size: 16px;
+}
+
+.parentInfoContent {
+  align-self: stretch;
+  border: 1px solid var(--main-text);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6px 12px;
+}
+
+.guardianInfoContent {
+  align-self: stretch;
+  border: 1px solid var(--main-text);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 32px;
+  padding: 0px 12px;
+}
+
+.leftColumn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 220px;
+}
+
+.rightColumn {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 220px;
+}
+
+.fullWidthField {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.twoColumnRow {
+  align-self: stretch;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 27px;
+}
+
+.fieldGroup {
+  align-self: stretch;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px 0px;
+  gap: 10px;
+}
+
+.label {
+  align-self: stretch;
+  position: relative;
+  line-height: 100%;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+}
+
+.value,
+input[type="tel"],
+input[type="email"] {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: 16px;
+  color: var(--main-text);
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--main-text);
+  background: transparent;
+  padding: 0 0 4px 0;
+  outline: none;
+  display: block;
+  transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.value::placeholder,
+input[type="tel"]::placeholder,
+input[type="email"]::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+/* Memastikan border bottom tetap ada untuk semua input dalam ParentGuardianSection */
+.container .value,
+.container input[type="text"],
+.container input[type="tel"],
+.container input[type="email"],
+.container input[type="number"] {
+  border-bottom: 1px solid var(--main-text) !important;
+}
+
+/* Memastikan border bottom tetap ada saat focus dan filled dalam ParentGuardianSection */
+.container .value:focus,
+.container .value.filled,
+.container .value.hasValue,
+.container input[type="text"]:focus,
+.container input[type="text"].filled,
+.container input[type="text"].hasValue,
+.container input[type="tel"]:focus,
+.container input[type="tel"].filled,
+.container input[type="tel"].hasValue,
+.container input[type="email"]:focus,
+.container input[type="email"].filled,
+.container input[type="email"].hasValue,
+.container input[type="number"]:focus,
+.container input[type="number"].filled,
+.container input[type="number"].hasValue {
+  border-bottom: 1px solid var(--main-text) !important;
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+}
+
+.inputField,
+.dropdownSelect,
+.textareaField,
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="tel"],
+select,
+textarea {
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+  color: rgba(128, 128, 128, 0.6);
+  transition: all 0.2s ease;
+}
+
+.container .inputField:focus,
+.container .inputField.hasValue,
+.container .dropdownSelect:focus,
+.container .dropdownSelect.hasValue,
+.container .textareaField:focus,
+.container .textareaField.hasValue,
+.container input[type="text"]:focus,
+.container input[type="text"].hasValue,
+.container input[type="number"]:focus,
+.container input[type="number"].hasValue,
+.container input[type="email"]:focus,
+.container input[type="email"].hasValue,
+.container input[type="tel"]:focus,
+.container input[type="tel"].hasValue,
+.container select:focus,
+.container select.hasValue,
+.container textarea:focus,
+.container textarea.hasValue,
+.container .value:focus,
+.container .value.filled,
+.container .value.hasValue {
+  font-weight: var(--font-weight-bold);
+  color: var(--main-text);
+  border-bottom: 1px solid var(--main-text) !important;
+}
+
+.inputField::placeholder,
+.dropdownSelect::placeholder,
+.textareaField::placeholder,
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+input[type="email"]::placeholder,
+input[type="tel"]::placeholder,
+select::placeholder,
+textarea::placeholder {
+  font-weight: var(--font-weight-regular);
+  color: rgba(128, 128, 128, 0.6);
+}
+
+/* Memastikan input dengan nilai tetap terlihat jelas dalam ParentGuardianSection */
+.container input:not(:placeholder-shown),
+.container textarea:not(:placeholder-shown) {
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+  border-bottom: 1px solid var(--main-text) !important;
+}
+
+/* Styling untuk input fields dengan nilai dalam ParentGuardianSection */
+.container input.hasValue,
+.container textarea.hasValue,
+.container .value.hasValue,
+.container .value.filled {
+  color: var(--main-text) !important;
+  font-weight: var(--font-weight-bold) !important;
+  border-bottom: 1px solid var(--main-text) !important;
+}
+
+.addressSection {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 6px 0px;
+}
+
+.rtRwGroup {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 27px;
+}
+
+.rtField,
+.rwField {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 12px 0px 10px 0px;
+  gap: 10px;
+}
+
+.otherField {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.otherValue {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 3px;
+}
+
+.bracket {
+  align-self: stretch;
+  width: 8px;
+  position: relative;
+  line-height: 100%;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 16px;
+}
+
+/* ===== ERROR STATE STYLING UNTUK PARENT GUARDIAN SECTION ===== */
+
+/* Error label styling - Label merah yang rapi */
+.parentErrorLabel {
+  color: var(--red) !important;
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular) !important;
+  font-size: 16px;
+  margin: 0;
+  line-height: 1.2;
+  text-align: left;
+  width: 100%;
+  transition: color 0.2s ease;
+}
+
+.parentErrorInput:focus {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  color: var(--red) !important;
+}
+
+/* Placeholder text merah untuk field yang error */
+.parentErrorFieldWrapper input::placeholder,
+.parentErrorFieldWrapper .react-select__placeholder {
+  color: var(--red) !important;
+  opacity: 0.8;
+}
+
+/* Responsive design */
+@media (max-width: 900px) {
+  .guardianInfoContent {
+    flex-direction: column;
+    gap: 16px;
+  }
+  .leftColumn,
+  .rightColumn {
+    min-width: 0;
+  }
+}
+
+.parentErrorLabel {
+  color: var(--red) !important;
+  font-weight: var(--font-weight-regular) !important;
+}
+
+.parentErrorInput {
+  color: var(--red) !important;
+}
+
+.parentErrorFieldWrapper input {
+  transition: color 0.2s ease;
+}
+
+/* Wrapper to hold input and its inline error message */
+.inputWithError {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+/* Atur agar input mengisi ruang yang tersedia */
+.inputWithError .value {
+  flex-grow: 1;
+  width: auto;
+}
+
+.inputWithError input {
+  flex-grow: 1;
+}
+
+/* The inline error message itself */
+.inlineErrorMessage {
+  color: var(--red);
+  font-family: var(--font-primary);
+  font-weight: var(--font-weight-regular);
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 4px 8px;
+  background-color: rgba(255, 68, 68, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid var(--red);
+}

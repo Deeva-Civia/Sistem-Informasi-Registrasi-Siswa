@@ -1,0 +1,86 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2001;
+  backdrop-filter: blur(3px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.popup {
+  background: var(--secondary-background);
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  animation: popIn 0.2s ease-out;
+  font-family: var(--font-primary);
+}
+
+.iconWrapper {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  color: var(--orange);
+}
+
+.title {
+  color: var(--main-text);
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-semibold);
+}
+
+.message {
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  color: var(--main-grey);
+}
+
+.buttonBox {
+  display: flex;
+  justify-content: center;
+}
+
+.closeButton {
+  background-color: var(--main-accent);
+  color: var(--text-accent);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: var(--font-weight-regular);
+  font-size: 0.9rem;
+  padding: 8px 24px;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: var(--main-accent-hoverstate);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
