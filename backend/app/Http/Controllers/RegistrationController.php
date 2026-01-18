@@ -475,10 +475,14 @@ class RegistrationController extends Controller
             ]);
 
             $statusCode = $e->getCode() && is_numeric($e->getCode()) && $e->getCode() >= 400 ? $e->getCode() : 500;
+            
+            $clientMessage = ($statusCode >= 400 && $statusCode < 500) 
+            ? $e->getMessage() 
+            : 'Failed to cancel registration (Internal Server Error).';
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to cancel registration.',
+                'message' => $clientMessage,
                 'error' => config('app.debug') ? $e->getMessage() : null,
             ], $statusCode);
         }

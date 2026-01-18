@@ -246,8 +246,8 @@ const PopUpForm = ({
           };
 
           if (password) {
-            if (password.length <= 8) {
-              setPasswordError("Password must be more than 8 characters");
+            if (password.length < 8) {
+              setPasswordError("Password must be at least 8 characters.");
               setLoading(false);
               return;
             }
@@ -261,8 +261,8 @@ const PopUpForm = ({
             setLoading(false);
             return alert("Please fill all fields");
           }
-          if (password.length <= 8) {
-            setPasswordError("Password must be more than 8 characters");
+          if (password.length < 8) {
+            setPasswordError("Password must be at least 8 characters.");
             setLoading(false);
             return;
           }
@@ -412,7 +412,14 @@ const PopUpForm = ({
                 required={!isEditMode}
               />
               {passwordError && (
-                <span className={styles.errorMessage}>{passwordError}</span>
+                <span className={styles.errorMessage}
+                  style={{
+                      color: "#EE0808",
+                      fontSize: "12px",
+                      marginTop: "4px",
+                      display: "block",
+                    }}
+                >{passwordError}</span>
               )}
             </div>
 

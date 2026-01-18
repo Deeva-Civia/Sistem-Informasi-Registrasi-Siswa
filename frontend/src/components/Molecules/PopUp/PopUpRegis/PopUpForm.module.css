@@ -267,3 +267,10 @@
   background-color: var(--main-accent-hoverstate) !important;
   color: var(--text-accent) !important;
 }
+
+.errorMessage {
+  color: "#EE0808";
+  font-size: "12px";
+  margin-top: "4px";
+  display: "block";
+}

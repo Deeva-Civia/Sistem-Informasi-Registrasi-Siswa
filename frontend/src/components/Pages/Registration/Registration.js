@@ -41,7 +41,7 @@ const RegistrationRow = ({ registration, onRowClick, onStatusClick }) => {
       </div>
 
       <div className={styles.tableCell}>
-        {registration.student_type || 'New'}
+        {registration.student_status || 'New'}
       </div>
 
       <div className={styles.tableCell}>
