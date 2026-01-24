@@ -4,6 +4,7 @@ use App\Models\SchoolYear;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AiChatController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\StudentController;
@@ -81,4 +82,10 @@ Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_regist
 Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_registrar'])->group(function () {
     Route::get('/analytics', [AnalyticsController::class, 'index']);
 });
+
+Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_registrar'])->group(function () {
+    Route::post('/ai-chatbot/ask', [AiChatController::class, 'ask']);
+});
+
+
 ?>
