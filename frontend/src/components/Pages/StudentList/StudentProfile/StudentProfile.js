@@ -1142,17 +1142,43 @@ const StudentProfile = () => {
       await refreshHistoryDates();
     } catch (error) {
       console.error("Failed to update student:", error);
+      
       if (error.response && error.response.data) {
-        if (error.response.data.type === "validation") {
-          console.error("Validation Errors:", error.response.data.errors);
-          const msg = Object.values(error.response.data.errors)
-            .flat()
-            .join(", ");
+        if (error.response.status === 422 || error.response.data.type === "validation") {
+          const serverErrors = error.response.data.errors;
+          const formattedErrors = {};
+
+          const studentInfoFields = [
+            'first_name', 'middle_name', 'last_name', 'nickname',
+            'citizenship', 'country', 'religion', 'place_of_birth',
+            'date_of_birth', 'gender', 'family_rank', 'email',
+            'phone_number', 'previous_school', 'nisn', 'nik', 'kitas',
+            'status', 'street', 'rt', 'rw', 'village', 'district',
+            'city_regency', 'province', 'other', 'academic_status'
+          ];
+
+          Object.keys(serverErrors).forEach((field) => {
+            const message = serverErrors[field][0]; 
+
+            if (studentInfoFields.includes(field)) {
+              if (!formattedErrors.studentInfo) formattedErrors.studentInfo = {};
+              formattedErrors.studentInfo[field] = message;
+            } 
+          });
+
+          console.log("Mapped Validation Errors:", formattedErrors);
+          
+          setErrors(formattedErrors); 
+          setIsPopupOpen(false); 
+          setScrollTrigger((prev) => prev + 1); 
+          
         } else {
           console.error("Server Error:", error.response.data);
+          alert("An error occurred: " + (error.response.data.message || "Unknown error"));
         }
       } else {
         console.error("Failed to update student:", error);
+        alert("Network error or server not responding.");
       }
     } finally {
       setIsUpdating(false);
