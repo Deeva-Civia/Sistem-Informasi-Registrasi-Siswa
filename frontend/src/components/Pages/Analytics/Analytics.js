@@ -429,7 +429,7 @@ const RegistrationGrowthChart = ({ multiYearData }) => {
               tick={{ fontSize: 12, fontWeight: 600 }}
               dy={10}
             />
-            <YAxis axisLine={false} tickLine={false} />
+            <YAxis axisLine={false} tickLine={false} allowDecimals={false} />
             <Tooltip content={<CustomTooltipGrowth />} />
             <Area
               type='monotone'
@@ -562,7 +562,7 @@ const RegistrationTrendChart = ({ trends }) => {
               tick={{ fontSize: 12, fontWeight: 600 }}
               dy={10}
             />
-            <YAxis axisLine={false} tickLine={false} />
+            <YAxis axisLine={false} tickLine={false} allowDecimals={false} />
             <Tooltip content={<CustomTooltipTrend />} />
             <Line
               type='monotone'
@@ -678,7 +678,12 @@ const Analytics = () => {
     currentRegData = data.pre_register || {};
   }
 
-  const trendLabel = regMode === 'daily' ? 'from yesterday' : 'from last year';
+  const trendLabel =
+    regMode === 'daily'
+      ? 'from yesterday'
+      : regMode === 'pre_register'
+      ? 'from current year'
+      : 'from last year';
 
   let servedSummary = {
     total: 0,

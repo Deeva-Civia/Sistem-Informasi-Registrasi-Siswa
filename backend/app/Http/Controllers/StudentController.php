@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Enrollment;
@@ -14,11 +15,11 @@ use App\Models\StudentDiscount;
 use App\Models\StudentGuardian;
 use Illuminate\Support\Facades\DB;
 use App\Services\AuditTrailService;
+use Illuminate\Support\Facades\URL;
 use App\Events\StudentStatusUpdated;
+use Illuminate\Support\Facades\Log; 
 use App\Models\ApplicationFormVersion;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\Log; 
 
 class StudentController extends Controller
 {
@@ -830,7 +831,7 @@ class StudentController extends Controller
                 'country' => 'sometimes|nullable',
                 'religion'     => 'sometimes|required|in:Islam,Kristen,Katolik,Hindu,Buddha,Konghucu,Kristen Advent',
                 'place_of_birth' => 'sometimes|required|string',
-                'date_of_birth' => 'sometimes|required|date',
+                'date_of_birth' => 'sometimes|required|date|before:today',
                 'gender' => 'sometimes|required|string',
                 'family_rank' => 'sometimes|required|string',
                 'email'        => 'sometimes|required|email',
@@ -941,6 +942,13 @@ class StudentController extends Controller
             
             // Update student
             $studentData = collect($validated)->except(['academic_status', 'academic_status_other'])->toArray();
+
+            if (isset($studentData['date_of_birth'])) {
+                $dob = Carbon::parse($studentData['date_of_birth']);
+                $diff = $dob->diff(Carbon::now());
+                $studentData['age'] = "{$diff->y} years {$diff->m} months";
+            }
+
             $student->fill($studentData);
             
             $shouldClearCache = false; 
