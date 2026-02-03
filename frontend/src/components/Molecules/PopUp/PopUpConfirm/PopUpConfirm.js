@@ -14,6 +14,7 @@ const PopUpConfirm = React.memo(
     navigate,
     onDuplicateFound,
     onSetAllowNavigation,
+    onSetErrors,
   }) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showWrongSectionPopup, setShowWrongSectionPopup] = useState(false);
@@ -62,8 +63,19 @@ const PopUpConfirm = React.memo(
         }
 
         if (errorDetails) {
-          const errorMessages = Object.values(errorDetails).flat().join(', ');
-          alert('Validation errors: ' + errorMessages);
+          const formattedErrors = {};
+          Object.keys(errorDetails).forEach((field) => {
+            if (['first_name', 'date_of_birth', 'nik', 'nisn', 'email'].includes(field)) {
+              if (!formattedErrors.studentInfo) formattedErrors.studentInfo = {};
+              formattedErrors.studentInfo[field] = errorDetails[field][0];
+            }
+          });
+
+          if (onSetErrors) {
+            onSetErrors(formattedErrors);
+          }
+
+          onCancel();
         } else if (generalMessage) {
           alert('Registration failed: ' + generalMessage);
         } else {

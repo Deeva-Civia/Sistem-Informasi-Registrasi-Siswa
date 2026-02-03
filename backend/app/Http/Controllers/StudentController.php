@@ -171,20 +171,30 @@ class StudentController extends Controller
     
             // Transform data (photo_url)
             $students->getCollection()->transform(function ($student) {
-                $photoUrl = null;
+                $processedPhotoUrl = null;
                 try {
+                    $rawPhotoPath = null;
+
                     if ($student->latest_data_snapshot) {
                         $decode = json_decode($student->latest_data_snapshot);
-                        $photoUrl = $decode->request_data->photo_url ?? null;
+                        $rawPhotoPath = $decode->request_data->photo_url ?? null;
                     } 
-                    unset($student->latest_data_snapshot); 
-                    $student->photo_url = $photoUrl;
-                    return $student;
+
+                    if ($rawPhotoPath) {
+                        $pathOnly = parse_url($rawPhotoPath, PHP_URL_PATH) ?: $rawPhotoPath;
+
+                        $pathOnly = ltrim($pathOnly, '/');
+                        $cleanPath = preg_replace('/^storage\//', '', $pathOnly);
+
+                        $processedPhotoUrl = URL::to("api/storage-file/{$cleanPath}");
+                    }
     
                 } catch (\Exception $e) {
+                    Log::warning('Transform Photo Error for Student ID: ' . $student->id);
                 }
     
-                $student->photo_url = $photoUrl;
+                $student->photo_url = $processedPhotoUrl;
+                unset($student->latest_data_snapshot);
     
                 return $student;
             });

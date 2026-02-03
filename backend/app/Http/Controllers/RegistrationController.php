@@ -272,7 +272,7 @@ class RegistrationController extends Controller
             },
             'religion' => 'required|string',
             'place_of_birth' => 'required|string',
-            'date_of_birth' => 'required|date',
+            'date_of_birth' => 'required|date|before:today',
             'email' => 'required|email',
             'phone_number' => 'required|string',
             'previous_school' => 'nullable|string',

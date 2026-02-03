@@ -350,8 +350,29 @@ const StudentInformationSection = ({
 
   const handleDateOfBirth = (value) => {
     setDateOfBirth(value);
-    if (dateOfBirthError && value) setDateOfBirthError(false);
+
+    const inputDate = new Date(value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+
+    let isValid = true;
+    let errorMessage = null;
+
+    if (value && inputDate > today) {
+      isValid = false;
+      errorMessage = "Date of birth cannot be in the future";
+      setDateOfBirthError(true);
+    } else {
+      if (dateOfBirthError) setDateOfBirthError(false);
+    }
+
     onDataChange({ date_of_birth: value });
+
+    if (onValidationChange) {
+      onValidationChange({
+        date_of_birth: isValid ? null : errorMessage
+      });
+    }
   };
 
   const handleEmail = (value) => {
@@ -709,6 +730,11 @@ const StudentInformationSection = ({
                   </svg>
                 </div>
               </div>
+              {dateOfBirthError && (
+                <div className={styles.inlineErrorMessage}>
+                  Date of birth cannot be in the future
+                </div>
+              )}
             </div>
           </div>
           {citizenship === 'Non Indonesia' && (

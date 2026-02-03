@@ -148,16 +148,14 @@
 .tableHeaderGrid,
 .registrationDataRow {
   display: grid;
-  /* --- PERUBAHAN Task 1: Menambah kolom untuk Type (Total 7 kolom) --- */
   grid-template-columns:
     minmax(200px, 1fr)
     minmax(200px, 1fr)
     minmax(200px, 1fr)
     minmax(104px, 1fr)
     minmax(120px, 1fr)
-    minmax(100px, 1fr) /* Kolom Baru: Type */
-    minmax(100px, 1fr); /* Kolom Edit (Ex-Status) */
-  /* ------------------------------------------------------------------ */
+    minmax(100px, 1fr) 
+    minmax(100px, 1fr);
   border-bottom: 4px solid var(--main-grey);
 }
 

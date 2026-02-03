@@ -428,6 +428,7 @@ const FormButtonSection = ({
           navigate={navigate}
           onDuplicateFound={handleDuplicateFound}
           onSetAllowNavigation={onSetAllowNavigation}
+          onSetErrors={onSetErrors} 
         />
       )}
       {showDuplicatePopup && (

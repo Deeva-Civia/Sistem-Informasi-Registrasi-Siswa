@@ -6,6 +6,8 @@ import styles from "./PhotoUploadPopup.module.css";
 import getCroppedImg from "./CropImage";
 import Button from "../../../Atoms/Button/Button";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
 const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
   const fileInputRef = useRef(null);
 
@@ -20,26 +22,42 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isCropping, setIsCropping] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState(null);
+
   // --- Handlers ---
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  const handleFileSelectedForCropping = (file) => {
-    setFileType(file.type || "image/jpeg");
+  const validateAndProcessFile = (file) => {
+    setErrorMessage(null); 
 
+    // Cek tipe file
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("The selected file is not an image. Please upload a valid image file.");
+      return;
+    }
+
+    // Cek ukuran file (Max 5MB)
+    if (file.size > MAX_FILE_SIZE) {
+      setErrorMessage("The file is too large. Maximum file size allowed is 5MB.");
+      return;
+    }
+
+    // Jika lolos validasi, proses gambar
+    setFileType(file.type || "image/jpeg");
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       setImageSrc(reader.result);
-      setZoom(1); // Reset zoom saat ganti gambar
+      setZoom(1); 
     });
     reader.readAsDataURL(file);
   };
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
-      handleFileSelectedForCropping(e.target.files[0]);
+      validateAndProcessFile(e.target.files[0]);
     }
   };
 
@@ -49,11 +67,7 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
-      if (file.type.startsWith("image/")) {
-        handleFileSelectedForCropping(file);
-      } else {
-        alert("Please select an image file.");
-      }
+      validateAndProcessFile(file);
       e.dataTransfer.clearData();
     }
   }, []);
@@ -86,6 +100,7 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
     setCrop({ x: 0, y: 0 });
     setCroppedAreaPixels(null);
     setIsDragging(false);
+    setErrorMessage(null);
     onClose();
   };
 
@@ -200,6 +215,13 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
                 <div className={styles.dragAndDropTitle}>
                   Drag and drop your file here
                 </div>
+
+                {errorMessage && (
+                    <div className={styles.errorMessage}>
+                        {errorMessage}
+                    </div>
+                )}
+
                 <div className={styles.or}>or</div>
                 <Button
                   className={styles.browseButton}
@@ -208,6 +230,10 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
                 >
                   <span className={styles.browseText}>Browse Files</span>
                 </Button>
+
+                <div className={styles.fileInfo}>
+                  Maximum file size: 5MB
+                </div>
               </div>
             )}
           </div>
