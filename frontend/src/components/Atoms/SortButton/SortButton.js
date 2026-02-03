@@ -1,4 +1,3 @@
-// SortButton.js
 import React from 'react';
 import '../../Styles/Controls.css';
 import sortIcon from '../../../assets/sort.svg';
@@ -12,7 +11,7 @@ const SortButton = ({
   onClick,
   title = 'Sort',
 }) => {
-  let iconSrc = sortIcon; // default (none)
+  let iconSrc = sortIcon; 
   if (direction === 'asc') iconSrc = bawahIcon;
   else if (direction === 'desc') iconSrc = atasIcon;
 
@@ -37,4 +36,3 @@ const SortButton = ({
 };
 
 export default SortButton;
-

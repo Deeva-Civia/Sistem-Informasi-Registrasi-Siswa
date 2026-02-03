@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Hapus useRef jika tidak dipakai
+import React, { useState, useEffect } from "react"; 
 import styles from "./TermOfPaymentSection.module.css";
 import checkBoxIcon from "../../../../../assets/CheckBox.png";
 import { getRegistrationOptions } from "../../../../../services/api";
@@ -9,13 +9,12 @@ const TermOfPaymentSection = ({
   sharedData,
   prefill,
   errors,
-  isDormitory = false, // Pastikan default false
+  isDormitory = false, 
 }) => {
   const [tuitionFees, setTuitionFees] = useState("");
   const [residencePayment, setResidencePayment] = useState("");
   const [financialPolicy, setFinancialPolicy] = useState(false);
 
-  // State UI untuk menyimpan ID diskon
   const [discountName, setDiscountName] = useState("");
 
   const [discountNotes, setDiscountNotes] = useState("");
@@ -28,7 +27,6 @@ const TermOfPaymentSection = ({
   const [residencePaymentOption, setResidencePaymentOption] = useState([]);
   const [discountTypeOptions, setDiscountTypeOptions] = useState([]);
 
-  // 1. Load Options
   useEffect(() => {
     if (sharedData) {
       setTuitionFeesOption(sharedData.tuition_fees || []);
@@ -45,7 +43,6 @@ const TermOfPaymentSection = ({
     }
   }, [sharedData]);
 
-  // 2. Handle Prefill Data (Masuk)
   useEffect(() => {
     if (prefill && Object.keys(prefill).length > 0) {
       setTuitionFees((v) => v || prefill.tuition_fees || "");
@@ -54,7 +51,6 @@ const TermOfPaymentSection = ({
         v ? v : prefill.financial_policy_contract === "Signed"
       );
 
-      // Logika Prefill Diskon: Prioritaskan ID UI, lalu DB data
       if (prefill._discount_id_ui) {
         setDiscountName(prefill._discount_id_ui);
       } else if (prefill.discount_name) {
@@ -63,9 +59,8 @@ const TermOfPaymentSection = ({
           !isNaN(parseFloat(prefill.discount_name));
 
         if (isNumeric) {
-          setDiscountName(prefill.discount_name); // Jika DB simpan ID
+          setDiscountName(prefill.discount_name);
         } else if (discountTypeOptions.length > 0) {
-          // Jika DB simpan String, cari ID-nya
           const found = discountTypeOptions.find(
             (d) => d.name === prefill.discount_name
           );
@@ -81,9 +76,7 @@ const TermOfPaymentSection = ({
     }
   }, [prefill, discountTypeOptions]);
 
-  // 3. Handle Output Data (Keluar ke Parent)
   useEffect(() => {
-    // Cari Nama String berdasarkan ID yang dipilih
     const selectedDiscountObj = discountTypeOptions.find(
       (d) => String(d.discount_type_id) === String(discountName)
     );
@@ -97,10 +90,8 @@ const TermOfPaymentSection = ({
       residence_payment: residencePayment,
       financial_policy_contract: financialPolicy ? "Signed" : "Not Signed",
 
-      // KIRIM STRING KE PARENT (Untuk Backend)
       discount_name: finalDiscountName,
 
-      // KIRIM ID KE PARENT (Untuk UI state retention saat navigasi)
       _discount_id_ui: discountName,
 
       discount_notes: discountNotes,
@@ -123,14 +114,12 @@ const TermOfPaymentSection = ({
     discountTypeOptions,
   ]);
 
-  // Reset residence payment jika bukan dormitory
   useEffect(() => {
     if (!isDormitory && residencePayment) {
       setResidencePayment("");
     }
-  }, [isDormitory, residencePayment]); // Tambahkan residencePayment ke dependency
+  }, [isDormitory, residencePayment]); 
 
-  // Handlers
   const handleTuitionFeesChange = (e, value) => {
     e.preventDefault();
     setTuitionFees((prev) => (prev === value ? "" : value));
@@ -146,7 +135,7 @@ const TermOfPaymentSection = ({
 
   const handleDiscountChange = (opt) => {
     const val = opt ? opt.value : "";
-    setDiscountName(val); // Simpan ID
+    setDiscountName(val); 
     if (!val) setDiscountNotes("");
   };
 
@@ -203,7 +192,6 @@ const TermOfPaymentSection = ({
           </div>
         </div>
 
-        {/* Residence Hall - Only if isDormitory is true */}
         {isDormitory && (
           <div className={styles.paymentSection}>
             <div className={styles.sectionTitle}>
@@ -293,7 +281,7 @@ const TermOfPaymentSection = ({
                 placeholder="Select discount type"
                 isClearable
                 options={discountTypeOptions.map((d) => ({
-                  value: d.discount_type_id, // Value dropdown adalah ID
+                  value: d.discount_type_id,
                   label: d.name,
                 }))}
                 value={

@@ -41,8 +41,8 @@
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
-  column-gap: 55px; /* <-- Jarak horizontal tetap 55px */
-  row-gap: 20px; /* <-- PERUBAHAN: Jarak vertikal diperkecil */
+  column-gap: 55px; 
+  row-gap: 20px;
   background-color: var(--cream);
 
   padding-bottom: 8px;
@@ -153,13 +153,11 @@
 }
 
 @keyframes grow-in {
-  /* Tahap Awal: Mulai dari ukuran 0 (tidak terlihat) */
   from {
     transform: scale(0);
     opacity: 0;
   }
 
-  /* Tahap Akhir: Selesai di ukuran normal */
   to {
     transform: scale(1);
     opacity: 1;
@@ -238,26 +236,23 @@
     width: 100%;
   }
 
-  /* === PERUBAHAN RESPONSIVE VIRTUAL ACCOUNT DIMULAI DI SINI === */
   .virtualAccountContainer {
-    flex-direction: column; /* Mengubah jadi susun ke bawah */
+    flex-direction: column; 
 
-    gap: 16px; /* Memberi jarak antar item saat tersusun ke bawah */
+    gap: 16px; 
   }
 
   .virtualAccountItem {
-    min-width: 100%; /* Pastikan item mengambil lebar penuh */
+    min-width: 100%; 
     width: 100%;
-    margin-bottom: 0; /* Dihapus karena sudah dihandle 'gap' di container */
+    margin-bottom: 0; 
   }
 
   .virtualAccountNumber {
-    width: 100%; /* Buat garis bawah jadi penuh */
+    width: 100%;
   }
-  /* === AKHIR PERUBAHAN === */
 }
 
-/* Hidden inputs untuk accessibility */
 .hiddenRadio,
 .hiddenCheckbox {
   position: absolute;
@@ -331,7 +326,6 @@ textarea::placeholder {
   color: var(--main-text);
 }
 
-/* Error label untuk sub label Term of Payment */
 .termOfPaymentErrorLabel {
   color: var(--red) !important;
   font-weight: var(--font-weight-semibold);
@@ -392,10 +386,10 @@ textarea::placeholder {
 .virtualAccountContainer {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap; /* Agar responsif di layar kecil */
+  flex-wrap: wrap; 
   justify-content: space-between;
   width: 100%;
-  gap: 16px; /* Menggunakan gap untuk spasi */
+  gap: 16px; 
 }
 
 .virtualAccountItem {
@@ -469,8 +463,8 @@ textarea::placeholder {
   flex-wrap: wrap;
   align-items: flex-start;
   justify-content: flex-start;
-  column-gap: 55px; /* <-- Jarak horizontal tetap 55px */
-  row-gap: 20px; /* <-- PERUBAHAN: Jarak vertikal diperkecil */
+  column-gap: 55px; 
+  row-gap: 20px; 
   background-color: var(--cream);
 
   padding-bottom: 8px;
@@ -581,13 +575,11 @@ textarea::placeholder {
 }
 
 @keyframes grow-in {
-  /* Tahap Awal: Mulai dari ukuran 0 (tidak terlihat) */
   from {
     transform: scale(0);
     opacity: 0;
   }
 
-  /* Tahap Akhir: Selesai di ukuran normal */
   to {
     transform: scale(1);
     opacity: 1;
@@ -666,26 +658,23 @@ textarea::placeholder {
     width: 100%;
   }
 
-  /* === PERUBAHAN RESPONSIVE VIRTUAL ACCOUNT DIMULAI DI SINI === */
   .virtualAccountContainer {
-    flex-direction: column; /* Mengubah jadi susun ke bawah */
+    flex-direction: column; 
 
-    gap: 16px; /* Memberi jarak antar item saat tersusun ke bawah */
+    gap: 16px; 
   }
 
   .virtualAccountItem {
-    min-width: 100%; /* Pastikan item mengambil lebar penuh */
+    min-width: 100%; 
     width: 100%;
-    margin-bottom: 0; /* Dihapus karena sudah dihandle 'gap' di container */
+    margin-bottom: 0; 
   }
 
   .virtualAccountNumber {
-    width: 100%; /* Buat garis bawah jadi penuh */
+    width: 100%; 
   }
-  /* === AKHIR PERUBAHAN === */
 }
 
-/* Hidden inputs untuk accessibility */
 .hiddenRadio,
 .hiddenCheckbox {
   position: absolute;
@@ -759,7 +748,6 @@ textarea::placeholder {
   color: var(--main-text);
 }
 
-/* Error label untuk sub label Term of Payment */
 .termOfPaymentErrorLabel {
   color: var(--red) !important;
   font-weight: var(--font-weight-semibold);
@@ -820,10 +808,10 @@ textarea::placeholder {
 .virtualAccountContainer {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap; /* Agar responsif di layar kecil */
+  flex-wrap: wrap; 
   justify-content: space-between;
   width: 100%;
-  gap: 16px; /* Menggunakan gap untuk spasi */
+  gap: 16px; 
 }
 
 .virtualAccountItem {
@@ -854,7 +842,6 @@ textarea::placeholder {
   width: 90%;
 }
 
-/* --- TAMBAHAN: Style placeholder dan focus untuk input VA --- */
 .virtualAccountNumber::placeholder {
   font-weight: var(--font-weight-regular);
   color: rgba(128, 128, 128, 0.6);

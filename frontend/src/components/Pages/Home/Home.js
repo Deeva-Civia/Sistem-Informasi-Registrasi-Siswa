@@ -58,7 +58,6 @@ const SimpleStatCard = ({
       <FaUserFriends className={styles.cardIcon} />
     </div>
 
-    {/* UPDATE: Menambahkan Breakdown Section (Footer Card) */}
     <div className={styles.cardSubStatRow}>
       <div className={styles.subStatItem}>
         <span className={styles.dotConfirmed}>●</span>
@@ -138,7 +137,6 @@ const Home = () => {
         >
           <p style={{ fontWeight: "bold", margin: "0 0 8px 0" }}>{label}</p>
           {payload.map((entry, index) => {
-            // Mengambil data dari payload object yang kita buat di registrationTrendData
             const confirmed = entry.payload.confirmed || 0;
             const cancelled = entry.payload.cancelled || 0;
 
@@ -288,7 +286,6 @@ const Home = () => {
 
       <div className={styles.sectionHeader}>Latest registration</div>
       <div className={styles.tableContainer}>
-        {/* ... (Table content remains unchanged) ... */}
         <div className={styles.tableHeader}>
           <div>Registration ID</div>
           <div>Student Name</div>
@@ -380,7 +377,6 @@ const Home = () => {
                 tick={{ fontSize: 12, fill: "#7A7A7A" }}
                 allowDecimals={false}
               />
-              {/* REVISI: Menghapus Tooltip default, hanya menyisakan CustomTooltipHome */}
               <Tooltip content={<CustomTooltipHome />} />
               <Line
                 type="monotone"

@@ -1,15 +1,14 @@
-/* src/components/molecules/sidebarMenu/SidebarMenu.css */
 
 .sidebar-menu {
   width: 280px;
-  background: var(--secondary-background); /* KEMBALI KE VARIABLE ASLI */
+  background: var(--secondary-background); 
   padding: 24px;
   height: calc(100vh - 76px);
   box-sizing: border-box;
   position: fixed;
   top: 76px;
   left: 0;
-  z-index: 9999; /* Tetap pertahankan High Z-Index ini */
+  z-index: 9999; 
   border-right: 2px solid #ececec;
   transition: transform 0.3s ease-in-out;
   overflow-y: auto;
@@ -78,9 +77,6 @@
   align-items: center;
 }
 
-/* --- LOGIKA RESPONSIF (FIXED) --- */
-
-/* 1. Tablet/Laptop Kecil (Max 900px) */
 @media (max-width: 900px) {
   .sidebar-menu {
     top: 54px;
@@ -88,10 +84,9 @@
     width: 280px !important;
     padding: 24px !important;
 
-    /* FIX: Pastikan properti ini menimpa style desktop */
     background: var(
       --secondary-background
-    ) !important; /* Pakai Variable Asli */
+    ) !important; 
     z-index: 9999 !important;
   }
 
@@ -110,7 +105,6 @@
   }
 }
 
-/* 2. Tablet Portrait (Max 768px) */
 @media (max-width: 768px) {
   .sidebar-menu {
     top: 50px;
@@ -118,16 +112,13 @@
   }
 }
 
-/* 3. Mobile Landscape/Large (Max 480px) */
 @media (max-width: 480px) {
   .sidebar-menu {
     top: 48px;
     height: calc(100vh - 48px);
-    /* width: 100% !important; */ /* Uncomment jika ingin full width */
   }
 }
 
-/* 4. Mobile Small (Max 360px) */
 @media (max-width: 360px) {
   .sidebar-menu {
     top: 44px;

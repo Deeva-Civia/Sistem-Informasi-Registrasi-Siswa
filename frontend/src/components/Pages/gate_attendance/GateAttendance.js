@@ -12,7 +12,6 @@ const GateAttendance = () => {
   const [search, setSearch] = useState("");
   const [isCheckedIn, setIsCheckedIn] = useState(false);
 
-  // ✅ SESSION STATE
   const [activeSession, setActiveSession] = useState("current");
 
   const handleResetClick = () => {
@@ -26,7 +25,6 @@ const GateAttendance = () => {
   return (
     <div className={styles.gateAttendanceContainer}>
 
-      {/* ================= HEADER ================= */}
       <div className={styles.headerContainer}>
 
         <div className={styles.leftSection}>
@@ -67,7 +65,6 @@ const GateAttendance = () => {
 
       </div>
 
-      {/* ================= SESSION SWITCH ================= */}
       <div className={styles.sessionSwitcher}>
         <div
           className={`${styles.sessionButton} ${

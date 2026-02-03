@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import styles from "./OtherDetailSection.module.css";
 
 const OtherDetailSection = ({ onDataChange, prefill = {} }) => {
-  // 1. Inisialisasi state LOKAL dari prefill
   const [studentRequirementStatus, setStudentRequirementStatus] = useState(
     prefill.student_requirement_status || "complete"
   );
@@ -10,22 +9,16 @@ const OtherDetailSection = ({ onDataChange, prefill = {} }) => {
     prefill.incomplete_documents || ""
   );
 
-  // 2. [PERBAIKAN BAGIAN 1]
-  // Kirim state default ke parent HANYA SEKALI saat komponen di-mount.
   useEffect(() => {
     if (onDataChange) {
-      // Kirim nilai state lokal saat ini (yaitu, "complete" pada awalnya)
       onDataChange({
         student_requirement_status: studentRequirementStatus,
         incomplete_documents: incompleteDocuments,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // <-- Array kosong [] berarti ini HANYA berjalan sekali saat mount
+  }, []); 
 
-  // 3. [PERBAIKAN BAGIAN 2]
-  // Jaga agar state LOKAL tetap sinkron dengan 'prefill' (misalnya saat form di-reset).
-  // JANGAN panggil onDataChange di sini, untuk menghindari loop.
   useEffect(() => {
     setStudentRequirementStatus(prefill.student_requirement_status || "complete");
     setIncompleteDocuments(prefill.incomplete_documents || "");
@@ -33,12 +26,12 @@ const OtherDetailSection = ({ onDataChange, prefill = {} }) => {
 
   const handleStatusChange = (e) => {
     const newStatus = e.target.value;
-    setStudentRequirementStatus(newStatus); // Update state LOKAL
+    setStudentRequirementStatus(newStatus); 
 
     let currentDocs = incompleteDocuments;
 
     if (newStatus === "complete") {
-      setIncompleteDocuments(""); // Update state LOKAL
+      setIncompleteDocuments(""); 
       currentDocs = "";
     }
 
@@ -52,7 +45,7 @@ const OtherDetailSection = ({ onDataChange, prefill = {} }) => {
 
   const handleDocsChange = (e) => {
     const newDocs = e.target.value;
-    setIncompleteDocuments(newDocs); // Update state LOKAL
+    setIncompleteDocuments(newDocs); 
 
     if (onDataChange) {
       onDataChange({

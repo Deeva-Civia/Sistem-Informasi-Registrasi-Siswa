@@ -1,4 +1,3 @@
-// FilterButton.js
 import React from 'react';
 import '../../Styles/Controls.css';
 import filterIcon from '../../../assets/filter.svg';

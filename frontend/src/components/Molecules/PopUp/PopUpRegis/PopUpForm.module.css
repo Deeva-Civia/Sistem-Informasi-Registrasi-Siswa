@@ -163,7 +163,6 @@
   transition: border-color 0.2s ease;
   cursor: pointer;
 
-  /* Panah (default / abu-abu) */
   background-image: url('data:image/svg+xml;utf8,<svg fill="%237A7A7A" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
   background-repeat: no-repeat;
   background-position: right 4px center;
@@ -174,26 +173,21 @@
   align-items: center;
 }
 
-/* Style untuk placeholder bawaan <input> (Select Year) */
 .selectInput::placeholder {
   color: var(--main-grey);
   font-weight: var(--font-weight-regular);
   opacity: 1;
 }
 
-/* === INI YANG HILANG === */
-/* Style untuk placeholder kustom di <div> (Select Semester) */
 .selectInput.placeholder {
   color: var(--main-grey);
   font-weight: var(--font-weight-regular);
 }
 
-/* Style saat input fokus atau menu terbuka */
 .selectInput:focus,
 .customSelectContainer[data-open="true"] .selectInput {
   border-bottom: 1.5px solid var(--main-accent);
 
-  /* Panah (aktif / biru) */
   background-image: url('data:image/svg+xml;utf8,<svg fill="%235F84FE" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
 
   background-repeat: no-repeat;
@@ -201,14 +195,12 @@
   background-size: 24px 24px;
 }
 
-/* Style untuk container[disabled] */
 .customSelectContainer[data-disabled="true"] .selectInput {
   opacity: 0.7;
   cursor: not-allowed;
   background-color: var(--main-background);
 }
 
-/* Wrapper untuk menu dropdown */
 .optionsMenu {
   position: absolute;
   top: 100%;
@@ -224,7 +216,6 @@
   box-sizing: border-box;
 }
 
-/* Wrapper untuk list agar bisa di-scroll */
 .optionsList {
   max-height: 200px;
   overflow-y: auto;
@@ -274,3 +265,4 @@
   margin-top: "4px";
   display: "block";
 }
+

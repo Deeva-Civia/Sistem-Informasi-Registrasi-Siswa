@@ -40,13 +40,11 @@ const IdCardFront = ({
         return;
       }
 
-      // Jika URL sudah berupa blob (dari StudentProfileHeader) atau base64
       if (photo_url.startsWith('blob:') || photo_url.startsWith('data:')) {
         setCardImageSrc(photo_url);
         return;
       }
 
-      // Jika masih URL API, fetch dengan token
       const blobUrl = await fetchAuthenticatedImage(photo_url);
       if (isMounted) {
         setCardImageSrc(blobUrl || userPlaceholder);
@@ -114,7 +112,6 @@ const IdCardFront = ({
   const currentConfig = config[variant] || config.ecp;
   const hasLastName = last_name && last_name.trim() !== '' && last_name !== '-';
 
-  // DETEKSI APAKAH URL ADALAH BASE64
   const isBase64 = photo_url && photo_url.startsWith('data:');
 
   return (
@@ -137,9 +134,6 @@ const IdCardFront = ({
           alt='Student'
           src={cardImageSrc}
           draggable={false}
-          // crossOrigin={
-          //   isBase64 ? undefined : isExport ? "anonymous" : undefined
-          // }
           onError={(e) => {
             e.target.src = userPlaceholder;
           }}

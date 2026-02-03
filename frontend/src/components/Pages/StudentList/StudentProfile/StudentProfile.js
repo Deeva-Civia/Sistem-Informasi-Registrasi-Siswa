@@ -644,31 +644,26 @@ const StudentProfile = () => {
       if (name === "discount_name" && !value) {
         newFormData.discount_notes = "";
       }
-      // [BARU] Tambahkan logika side-effect untuk class_id
       if (name === "class_id") {
         if (options?.classes) {
           const selectedClass = options.classes.find(
             (c) => String(c.class_id) === String(value)
           );
-          // Logika `showMajorField` (baris 1301) adalah grade >= 9
           const gradeNum = selectedClass
             ? parseInt(selectedClass.grade, 10)
             : 0;
 
-          // Jika grade di bawah 9, kosongkan major_id
           if (gradeNum < 9) {
             newFormData.major_id = "";
           }
         }
       }
-      // [AKHIR BARU]
 
       return newFormData;
     });
   };
 
   const handleRadioChange = (name, value) => {
-    // --- [UBAH] Tambahkan "termOfPayment" untuk di-clear errornya ---
     clearError("facilities", name);
     clearError("termOfPayment", name);
 
@@ -686,13 +681,11 @@ const StudentProfile = () => {
           selectedResidence.type.toLowerCase().includes("dormitory");
 
         if (isDormitory) {
-          // Jika memilih dormitory, kosongkan transportasi
           newFormData.transportation_id = "";
           newFormData.pickup_point_id = "";
           newFormData.pickup_point_custom = "";
           newFormData.transportation_policy = "Not Signed";
         } else {
-          // --- [BARU] Jika TIDAK memilih dormitory (atau dikosongkan), kosongkan residence_payment ---
           newFormData.residence_payment = null;
         }
       }
@@ -713,7 +706,6 @@ const StudentProfile = () => {
             currentResidence.type.toLowerCase().includes("dormitory")
           ) {
             newFormData.residence_id = "";
-            // --- [BARU] Karena residence_id dikosongkan, kosongkan juga residence_payment ---
             newFormData.residence_payment = null;
           }
         }
@@ -819,11 +811,9 @@ const StudentProfile = () => {
       studentInfoErrors.previous_school = "Previous school is required.";
     }
 
-    // [AWAL BLOK PENGGANTI] - Ganti baris 911-935
     let isNisnRequired = true;
     const classIdNum = toInt(fullFormData.class_id);
 
-    // ECP (class_id 1,2,3) dan Elem 1-2 (class_id 4,5) tidak wajib NISN
     if ([1, 2, 3, 4, 5].includes(classIdNum)) {
       isNisnRequired = false;
     }
@@ -881,13 +871,9 @@ const StudentProfile = () => {
     const programErrors = {};
     const classIdNum_val = toInt(fullFormData.class_id);
 
-    // Logika ini didasarkan pada 'showMajorField' (grade >= 9)
-    // dan 'classIdRanges' (Middle 10-12, High 13-15).
-    // Grade 9 = class_id 12.
     const needsMajor_val = [12, 13, 14, 15].includes(classIdNum_val);
 
     if (!isFilled(fullFormData.class_id)) {
-      // Seharusnya ini tidak akan pernah terjadi karena dropdown, tapi untuk keamanan
       programErrors.class_id = "Grade is required.";
     }
 
@@ -987,13 +973,11 @@ const StudentProfile = () => {
       newErrors.parentGuardian = parentErrors;
     }
 
-    // --- [LOGIKA BARU DITAMBAHKAN] ---
     const termOfPaymentErrors = {};
     if (!isFilled(fullFormData.tuition_fees)) {
       termOfPaymentErrors.tuition_fees = "Tuition fees are required.";
     }
 
-    // Gunakan memo 'isDormitorySelected' yang sudah ada
     if (isDormitorySelected && !isFilled(fullFormData.residence_payment)) {
       termOfPaymentErrors.residence_payment =
         "Residence payment is required for dormitory.";
@@ -1002,7 +986,6 @@ const StudentProfile = () => {
     if (Object.keys(termOfPaymentErrors).length > 0) {
       newErrors.termOfPayment = termOfPaymentErrors;
     }
-    // --- [AKHIR LOGIKA BARU] ---
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -1010,7 +993,6 @@ const StudentProfile = () => {
 
   useEffect(() => {
     if (Object.keys(errors).length > 0 && scrollTrigger > 0) {
-      // --- [UBAH] Tambahkan "termOfPayment" ---
       const sectionOrder = [
         "studentInfo",
         "program",
@@ -1023,7 +1005,6 @@ const StudentProfile = () => {
       );
 
       if (firstErrorSectionKey) {
-        // --- [BARU] Ganti ID target untuk termOfPayment ---
         const targetId =
           firstErrorSectionKey === "termOfPayment"
             ? "termOfPaymentSection"
@@ -1273,10 +1254,7 @@ const StudentProfile = () => {
     // eslint-disable-next-line
   }, []);
 
-  // [TAMBAH] Buat opsi dropdown untuk Discount (sekitar baris 1350)
-
   const discountSelectOptions = useMemo(() => {
-    // Gunakan 'discount_types' agar sama dengan TermOfPaymentSection.js
     if (!options?.discount_types) return [];
 
     return options.discount_types.map((d) => ({
@@ -1285,7 +1263,6 @@ const StudentProfile = () => {
     }));
   }, [options?.discount_types]);
 
-  // [BARU] Tambahkan mapping rentang class_id
   const classIdRanges = useMemo(
     () => ({
       1: [1, 3], // ECP
@@ -1296,14 +1273,12 @@ const StudentProfile = () => {
     []
   );
 
-  // [BARU] Buat opsi dropdown untuk Grade/Class yang difilter
   const filteredClassOptions = useMemo(() => {
     if (!options?.classes || !formData?.section_id) return [];
 
     const range = classIdRanges[String(formData.section_id)];
 
     if (!range) {
-      // Jika section_id tidak ada di map, kembalikan array kosong
       return [];
     }
 
@@ -1316,7 +1291,7 @@ const StudentProfile = () => {
       })
       .map((cls) => ({
         value: cls.class_id,
-        label: cls.grade, // Menggunakan 'grade' sebagai label (e.g., "1", "10", "K1")
+        label: cls.grade, 
       }));
   }, [options?.classes, formData?.section_id, classIdRanges]);
 
@@ -2420,7 +2395,6 @@ const StudentProfile = () => {
                 <div className={styles.optionsRow}>
                   <div className={styles.field}>
                     <div className={styles.fieldLabel}>Grade</div>
-                    {/* --- [UBAH] Ganti <b> dengan conditional logic --- */}
                     {isEditing ? (
                       <div className={styles.selectWrapper}>
                         <Select
@@ -2449,7 +2423,6 @@ const StudentProfile = () => {
                         {getNameById("classes", formData.class_id)}
                       </b>
                     )}
-                    {/* --- [AKHIR PERUBAHAN] --- */}
                   </div>
                   {showMajorField && (
                     <div className={styles.field}>
@@ -3842,7 +3815,6 @@ const StudentProfile = () => {
                 className={`${styles.sectionHeader} ${
                   isEditing ? styles.sectionHeaderEditing : ""
                 } ${
-                  // --- [BARU] Tambahkan class error di header ---
                   errors.termOfPayment &&
                   (errors.termOfPayment.tuition_fees ||
                     errors.termOfPayment.residence_payment)
@@ -3856,7 +3828,6 @@ const StudentProfile = () => {
                 <div className={styles.paymentSection}>
                   <div
                     className={`${styles.paymentTitle} ${
-                      // --- [BARU] Tambahkan class error di title ---
                       errors.termOfPayment?.tuition_fees
                         ? styles.errorLabel
                         : ""
@@ -3879,12 +3850,10 @@ const StudentProfile = () => {
                   </div>
                 </div>
 
-                {/* --- [BARU] Dibungkus dengan isDormitorySelected --- */}
                 {isDormitorySelected && (
                   <div className={styles.paymentSection}>
                     <div
                       className={`${styles.paymentTitle} ${
-                        // --- [BARU] Tambahkan class error di title ---
                         errors.termOfPayment?.residence_payment
                           ? styles.errorLabel
                           : ""
@@ -3907,7 +3876,6 @@ const StudentProfile = () => {
                     </div>
                   </div>
                 )}
-                {/* --- [AKHIR BUNGKUS] --- */}
 
                 <div className={styles.paymentSection}>
                   <div className={styles.paymentTitle}>
@@ -3956,7 +3924,6 @@ const StudentProfile = () => {
                     )}
                   </div>
 
-                  {/* Tampilkan notes jika sedang edit ATAU jika ada isinya saat view */}
                   {(isEditing || formData.discount_name) && (
                     <div className={styles.field}>
                       <div className={styles.fieldLabel}>Notes</div>
@@ -3969,7 +3936,7 @@ const StudentProfile = () => {
                           onChange={handleChange}
                           className={styles.formInput}
                           placeholder="Discount notes"
-                          disabled={!formData.discount_name} // <-- Note input nonaktif jika tidak ada diskon
+                          disabled={!formData.discount_name} 
                         />
                       ) : (
                         <b className={styles.fieldValue}>

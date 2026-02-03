@@ -137,7 +137,6 @@ const FormButtonSection = ({
       }
     }
 
-    // Field lain yang selalu required
     if (!studentInfo.gender) {
       errors.studentInfo = { ...errors.studentInfo, gender: true };
     }
@@ -343,7 +342,6 @@ const FormButtonSection = ({
       errors.termOfPayment = { ...errors.termOfPayment, tuition_fees: true };
     }
 
-    // Hanya wajibkan residence_payment jika siswa di asrama
     if (isDormitoryStudent && !termOfPayment.residence_payment) {
       errors.termOfPayment = {
         ...errors.termOfPayment,
@@ -371,7 +369,6 @@ const FormButtonSection = ({
   };
 
   const handleConfirmSubmit = () => {
-    // Popup ditutup, data akan diproses di PopUpConfirm
     setShowConfirmation(false);
   };
 

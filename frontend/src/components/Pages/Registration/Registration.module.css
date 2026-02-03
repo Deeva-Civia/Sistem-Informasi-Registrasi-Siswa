@@ -130,14 +130,12 @@
   height: 14px;
 }
 
-/* --- PERUBAHAN Task 3: Styling untuk tombol Edit di dalam Tabel --- */
 .tableEditButton {
   display: flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
 }
-/* ---------------------------------------------------------------- */
 
 .tableContainer {
   background: var(--secondary-background);

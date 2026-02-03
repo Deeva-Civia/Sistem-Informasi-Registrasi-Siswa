@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // ✅ dynamic from .env
-  withCredentials: true, // if using Sanctum for auth
+  baseURL: process.env.REACT_APP_API_URL, 
+  withCredentials: true, 
 });
 
 export default api;
@@ -177,7 +177,6 @@ export const getRegistrationPreview = async (applicationId, version) => {
   return await res.json();
 };
 
-// --- FUNGSI BARU UNTUK HALAMAN STUDENT LIST ---
 export const getStudents = async ({
   search = '',
   school_year_id = null,
@@ -213,7 +212,6 @@ export const getStudents = async ({
   return await res.json();
 };
 
-// --- FUNGSI BARU UNTUK UPDATE PROFIL MAHASISWA ---
 export const updateStudent = async (studentId, studentData) => {
   const token = localStorage.getItem('token');
   const res = await fetch(
@@ -242,7 +240,6 @@ export const updateStudent = async (studentId, studentData) => {
   return await res.json();
 };
 
-// --- FUNGSI INI DIKEMBALIKAN UNTUK HALAMAN REGISTRATION ---
 export const getRegistrations = async ({
   search = '',
   school_year_id = null,

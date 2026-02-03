@@ -1,5 +1,5 @@
 import React from "react";
-import styles from "./WrongSectionPopup.module.css"; // Kita akan buat file CSS ini di langkah berikutnya
+import styles from "./WrongSectionPopup.module.css"; 
 import Button from "../../../../Atoms/Button/Button";
 
 const WrongSectionPopup = ({ onClose }) => {
@@ -7,7 +7,6 @@ const WrongSectionPopup = ({ onClose }) => {
     <div className={styles.overlay}>
       <div className={styles.popup}>
         <div className={styles.iconWrapper}>
-          {/* Icon can be an SVG or an emoji */}
           ⚠️
         </div>
         <h3 className={styles.title}>Incorrect Registration Status</h3>

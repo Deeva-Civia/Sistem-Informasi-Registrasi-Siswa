@@ -1,7 +1,6 @@
 import React from "react";
 import "./Button.css";
 
-// SVG untuk ikon dropdown agar tidak perlu file gambar terpisah
 const DropdownIcon = () => (
   <svg
     className="dropdown-icon"
@@ -11,7 +10,7 @@ const DropdownIcon = () => (
   >
     <path
       d="M18.14 9.55469L13.3 14.3947C12.91 14.7847 12.28 14.7847 11.89 14.3947L7.05 9.55469"
-      stroke="currentColor" // 'currentColor' akan mengambil warna dari parent (teks)
+      stroke="currentColor" 
       strokeWidth="1.5"
       strokeMiterlimit="10"
       strokeLinecap="round"
@@ -59,4 +58,3 @@ const Button = ({
 };
 
 export default Button;
-

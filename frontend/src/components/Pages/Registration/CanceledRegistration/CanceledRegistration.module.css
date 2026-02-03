@@ -39,8 +39,6 @@
   margin-bottom: 32px;
 }
 
-/* HAPUS .searchBar, .searchInput, .searchInput::placeholder, dan .searchIconImg */
-
 .actionButtonsContainer {
   display: flex;
   flex-direction: column;

@@ -18,7 +18,6 @@ textarea {
   transition: color 0.2s ease, font-weight 0.2s ease;
 }
 
-/* Error label styling - Label merah yang rapi */
 .errorLabel {
   color: var(--red) !important;
   font-family: var(--font-primary);
@@ -30,7 +29,6 @@ textarea {
   transition: color 0.2s ease;
 }
 
-/* Error input styling - Hanya ubah warna text, JANGAN tambah border baru */
 .errorInput {
   border: none !important;
   border-bottom: none !important;
@@ -47,7 +45,6 @@ textarea {
   color: var(--red) !important;
 }
 
-/* Error state styling untuk SEMUA input field - Override border bottom yang sudah ada */
 .errorFieldWrapper input,
 .errorFieldWrapper .react-select__control,
 .errorFieldWrapper .dateInput,
@@ -57,26 +54,20 @@ textarea {
   transition: all 0.2s ease;
 }
 
-/* Error state untuk Select component - Override border bottom yang sudah ada */
-
-/* Error state untuk date input - Override border bottom yang sudah ada */
 .errorFieldWrapper .dateInput {
   color: var(--red) !important;
 }
 
-/* Error state untuk academic status other input - Override border bottom yang sudah ada */
 .errorFieldWrapper .otherInput {
   border-bottom: 2px solid var(--red) !important;
   color: var(--red) !important;
 }
 
-/* Hapus semua error container dan message yang tidak diperlukan */
 .errorContainer,
 .errorMessage {
   display: none !important;
 }
 
-/* Inline error message untuk NIK, NISN, KITAS - Lebih rapi */
 .inputWithError {
   position: relative;
   display: flex;
@@ -103,7 +94,6 @@ textarea {
   border-radius: 4px !important;
 }
 
-/* Wrapper untuk academic status other input */
 .otherInputWrapper {
   position: relative;
   width: 100%;
@@ -127,21 +117,18 @@ textarea::placeholder {
   color: rgba(128, 128, 128, 0.6);
 }
 
-/* Memastikan input dengan nilai tetap terlihat jelas */
 input:not(:placeholder-shown),
 textarea:not(:placeholder-shown) {
   color: var(--main-text) !important;
   font-weight: var(--font-weight-bold) !important;
 }
 
-/* Styling untuk input fields dengan nilai */
 input.hasValue,
 textarea.hasValue {
   color: var(--main-text) !important;
   font-weight: var(--font-weight-bold) !important;
 }
 
-/* Memastikan input tidak kembali ke placeholder style */
 input[value]:not([value=""]),
 textarea[value]:not([value=""]) {
   color: var(--main-text) !important;
@@ -177,7 +164,6 @@ textarea[value]:not([value=""]) {
   padding: 0;
 }
 
-/* STANDARDIZED FIELD STYLES - Semua field menggunakan style yang sama */
 .nameField,
 .nicknameField,
 .genderField,
@@ -212,13 +198,11 @@ textarea[value]:not([value=""]) {
   min-width: 0;
   border-bottom: 1px solid var(--main-text);
 }
-/* Khusus untuk field age dan email address - tambah gap yang lebih besar */
 .ageField,
 .emailField {
   gap: 20px;
 }
 
-/* Row layout - Standardized spacing */
 .row,
 .topRow,
 .addressRow {
@@ -232,32 +216,26 @@ textarea[value]:not([value=""]) {
   padding: 0;
 }
 
-/* Khusus untuk row 3 (Citizenship, NISN, Rank, Age) - tambah margin top lebih besar */
 .row:nth-child(3) {
   margin-top: 20px;
 }
 
-/* Khusus untuk row 4 (Gender, Email, Previous School) - tambah margin top */
 .row:nth-child(4) {
   margin-top: 15px;
 }
 
-/* Khusus untuk row 5 (Phone, Academic Status, Other) - tambah margin top */
 .row:nth-child(5) {
   margin-top: 20px;
 }
 
-/* Khusus untuk row 7 (Phone, Academic Status) - tambah margin top */
 .topRow:nth-of-type(2) {
   margin-top: 15px;
 }
 
-/* Jarak vertikal spesifik di atas baris Gender */
 .genderRow {
   margin-top: 20px;
 }
 
-/* Address section styling - KURANGI gap yang terlalu besar */
 .addressSection {
   align-self: stretch;
   display: flex;
@@ -278,12 +256,10 @@ textarea[value]:not([value=""]) {
   background: transparent !important;
 }
 
-/* Khusus untuk field yang tidak memerlukan border bottom - HAPUS noBorder */
 .noBorder {
   border-bottom: 1px solid var(--main-text) !important;
 }
 
-/* Field khusus untuk RT/RW */
 .rtField {
   flex: 1;
   border-bottom: 1px solid var(--main-text);
@@ -339,12 +315,10 @@ textarea[value]:not([value=""]) {
   flex: 1;
 }
 
-/* Wrapper untuk komponen Select agar bisa mengatur lebarnya */
 .academicStatusWrapper .selectWrapper {
   flex: 1;
 }
 
-/* Academic status styling - HAPUS line yang double */
 .academicStatusOptions {
   display: flex;
   flex-direction: row;
@@ -381,7 +355,6 @@ textarea[value]:not([value=""]) {
   color: var(--main-text);
 }
 
-/* Style untuk input 'Other' saat muncul */
 .otherInput {
   color: var(--main-text);
   padding: 6px 2px;
@@ -403,7 +376,6 @@ textarea[value]:not([value=""]) {
   font-weight: var(--font-weight-regular) !important;
 }
 
-/* Date input styling */
 .dateInputWrapper {
   position: relative;
   width: 100%;
@@ -444,7 +416,6 @@ textarea[value]:not([value=""]) {
   pointer-events: none;
 }
 
-/* Menyembunyikan icon kalender default browser */
 .dateInput::-webkit-calendar-picker-indicator {
   background: transparent;
   bottom: 0;
@@ -552,7 +523,6 @@ textarea[value]:not([value=""]) {
   padding: 12px;
 }
 
-/* Content wrapper - kurangi gap yang terlalu besar */
 .contentWrapper {
   align-self: stretch;
   display: flex;
@@ -692,7 +662,6 @@ select.hasValue {
   color: var(--main-text);
 }
 
-/* Standard padding untuk semua input */
 input,
 select,
 textarea,
@@ -705,7 +674,6 @@ textarea,
   padding-bottom: 2px !important;
 }
 
-/* Responsive design - pastikan field tetap sejajar */
 @media (max-width: 1000px) {
   .row,
   .addressRow,
@@ -731,7 +699,6 @@ textarea,
     height: 80px;
   }
 
-  /* Khusus untuk field age dan email di mobile */
   .ageField,
   .emailField {
     gap: 16px;
@@ -783,7 +750,6 @@ textarea,
   }
 }
 
-/* Placeholder text merah untuk field yang error */
 .errorFieldWrapper input::placeholder,
 .errorFieldWrapper .react-select__placeholder {
   color: var(--red) !important;

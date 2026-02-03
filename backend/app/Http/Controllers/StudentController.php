@@ -611,13 +611,10 @@ class StudentController extends Controller
                     $pathOnly = $rawPhotoPath;
                 }
     
-                // 2. Bersihkan slash di depan
                 $pathOnly = ltrim($pathOnly, '/');
     
-                // 3. Hapus prefix "storage/"
                 $cleanPath = preg_replace('/^storage\//', '', $pathOnly);
     
-                // 4. Generate URL Proxy yang bersih
                 $processedPhotoUrl = URL::to("api/storage-file/{$cleanPath}");
             }
     

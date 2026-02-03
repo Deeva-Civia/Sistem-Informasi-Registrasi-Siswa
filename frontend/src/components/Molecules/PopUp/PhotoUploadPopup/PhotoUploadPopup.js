@@ -1,4 +1,3 @@
-// src/components/PhotoUploadPopup/PhotoUploadPopup.js
 import React, { useState, useCallback, useRef } from "react";
 import ReactDOM from "react-dom";
 import Cropper from "react-easy-crop";
@@ -45,7 +44,6 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
       return;
     }
 
-    // Jika lolos validasi, proses gambar
     setFileType(file.type || "image/jpeg");
     const reader = new FileReader();
     reader.addEventListener("load", () => {
@@ -145,7 +143,6 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
         </button>
 
         {imageSrc ? (
-          /* --- TAMPILAN CROPPER --- */
           <>
             <div className={styles.cropperContainer}>
               <Cropper
@@ -196,7 +193,6 @@ const PhotoUploadPopup = ({ isOpen, onClose, onFileSelect }) => {
             </div>
           </>
         ) : (
-          /* --- TAMPILAN DRAG & DROP --- */
           <div
             className={styles.dragAndDrop}
             onDragEnter={handleDragIn}

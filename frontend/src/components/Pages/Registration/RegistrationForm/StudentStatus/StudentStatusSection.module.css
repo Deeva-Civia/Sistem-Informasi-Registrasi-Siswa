@@ -80,13 +80,11 @@
 }
 
 @keyframes grow-in {
-  /* Tahap Awal: Mulai dari ukuran 0 (tidak terlihat) */
   from {
     transform: scale(0);
     opacity: 0;
   }
 
-  /* Tahap Akhir: Selesai di ukuran normal */
   to {
     transform: scale(1);
     opacity: 1;
@@ -170,7 +168,6 @@
   align-items: flex-start;
 }
 
-/* Search input row to contain input and searching indicator */
 .searchInputRow {
   display: flex;
   flex-direction: row;
@@ -261,7 +258,6 @@
   flex-shrink: 0;
 }
 
-/* Dropdown results select that grows horizontally based on content */
 .searchResultsSelect {
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -392,16 +388,12 @@
   font-family: var(--font-primary);
 }
 
-/* --- Aturan Final Highlight Item Teratas --- */
-
-/* Ini adalah kelas yang memberi warna biru pada item */
 .topItemHighlight {
   background-color: var(--secondary-accent);
   border-top: 1px solid var(--secondary-accent);
   border-bottom: 1px solid var(--secondary-accent);
 }
 
-/* (Opsional) Efek hover untuk item yang sedang di-highlight */
 .topItemHighlight:hover {
   background-color: var(--main-accent);
 }
