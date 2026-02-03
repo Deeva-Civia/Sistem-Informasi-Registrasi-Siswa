@@ -1055,29 +1055,23 @@ const StudentProfile = () => {
 
   const handleConfirmUpdate = async () => {
     setIsUpdating(true);
-    // 1. Salin data dari state
     const dataToSend = { ...formData, ...studentInfo };
 
     if (selectedPhoto) {
       dataToSend.photo = selectedPhoto;
     }
 
-    // --- [PERBAIKAN UTAMA] Konversi Discount ID ke String ---
-    // Jika discount_name ada isinya DAN berupa Angka (ID), kita cari Namanya
     if (dataToSend.discount_name && options?.discount_types) {
       const val = dataToSend.discount_name;
 
-      // Cari diskon yang cocok di daftar opsi (baik berdasarkan Nama atau ID)
       const foundDiscount = options.discount_types.find(
         (d) => d.name === val || String(d.discount_type_id) === String(val)
       );
 
       if (foundDiscount) {
-        // UBAH DATA YANG AKAN DIKIRIM KE SERVER MENJADI ID
         dataToSend.discount_name = foundDiscount.discount_type_id;
       }
     }
-    // -------------------------------------------------------
 
     const classIdNum = parseInt(dataToSend.class_id, 10);
     const needsMajor = [12, 13, 14, 15].includes(classIdNum);
@@ -1088,54 +1082,77 @@ const StudentProfile = () => {
 
     try {
       const response = await updateStudent(id, dataToSend);
-      const updatedData = response.data.request_data;
 
-      // Update local state dengan data response yang sudah "bersih" dari server
+      const updatedRequestData = response.data.request_data;
+      const serverStudentData = response.data;
+
+      const preservedIdCardInfo = studentData?.idCardInfo || null;
+
+      let finalPhotoUrl = updatedRequestData.photo_url;
+      if (finalPhotoUrl && !finalPhotoUrl.includes('api/storage-file')) {
+        const pathOnly = finalPhotoUrl.replace(/^.*storage\//, ''); 
+        const apiBase = process.env.REACT_APP_API_URL.replace(/\/$/, ''); 
+        finalPhotoUrl = `${apiBase}/storage-file/${pathOnly}`;
+      }
+
+      if (finalPhotoUrl) {
+          const timestamp = new Date().getTime();
+          const separator = finalPhotoUrl.includes('?') ? '&' : '?';
+          finalPhotoUrl = `${finalPhotoUrl}${separator}t=${timestamp}`;
+      }
+
       const combinedData = {
+        ...formData,
         id_primary: response.data.id,
         student_id: response.data.student_id,
         application_id:
           response.data.application_id || studentData.application_id,
         version_id: response.version_id,
-        ...updatedData,
+        ...updatedRequestData,
+        photo_url: finalPhotoUrl,
       };
-      setStudentData(response.data);
+
       setStudentData((prev) => ({
-        ...prev,
-        application_id: response.data.application_id,
+        ...prev,                
+        ...serverStudentData,   
+        idCardInfo: preservedIdCardInfo, 
         version_id: response.version_id,
       }));
       setProfileData(combinedData);
       setFormData(combinedData);
+
       const newStudentInfo = {};
-      for (const key of studentInfoKeys.current) {
-        newStudentInfo[key] = combinedData[key];
+      const keysToUpdate = studentInfoKeys.current.size > 0 
+        ? studentInfoKeys.current 
+        : Object.keys(studentInfo); 
+        
+      for (const key of keysToUpdate) {
+          newStudentInfo[key] = combinedData[key] !== undefined ? combinedData[key] : studentInfo[key];
       }
+      newStudentInfo.photo_url = finalPhotoUrl;
+      
       setStudentInfo(newStudentInfo);
+
       setShowSuccess(true);
       setIsEditing(false);
       setIsPopupOpen(false);
       setSelectedPhoto(null);
       setPhotoPreview(null);
+
       await refreshHistoryDates();
     } catch (error) {
+      console.error("Failed to update student:", error);
       if (error.response && error.response.data) {
         if (error.response.data.type === "validation") {
           console.error("Validation Errors:", error.response.data.errors);
-          // Tampilkan pesan error yang lebih spesifik jika ada
           const msg = Object.values(error.response.data.errors)
             .flat()
             .join(", ");
-          alert(`Validation Failed: ${msg}`);
         } else {
           console.error("Server Error:", error.response.data);
-          alert(
-            `Update failed: ${error.response.data.message || error.message}`
-          );
         }
       } else {
         console.error("Failed to update student:", error);
-        alert(`Update failed: ${error.message}`);
       }
     } finally {
       setIsUpdating(false);

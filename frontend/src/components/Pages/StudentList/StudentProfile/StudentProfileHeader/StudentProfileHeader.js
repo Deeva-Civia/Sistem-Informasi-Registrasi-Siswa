@@ -1,11 +1,10 @@
 // File: src/components/pages/studentProfileHeader/studentProfileHeader.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import styles from './StudentProfileHeader.module.css';
 import Button from '../../../../Atoms/Button/Button';
 import placeholder from '../../../../../assets/user.svg';
 import IdCardPopup from '../../../../Molecules/PopUp/IdCardPopup/IdCardPopup';
-import { fetchAuthenticatedImage } from '../../../../../services/api';
 
 const getStatusVariant = (status) => {
   if (!status) return 'not-graduated';
@@ -14,7 +13,7 @@ const getStatusVariant = (status) => {
   if (lowerStatus.includes('graduate')) return 'graduated';
   if (lowerStatus.includes('expelled')) return 'expelled';
   if (lowerStatus.includes('withdraw')) return 'withdraw';
-  return 'not-graduated'; // Default variant
+  return 'not-graduated'; 
 };
 
 const StudentProfileHeader = ({
@@ -37,51 +36,27 @@ const StudentProfileHeader = ({
   onAddPhotoClick,
   onStatusChange,
   onDownloadPdfClick,
-  // [BARU] Props untuk ID Card
   studentPrimaryId,
   idCardInfo,
   onIdCardUpdate,
 }) => {
   const [isIdCardPopupOpen, setIdCardPopupOpen] = useState(false);
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [displayPhotoUrl, setDisplayPhotoUrl] = useState(placeholder);
 
   const hasPreview = !!photoPreview;
   const hasFormDataUrl = !!(formData && formData.photo_url);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadPhoto = async () => {
-      // 1. Prioritas: Photo Preview (saat user baru upload tapi belum save)
-      if (photoPreview) {
-        setDisplayPhotoUrl(photoPreview);
-        return;
+  const displayPhotoUrl = useMemo(() => {
+      if (isEditing && photoPreview) {
+          return photoPreview;
       }
-
-      // 2. Jika ada photo_url dari API (format: http://api.../storage-file/...)
-      const apiPhotoUrl = formData?.photo_url;
-
-      if (apiPhotoUrl) {
-        // Fetch gambar sebagai blob dengan token
-        const blobUrl = await fetchAuthenticatedImage(apiPhotoUrl);
-        if (isMounted && blobUrl) {
-          setDisplayPhotoUrl(blobUrl);
-        } else if (isMounted) {
-          setDisplayPhotoUrl(placeholder);
-        }
-      } else {
-        if (isMounted) setDisplayPhotoUrl(placeholder);
+      
+      if (formData?.photo_url) {
+          return formData.photo_url;
       }
-    };
-
-    loadPhoto();
-
-    // Cleanup blob URL untuk menghindari memory leak
-    return () => {
-      isMounted = false;
-    };
-  }, [photoPreview, formData?.photo_url]);
+      
+      return placeholder;
+  }, [isEditing, photoPreview, formData?.photo_url]);
 
   const imageUrl =
     photoPreview || (formData && formData.photo_url) || placeholder;
