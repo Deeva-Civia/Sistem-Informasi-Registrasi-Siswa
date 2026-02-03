@@ -108,16 +108,12 @@ const StudentInformationSection = ({
 
   useEffect(() => {
     if (prefill && Object.keys(prefill).length > 0) {
-      // ... logic prefill
     } else if (Object.keys(prefill).length === 0) {
-      // ... logic reset (yang memicu loop)
     }
   }, [prefill]);
 
   useEffect(() => {
-    // Hanya lakukan aksi jika prefill berubah
     if (prefill && Object.keys(prefill).length > 0) {
-      // Jika ada data prefill, isi state lokal
       setFirstName(prefill.first_name || '');
       setMiddleName(prefill.middle_name || '');
       setLastName(prefill.last_name || '');
@@ -138,8 +134,8 @@ const StudentInformationSection = ({
       setAcademicStatus(prefill.academic_status || '');
       setAcademicStatusOther(prefill.academic_status_other || '');
       setStreet(prefill.street || '');
-      setRt(prefill.rt || '0'); // Default ke "0"
-      setRw(prefill.rw || '0'); // Default ke "0"
+      setRt(prefill.rt || '0'); 
+      setRw(prefill.rw || '0'); 
       setVillage(prefill.village || '');
       setDistrict(prefill.district || '');
       setCity(prefill.city_regency || '');
@@ -1099,7 +1095,6 @@ const StudentInformationSection = ({
                   }
                 />
 
-                {/* Input 'Other' akan muncul di sebelah kanan jika kondisi terpenuhi */}
                 {academicStatus === 'OTHER' && (
                   <input
                     className={styles.otherInput}

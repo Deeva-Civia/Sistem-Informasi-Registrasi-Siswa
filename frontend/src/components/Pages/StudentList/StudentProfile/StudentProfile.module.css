@@ -32,7 +32,6 @@
   color: var(--main-text);
 }
 
-/* --- Style Baru untuk Header Editing --- */
 .sectionHeaderEditing {
   background-color: #e4eefa !important;
   border-left-color: #8dc1ff !important;
@@ -50,7 +49,6 @@
   padding: 6px 12px;
   background-color: var(--secondary-background);
 }
-/* --- Style Field Informasi (Label & Value) --- */
 .row {
   align-self: stretch;
   display: flex;
@@ -286,7 +284,6 @@
   gap: 8px;
 }
 
-/* === PERBAIKAN FINAL UNTUK MODE EDIT === */
 .formInput {
   width: 100%;
   border: none !important;
@@ -328,34 +325,25 @@
   background-color: var(--main-background);
 }
 
-/* ================================== */
-/* ===== STYLE UNTUK ERROR STATE ===== */
-/* ================================== */
-
-/* Memberi border bawah warna merah pada seluruh field yang error */
 .errorFieldWrapper {
   border-bottom-color: var(--red) !important;
 }
 
-/* Mengubah warna label field menjadi merah dan tebal */
 .errorLabel {
   color: var(--red) !important;
   font-weight: var(--font-weight-semibold) !important;
 }
 
-/* Mengubah warna teks di dalam input yang error menjadi merah */
 .errorInput,
 .errorInput:focus {
   color: var(--red) !important;
 }
 
-/* Mengubah warna placeholder menjadi merah muda saat error */
 .errorInput::placeholder {
   color: #e57373 !important;
   opacity: 1;
 }
 
-/* Style untuk teks pesan error yang muncul di bawah input */
 .inlineErrorMessage {
   position: absolute;
   bottom: 4px;
@@ -379,7 +367,6 @@
   width: 100%;
 }
 
-/* Style untuk pesan error yang butuh lebar penuh (untuk grup radio/checkbox) */
 .inlineErrorMessageFullWidth {
   color: var(--red);
   font-size: 13px;
@@ -389,7 +376,6 @@
   width: 100%;
 }
 
-/* Style baru untuk pesan error yang muncul di KANAN input */
 .inlineErrorMessageRight {
   color: var(--red);
   font-size: 13px;
@@ -426,12 +412,10 @@
   color: #e57373 !important;
 }
 
-/* Wrapper baru untuk membungkus Select component */
 .selectWrapper {
   width: 50%;
 }
 
-/* Menghilangkan semua border dan background dari container utama react-select */
 :global(.react-select__control) {
   background-color: transparent !important;
   border: none !important;
@@ -441,13 +425,11 @@
   margin: 0;
 }
 
-/* Mengatur posisi input dan placeholder agar pas */
 :global(.react-select__value-container) {
   padding: 1px 0 !important;
   margin: 0;
 }
 
-/* Menyamakan style teks terpilih dengan input field lain */
 :global(.react-select__single-value) {
   font-weight: var(--font-weight-bold) !important;
   font-family: var(--font-primary) !important;
@@ -456,7 +438,6 @@
   margin: 0;
 }
 
-/* Menyamakan style placeholder */
 :global(.react-select__placeholder) {
   font-weight: var(--font-weight-bold) !important;
   font-family: var(--font-primary) !important;
@@ -465,17 +446,14 @@
   margin: 0;
 }
 
-/* Menghilangkan garis pemisah (indicator) */
 :global(.react-select__indicator-separator) {
   display: none !important;
 }
 
-/* Mengatur posisi ikon dropdown */
 :global(.react-select__indicators) {
   padding: 0 !important;
 }
 
-/* Override khusus untuk state error */
 :global(.react-select-error__control) {
   background-color: transparent !important;
 }
@@ -521,14 +499,12 @@
   background-color: #f0f6ff;
 }
 
-/* Style untuk pesan 'Loading...' atau 'No history' */
 .historyInfoItem {
   padding: 10px 16px;
   font-style: italic;
   color: var(--main-grey);
 }
 
-/* === Loading style (samakan dengan Home) === */
 .loading {
   display: flex;
   justify-content: center;

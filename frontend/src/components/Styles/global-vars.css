@@ -79,8 +79,6 @@ font-display: swap;
 
 
 /* ==================== DEFINISI FONT INTER ==================== */
-/* (Kode @font-face Inter Anda yang sudah ada tetap di sini) */
-/* Inter Regular (Inter_18pt-Regular.ttf) */
 @font-face {
 font-family: 'Inter Custom';
 src: url('../../assets/fonts/Inter_18pt-Regular.ttf') format('truetype');
@@ -90,7 +88,6 @@ font-display: swap;
 }
 
 /* ==================== DEFINISI FONT INTER ==================== */
-/* Inter Regular (Inter_18pt-Regular.ttf) */
 @font-face {
 font-family: 'Inter Custom';
 src: url('../../assets/fonts/Inter_18pt-Regular.ttf') format('truetype');

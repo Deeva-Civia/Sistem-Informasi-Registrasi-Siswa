@@ -338,7 +338,7 @@ const StudentList = () => {
               sortOrder={getSortOrder("student_status")}
               onSort={handleSortChange}
               hasFilter={true}
-              filterKey="student_status" // (Backend filter key)
+              filterKey="student_status"
               onFilterChange={handleFilterChange}
               filterOptions={filterOptions.studentStatus}
               valueKey="id"

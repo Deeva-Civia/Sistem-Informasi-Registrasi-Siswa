@@ -21,7 +21,6 @@ const FacilitiesSection = ({
   const [selectedResidence, setSelectedResidence] = useState("");
   const [residencePolicy, setResidencePolicy] = useState(false);
 
-  // Use shared data if available, otherwise fetch separately
   useEffect(() => {
     if (sharedData) {
       setTransportations(sharedData.transportations || []);

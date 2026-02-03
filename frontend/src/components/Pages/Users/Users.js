@@ -301,7 +301,6 @@ const Users = () => {
         </div>
       )}
 
-      {/* Gunakan Portal untuk modal konfirmasi agar berada di luar flow DOM normal */}
       {confirmDeleteUser && ReactDOM.createPortal(
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>
@@ -332,7 +331,6 @@ const Users = () => {
         document.body
       )}
 
-      {/* Gunakan Portal untuk toast notification juga */}
       {showPopup && ReactDOM.createPortal(
         <div
           className={`${styles.popup} ${

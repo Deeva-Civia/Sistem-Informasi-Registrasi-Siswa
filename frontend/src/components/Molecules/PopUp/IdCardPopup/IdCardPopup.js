@@ -85,7 +85,6 @@ const IdCardPopup = ({ isOpen, onClose, studentData, onSaveSuccess }) => {
           setLoading(false);
         });
     } else {
-      // Reset saat tutup
       setCardData(null);
       setIdCardNumber('');
       setExportError('');
@@ -175,19 +174,15 @@ const IdCardPopup = ({ isOpen, onClose, studentData, onSaveSuccess }) => {
 
     setIsSaving(true);
     try {
-      // Logic convertUrlToPngBase64 yang lama mungkin error karena new Image() tidak bawa token.
-      // Kita ganti strateginya:
 
       let finalPhotoUrl = displayData.photo_url;
 
-      // Jika URL masih mentah dari API (bukan blob/data), fetch dulu jadi Base64
       if (
         finalPhotoUrl &&
         !finalPhotoUrl.startsWith('blob:') &&
         !finalPhotoUrl.startsWith('data:')
       ) {
         const blobUrl = await fetchAuthenticatedImage(finalPhotoUrl);
-        // Convert blob url to base64 agar html2canvas lebih stabil (opsional, tapi disarankan untuk PDF)
         const blob = await fetch(blobUrl).then((r) => r.blob());
         finalPhotoUrl = await new Promise((resolve) => {
           const reader = new FileReader();
@@ -195,7 +190,6 @@ const IdCardPopup = ({ isOpen, onClose, studentData, onSaveSuccess }) => {
           reader.readAsDataURL(blob);
         });
       } else if (finalPhotoUrl && finalPhotoUrl.startsWith('blob:')) {
-        // Jika sudah blob (dari profile header), convert ke base64 untuk html2canvas
         const blob = await fetch(finalPhotoUrl).then((r) => r.blob());
         finalPhotoUrl = await new Promise((resolve) => {
           const reader = new FileReader();

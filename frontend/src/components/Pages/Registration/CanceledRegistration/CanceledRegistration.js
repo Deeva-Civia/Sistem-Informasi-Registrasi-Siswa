@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../../../Molecules/Pagination/Pagination';
 import styles from './CanceledRegistration.module.css';
-// HAPUS: import searchIcon from '../../../../assets/Search-icon.png'; 
-import SearchBar from '../../../Molecules/SearchBar/SearchBar'; // TAMBAHKAN INI
+import SearchBar from '../../../Molecules/SearchBar/SearchBar'; 
 import ColumnHeader from '../../../Molecules/ColumnHeader/ColumnHeader';
 import Button from '../../../Atoms/Button/Button';
 import ResetFilterButton from '../../../Atoms/ResetFilterButton/ResetFilterButton';
@@ -198,7 +197,6 @@ const CanceledRegistration = () => {
           <div>
             <div className={styles.title}>Canceled Registration</div>
             <div className={styles.searchAndFilterContainer}>
-              {/* PERUBAHAN: Menggunakan SearchBar Molecule agar sama dengan page Registration */}
               <SearchBar
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

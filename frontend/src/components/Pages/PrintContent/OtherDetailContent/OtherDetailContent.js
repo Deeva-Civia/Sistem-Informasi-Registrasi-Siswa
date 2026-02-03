@@ -17,14 +17,13 @@ function OtherDetail_Content({ data }) {
               Student Requirement Status:
             </div>
           </div>
-          {/* [MODIFIED] Mengganti div statis dengan komponen RadioButton */}
           <div className={styles.status}>
             <div className={styles.choice}>
               <RadioButton
                 name="requirement_status_print"
                 value="complete"
                 checked={status === "complete"}
-                onChange={() => {}} // Handler kosong karena read-only
+                onChange={() => {}} 
                 readOnly={true}
               />
               <div className={styles.complete1}>Complete</div>
@@ -34,7 +33,7 @@ function OtherDetail_Content({ data }) {
                 name="requirement_status_print"
                 value="incomplete"
                 checked={status === "incomplete"}
-                onChange={() => {}} // Handler kosong karena read-only
+                onChange={() => {}} 
                 readOnly={true}
               />
               <div className={styles.complete1}>Incomplete</div>

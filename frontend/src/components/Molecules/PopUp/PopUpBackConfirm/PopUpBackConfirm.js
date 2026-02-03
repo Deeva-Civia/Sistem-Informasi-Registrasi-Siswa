@@ -1,5 +1,3 @@
-// File: src/components/molecules/ConfirmBackPopup/ConfirmBackPopup.js
-
 import React from "react";
 import styles from "./PopUpBackConfirm.module.css";
 import ReactDOM from "react-dom";

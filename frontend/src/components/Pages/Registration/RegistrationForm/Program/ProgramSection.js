@@ -4,7 +4,6 @@ import Select from "react-select";
 import { getRegistrationOptions } from "../../../../../services/api";
 
 const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
-  // STATE LOKAL
   const [sections, setSections] = useState([]);
   const [majors, setMajors] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -75,7 +74,6 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
     const newSection = selectedSection === value ? "" : value;
     setSelectedSection(newSection);
 
-    // Reset fields lain jika section diubah
     if (selectedSection !== newSection) {
       setSelectedClass("");
       setSelectedMajor("");
@@ -87,19 +85,16 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
     const newProgram = selectedProgram === value ? "" : value;
     setSelectedProgram(newProgram);
 
-    // Reset input "Other" jika program lain dipilih
     if (newProgram !== OTHER) {
       setProgramOther("");
     }
   };
 
   const handleProgramOtherChange = (e) => {
-    // Hanya update state lokal, tidak memicu onDataChange
     setProgramOther(e.target.value);
   };
 
   const handleProgramOtherBlur = () => {
-    // Baru kirim data ke parent saat user selesai mengetik
     const dataToSync = {
       section_id: selectedSection,
       major_id: selectedMajor,
@@ -114,13 +109,11 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
     const value = opt ? opt.value : "";
     setSelectedClass(value);
 
-    // Jika grade dikosongkan, major juga kosong
     if (!value) {
       setSelectedMajor("");
       return;
     }
 
-    // Logika untuk auto-select "No Major" di grade < 9
     const selectedClassData = classes.find((c) => c.class_id === value);
     if (selectedClassData) {
       const gradeNum = parseInt(selectedClassData.grade, 10);
@@ -283,7 +276,6 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
                   ? "react-select-error"
                   : "react-select"
               }
-              // Menambahkan styles agar transparan & tanpa border, sesuai style awal Anda
               styles={{
                 control: (base) => ({
                   ...base,
@@ -325,7 +317,6 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
                     ? "react-select-error"
                     : "react-select"
                 }
-                // Menambahkan styles agar transparan & tanpa border
                 styles={{
                   control: (base) => ({
                     ...base,
@@ -360,7 +351,6 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
           {programOptions.map((option) => {
             const isOther = option.value === OTHER;
             const isSelected = selectedProgram === option.value;
-            // Cek error khusus untuk field Other ini
             const isError = isOther && errors?.program_other && !programOther;
 
             return (
@@ -386,10 +376,8 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
 
                   <span className={styles.label}>{option.label}</span>
 
-                  {/* INPUT LANGSUNG DISINI AGAR SEJAJAR */}
                   {isOther && isSelected && (
                     <input
-                      // Pakai class inputError jika error
                       className={`${styles.valueRegular} ${
                         isError ? styles.inputError : ""
                       }`}
@@ -398,7 +386,6 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
                       onBlur={handleProgramOtherBlur}
                       onClick={(e) => e.stopPropagation()}
                       onChange={handleProgramOtherChange}
-                      // Ganti teks placeholder jika error
                       placeholder={
                         isError
                           ? "Specify the program"
@@ -409,7 +396,6 @@ const ProgramSection = ({ onDataChange, sharedData, prefill, errors }) => {
                         padding: 0,
                         background: "transparent",
                         border: "none",
-                        // Border default abu-abu, kalau error biar CSS yang handle
                         borderBottom: isError ? "" : "1px solid #ccc",
                         width: "200px",
                       }}

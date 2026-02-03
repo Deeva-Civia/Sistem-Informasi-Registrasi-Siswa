@@ -20,7 +20,6 @@ const loadImage = (url) =>
       const ctx = canvas.getContext("2d");
       ctx.drawImage(img, 0, 0);
       try {
-        // PERBAIKAN 1: Ganti jpeg ke png agar transparansi tetap terjaga (background putih/kertas)
         const dataURL = canvas.toDataURL("image/png");
         resolve(dataURL);
       } catch (e) {
@@ -71,26 +70,21 @@ const HEADER_KEY_MAP = {
   NIK: "nik",
   KITAS: "kitas",
 };
-// ---------------------------------------------
 
 const ExportLogbookPopup = ({
   isOpen,
   onClose,
   columns,
   selectedColumns,
-  // BARU: Terima fungsi fetch dan status loading dari parent
   fetchFullData,
   isExportLoading,
   currentFilters,
 }) => {
-  // --- STATE (HOOK) ---
   const [isDownloading, setIsDownloading] = useState(false);
-  const [previewData, setPreviewData] = useState([]); // Data lengkap untuk export
+  const [previewData, setPreviewData] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false);
 
-  // --- LOGIKA UTAMA: Muat data export saat popup dibuka ---
   useEffect(() => {
-    // Hanya memuat jika popup terbuka, data belum dimuat, dan tidak sedang loading dari parent
     if (isOpen && !dataLoaded && !isExportLoading) {
       fetchFullData()
         .then((data) => {
@@ -98,7 +92,6 @@ const ExportLogbookPopup = ({
           setDataLoaded(true);
         })
         .catch((err) => {
-          // Tampilkan pesan error jika fetch gagal
           console.error("Gagal memuat data export di popup:", err);
           setPreviewData([]);
           setDataLoaded(true);
@@ -106,22 +99,18 @@ const ExportLogbookPopup = ({
     }
 
     if (!isOpen) {
-      // Reset state saat popup ditutup
       setPreviewData([]);
       setDataLoaded(false);
     }
   }, [isOpen, dataLoaded, isExportLoading, fetchFullData]);
 
-  // --- Kalkulasi ---
   const selectedColumnsForPreview = columns.filter((column) =>
     selectedColumns.has(column)
   );
   const hasSelectedColumns = selectedColumnsForPreview.length > 0;
 
-  // Gunakan previewData sebagai sumber data utama untuk PDF
   const logbookData = previewData;
 
-  // Tentukan status loading (Deklarasi ini harus hanya satu kali)
   const currentLoading = isExportLoading || (isOpen && !dataLoaded);
 
   // --- FUNGSI DOWNLOAD (HOOK) ---
@@ -137,29 +126,24 @@ const ExportLogbookPopup = ({
     setIsDownloading(true);
 
     try {
-      // 1. Definisikan Warna
       const globalColors = {
         mainText: [0, 0, 0],
         mainGrey: [0, 0, 0],
         secondaryBg: [255, 255, 255],
       };
 
-      // 2. Siapkan Kolom & Header
-      // Kita filter kolom yang dipilih (kecuali School Year karena sudah ada di judul)
       const columnsForPDFTable = columns.filter(
         (column) => selectedColumns.has(column) && column !== "School Year"
       );
       const tableHeaders = ["No.", ...columnsForPDFTable];
       const photoColIndex = tableHeaders.indexOf("Photo");
 
-      // 3. Load semua gambar
       const loadedImages = await Promise.all(
         logbookData.map((student) =>
           loadImage(student[HEADER_KEY_MAP["Photo"]])
         )
       );
 
-      // 4. Siapkan Data Tabel
       const tableData = logbookData.map((student, index) => {
         const row = [index + 1];
         columnsForPDFTable.forEach((column) => {
@@ -177,7 +161,6 @@ const ExportLogbookPopup = ({
         return row;
       });
 
-      // 5. Inisialisasi Dokumen PDF
       const doc = new jsPDF("landscape", "mm", [210, 330]);
       const margin = 7;
       const firstStudent = logbookData.length > 0 ? logbookData[0] : null;
@@ -291,15 +274,13 @@ const ExportLogbookPopup = ({
             const imgData = loadedImages[data.row.index];
 
             if (imgData) {
-              const imgHeight = fixedImgHeight; // Menggunakan nilai dinamis
-              const imgWidth = fixedImgWidth; // Menggunakan nilai dinamis
+              const imgHeight = fixedImgHeight; 
+              const imgWidth = fixedImgWidth; 
 
-              // Center gambar di dalam sel
               const x = data.cell.x + (cellWidth - imgWidth) / 2;
               const y = data.cell.y + (cellHeight - imgHeight) / 2;
 
               try {
-                // PERBAIKAN 2: Gunakan format PNG saat menambahkan ke PDF
                 doc.addImage(imgData, "PNG", x, y, imgWidth, imgHeight);
                 const originalDrawColor = doc.getDrawColor();
                 const originalLineWidth = doc.getLineWidth();
@@ -402,7 +383,6 @@ const ExportLogbookPopup = ({
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Tampilkan maksimal 10 baris di preview untuk menghindari crash */}
                   {logbookData.slice(0, 10).map((student, index) => (
                     <tr key={student.student_id}>
                       <td className={styles.dataCell}>{index + 1}</td>

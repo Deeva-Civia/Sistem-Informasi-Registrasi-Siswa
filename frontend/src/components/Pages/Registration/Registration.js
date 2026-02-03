@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PopUpForm from '../../Molecules/PopUp/PopUpRegis/PopUpForm';
@@ -284,15 +285,13 @@ const Registration = () => {
   };
 
   const handleUpdateStatus = (id, newStatus) => {
-    // 1. Update state LOKAL (untuk instant feedback di tabel)
     setRegistrationData((prevData) =>
       prevData.map((reg) => {
         if (reg.registration_id === id) {
           return {
             ...reg,
-            application_status: newStatus, // Properti yang dilihat tabel
+            application_status: newStatus, 
             application_form: {
-              // Properti untuk konsistensi (seperti kode lama)
               ...(reg.application_form || {}),
               status: newStatus,
             },

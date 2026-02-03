@@ -1,15 +1,9 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 /**
- * Wrapper function untuk fetch API.
- * Fungsi ini secara otomatis menangani:
- * 1. Penambahan Authorization header untuk rute yang memerlukan otentikasi.
- * 2. Pengecekan response. Jika response 401 (Unauthorized), akan otomatis logout.
- * 3. Parsing JSON dari response.
- *
- * @param {string} endpoint - Endpoint API yang akan dipanggil (misal: '/me').
+ * @param {string} endpoint - Endpoint API yang akan dipanggil
  * @param {object} options - Opsi konfigurasi untuk fetch (method, body, dll).
- * @param {boolean} requiresAuth - Set ke `false` jika request tidak butuh token (misal: login).
+ * @param {boolean} requiresAuth 
  * @returns {Promise<any>} - Data JSON dari response.
  */
 
@@ -453,16 +447,13 @@ export const updateUser = (userId, userData) => {
 export const getCancelledRegistrations = (filters = {}) => {
   const params = new URLSearchParams();
 
-  // 1. Mapping Pagination
   params.append('page', filters.page || 1);
   params.append('per_page', filters.per_page || 25);
 
-  // 2. Mapping String filters sesuai kebutuhan Backend
   if (filters.search) params.append('search', filters.search);
   if (filters.filter_name) params.append('filter_name', filters.filter_name);
   if (filters.filter_notes) params.append('filter_notes', filters.filter_notes);
 
-  // 3. Mapping Date filters
   if (filters.reg_start_date)
     params.append('reg_start_date', filters.reg_start_date);
   if (filters.reg_end_date) params.append('reg_end_date', filters.reg_end_date);
@@ -471,7 +462,6 @@ export const getCancelledRegistrations = (filters = {}) => {
   if (filters.cancel_end_date)
     params.append('cancel_end_date', filters.cancel_end_date);
 
-  // 4. Mapping Array filters (agar sesuai format sections[]=1&sections[]=2)
   if (Array.isArray(filters.sections)) {
     filters.sections.forEach((v) => params.append('sections[]', v));
   }
@@ -485,11 +475,9 @@ export const getCancelledRegistrations = (filters = {}) => {
     filters.grades.forEach((v) => params.append('grades[]', v));
   }
 
-  // 5. Mapping Sorting
   if (filters.sort_by) params.append('sort_by', filters.sort_by);
   if (filters.sort_order) params.append('sort_order', filters.sort_order);
 
-  // Menggunakan apiFetch agar URL otomatis menyertakan prefix /api dan header Auth
   return apiFetch(`/registration/cancelled-registrations?${params.toString()}`);
 };
 

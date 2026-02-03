@@ -103,7 +103,6 @@ body {
   width: 340px;
 }
 
-/* Tambahkan ini untuk override styling Logo component */
 .login-logo .logo-container {
   margin-bottom: 0;
   height: auto;

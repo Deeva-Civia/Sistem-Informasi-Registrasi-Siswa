@@ -47,7 +47,6 @@ const RegistrationForm = () => {
 
   const navigate = useNavigate();
 
-  // Guard direct access: must come from PopUpForm
   useEffect(() => {
     const s = location.state || {};
     const isValid = s.fromPopup && s.draftId && s.schoolYear && s.semester;
@@ -195,9 +194,7 @@ const RegistrationForm = () => {
   const handleSelectOldStudent = (latestData) => {
     console.log("Received latest data for prefill:", latestData);
 
-    // Prefill semua form sections dengan data dari backend
     if (latestData) {
-      // Prefill Student Information
       if (
         latestData.studentInfo &&
         Object.keys(latestData.studentInfo).length > 0
@@ -206,13 +203,11 @@ const RegistrationForm = () => {
         handleSectionDataChange("studentInfo", latestData.studentInfo);
       }
 
-      // Prefill Program
       if (latestData.program && Object.keys(latestData.program).length > 0) {
         console.log("Prefilling program:", latestData.program);
         handleSectionDataChange("program", latestData.program);
       }
 
-      // Prefill Facilities
       if (
         latestData.facilities &&
         Object.keys(latestData.facilities).length > 0
@@ -221,7 +216,6 @@ const RegistrationForm = () => {
         handleSectionDataChange("facilities", latestData.facilities);
       }
 
-      // Prefill Parent Guardian
       if (
         latestData.parentGuardian &&
         Object.keys(latestData.parentGuardian).length > 0
@@ -230,7 +224,6 @@ const RegistrationForm = () => {
         handleSectionDataChange("parentGuardian", latestData.parentGuardian);
       }
 
-      // Prefill Term of Payment
       const termOfPaymentData = { ...(latestData.termOfPayment || {}) };
 
       if (latestData.studentInfo) {
@@ -325,7 +318,7 @@ const RegistrationForm = () => {
   }, [blocker.state]);
 
   const handleBackClick = () => {
-    navigate("/Registration", { replace: true }); // Biarkan blocker menangkap ini
+    navigate("/Registration", { replace: true }); 
   };
 
   const handleConfirmBack = () => {

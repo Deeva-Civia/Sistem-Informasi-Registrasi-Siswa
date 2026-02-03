@@ -69,7 +69,6 @@
   border-bottom: none;
 }
 
-/* Foto menyesuaikan tinggi baris */
 .studentPhoto {
   width: 60px;
   height: 81px;
@@ -79,6 +78,6 @@
 
 .paginationContainer {
   display: flex;
-  justify-content: flex-start; /* Mendorong pagination ke kiri */
+  justify-content: flex-start; 
   width: 100%;
 }

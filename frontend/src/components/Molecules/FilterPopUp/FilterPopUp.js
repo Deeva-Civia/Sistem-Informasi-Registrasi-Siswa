@@ -68,12 +68,10 @@ const FilterPopup = ({
 
   useClickOutside(popupRef, onClose);
 
-  // FIXED: Hanya tutup popup jika scroll BUKAN dari dalam popup
   useEffect(() => {
     const handleResizeOrScroll = (event) => {
-      // Cek apakah scroll berasal dari dalam popup
       if (popupRef.current && popupRef.current.contains(event.target)) {
-        return; // Jangan tutup popup jika scroll dari dalam popup
+        return; 
       }
 
       if (onClose) {

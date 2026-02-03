@@ -136,7 +136,6 @@ const LoginPage = () => {
                 <p className={styles["login-error-message"]}>{error}</p>
               )}
 
-              {/* Field Username or Email */}
               <div className={styles["input-group"]}>
                 <input
                   type="text"
@@ -150,7 +149,6 @@ const LoginPage = () => {
                 />
               </div>
 
-              {/* --- MODIFIKASI FIELD PASSWORD --- */}
               <div className={styles["input-group"]}>
                 <input
                   type={showPassword ? "text" : "password"}

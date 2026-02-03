@@ -22,11 +22,9 @@ const StudentStatusSection = ({
   const [showDropdown, setShowDropdown] = useState(false);
   const searchRef = useRef(null);
 
-  // Use shared data if available, otherwise fetch separately
   useEffect(() => {
     if (sharedData) {
       const opts = sharedData.student_status || [];
-      // Ensure order: New, Transferee, Old
       const ordered = ['New', 'Transferee', 'Old'].filter((o) =>
         opts.includes(o)
       );
@@ -51,8 +49,6 @@ const StudentStatusSection = ({
     setStudentSearch('');
     setSearchResults({ new: [], old: [] });
 
-    // Jika user memilih "New" atau "Transferee" setelah mengisi data "Old",
-    // panggil fungsi reset dari parent.
     if ((option === 'New' || option === 'Transferee') && onClearForm) {
       onClearForm();
     }
@@ -61,7 +57,7 @@ const StudentStatusSection = ({
       onDataChange({
         student_status: option,
         input_name: '',
-        is_selected: false, // LOGIC: Reset selection state
+        is_selected: false, 
       });
     }
   };
@@ -69,12 +65,11 @@ const StudentStatusSection = ({
   const handleSearchChange = async (value) => {
     setStudentSearch(value);
 
-    // LOGIC: Update parent state to indicate user is typing, but no selection is made
     if (onDataChange) {
       onDataChange({
         student_status: 'Old',
-        input_name: value, // Pass the typed value for validation feedback
-        is_selected: false, // Explicitly set to false as no selection has occurred
+        input_name: value, 
+        is_selected: false, 
       });
     }
 
@@ -98,7 +93,6 @@ const StudentStatusSection = ({
   };
 
   const handleSelectStudent = async (student) => {
-    // LOGIC: Set display text to be user-friendly, not the raw ID
     setStudentSearch(`${student.full_name} (${student.student_id})`);
     setSearchResults({ new: [], old: [] });
     setShowDropdown(false);
@@ -110,17 +104,15 @@ const StudentStatusSection = ({
         student.source
       );
       if (latestData.success && latestData.data) {
-        console.log('Received application data:', latestData.data); // Debug log
-        // Kirim data ke parent untuk prefill semua form fields
+        console.log('Received application data:', latestData.data); 
         onSelectOldStudent(latestData.data);
 
-        // LOGIC: Kirim data ke parent component DENGAN flag is_selected: true
         if (onDataChange) {
           onDataChange({
             student_status: 'Old',
-            input_name: student.id, // The actual ID for submission
+            input_name: student.id,
             source: student.source,
-            is_selected: true, // Explicitly set to true on selection
+            is_selected: true, 
           });
         }
       } else {
@@ -133,7 +125,7 @@ const StudentStatusSection = ({
             student_status: 'Old',
             input_name: student.id,
             source: student.source,
-            is_selected: true, // Also true here, because student IS selected
+            is_selected: true, 
           });
         }
       }
@@ -144,7 +136,7 @@ const StudentStatusSection = ({
           student_status: 'Old',
           input_name: student.id,
           source: student.source,
-          is_selected: true, // Also true here, because student IS selected
+          is_selected: true, 
         });
       }
     } finally {
@@ -152,7 +144,6 @@ const StudentStatusSection = ({
     }
   };
 
-  // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -166,7 +157,6 @@ const StudentStatusSection = ({
     };
   }, []);
 
-  // Calculate dropdown width based on content
   const getDropdownWidth = () => {
     const allResults = [
       ...(searchResults.new || []),
@@ -291,7 +281,6 @@ const StudentStatusSection = ({
                                 <div
                                   key={`new-${student.student_id}`}
                                   className={`${styles.dropdownItem} ${
-                                    // Logika: Jika ini item pertama (index 0), beri highlight
                                     index === 0 ? styles.topItemHighlight : ''
                                   }`}
                                   onClick={() =>
@@ -320,8 +309,6 @@ const StudentStatusSection = ({
                                 <div
                                   key={`old-${student.student_id}`}
                                   className={`${styles.dropdownItem} ${
-                                    // Logika: Beri highlight HANYA JIKA ini item pertama (index 0)
-                                    // DAN daftar 'new' tidak ada atau kosong.
                                     index === 0 &&
                                     (!searchResults.new ||
                                       searchResults.new.length === 0)

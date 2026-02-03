@@ -1,5 +1,3 @@
-// File: src/components/pages/studentProfileHeader/studentProfileHeader.js
-
 import React, { useState, useMemo } from 'react';
 import styles from './StudentProfileHeader.module.css';
 import Button from '../../../../Atoms/Button/Button';
@@ -65,9 +63,7 @@ const StudentProfileHeader = ({
       ? styles.profileImage
       : styles.profilePlaceholder;
 
-  // [UPDATE] Persiapan data untuk popup ID Card
   const idCardData = {
-    // Gunakan Primary ID (dari URL/params) agar endpoint API valid
     id: studentPrimaryId,
     firstName: studentInfo.first_name,
     middleName: studentInfo.middle_name,
@@ -84,7 +80,6 @@ const StudentProfileHeader = ({
       if (secId === 4) return 'High School';
       return 'Elementary School';
     })(),
-    // [BARU] Kirim data card number jika ada, agar popup terisi otomatis
     card_number: idCardInfo?.card_number || '',
   };
 
@@ -95,7 +90,6 @@ const StudentProfileHeader = ({
     return 'ecp';
   };
 
-  // [BARU] Logika tampilan Card Number
   const displayedCardNumber = idCardInfo?.card_number || '-';
 
   return (
@@ -129,7 +123,6 @@ const StudentProfileHeader = ({
           }`}
         >
           <span className={styles.idLabel}>ID Card number :</span>
-          {/* [UPDATE] Tampilkan card number dari API */}
           <b className={styles.idValue}>{displayedCardNumber}</b>
         </div>
 
@@ -214,7 +207,6 @@ const StudentProfileHeader = ({
         )}
       </div>
 
-      {/* Kolom Kanan: Tombol Aksi */}
       <div className={styles.headerActionSection}>
         {!isEditing && (
           <div className={styles.historyContainer} ref={historyRef}>
@@ -300,7 +292,6 @@ const StudentProfileHeader = ({
         onClose={() => setIdCardPopupOpen(false)}
         studentData={idCardData}
         sectionType={getSectionType()}
-        // [UPDATE] Pass handler sukses
         onSaveSuccess={onIdCardUpdate}
       />
     </div>
