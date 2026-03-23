@@ -21,24 +21,66 @@ class GeminiService
     {
         $systemInstruction = "
             Role: You are an expert SQL Generator for MySQL.
-            Task: Convert the user's question into a VALID MySQL query based on the provided schema.
+            Task: Convert the user's natural language question into a VALID MySQL query based on the provided schema.
             
-            STRATEGY (How to choose tables):
-            1. CASE: User asks for 'List of Registrations', 'Count of Applicants', or 'Today's Registrations'.
-                -> ACTION: Use the `view_registrations_mixed` table. It's faster and pre-joined.
-            2. CASE: User asks for specific details (Parents, Address, Payments) or specific conditions not in the view.
-                -> ACTION: Build a standard JOIN query using `students`, `enrollments`, `parents`, etc.
-            3. CASE: User asks for 'Data Pendaftar' (The List) AND 'Total'.
-                -> ACTION: Return TWO queries. 
-                    a. `SELECT COUNT(*) FROM view_registrations_mixed WHERE ...`
-                    b. `SELECT * FROM view_registrations_mixed WHERE ... LIMIT 50`
-            
+            DATABASE STRATEGY (How to Join Tables):
+            1. The `enrollments` table is the CENTRAL HUB. Almost all queries must start here or join through here.
+            2. MANDATORY SELECT COLUMNS: For any query that returns a list of data (not COUNT), you MUST ALWAYS include:
+                - `students`.`student_id`
+                - Full Name (use CONCAT_WS(' ', first_name, middle_name, last_name))
+                - `sections`.`name` as section
+                - `classes`.`grade`
+                Therefore, ALWAYS JOIN `students`, `sections`, and `classes` on their respective IDs in `enrollments`.
+            3. To get Academic details, JOIN `school_years`, `sections`, `classes`, `majors`, `semesters`, `programs` using their respective IDs in `enrollments`.
+            4. PAYMENT & DISCOUNT LOGIC (CRITICAL): 
+                - PAYMENT: To check payment methods ('installment', 'full payment'), it depends on residence type.
+                    ALWAYS JOIN `residence_halls` rh ON `enrollments`.`residence_id` = rh.`residence_id` AND JOIN `payments` p ON `enrollments`.`enrollment_id` = p.`enrollment_id`.
+                    IF rh.`type` = 'Non-Residence hall', check `p`.`tuition_fees`.
+                    IF rh.`type` IN ('Boys dormitory', 'Girls dormitory'), check `p`.`residence_payment`.
+                - DISCOUNT: ALWAYS JOIN `student_discounts` sd ON `enrollments`.`enrollment_id` = sd.`enrollment_id` JOIN `discount_types` dt ON sd.`discount_type_id` = dt.`discount_type_id`.
+                    Match the discount category (e.g., 'Staff', 'Beasiswa') in `dt`.`name`.
+                    Match the specific amount or details (e.g., '12%', 'November') using LIKE in `sd`.`notes`.          
+            5. For 'Hari ini' (Today), use DATE(enrollments.registration_date) = CURDATE().
+            6. FILTERING MASTER DATA: NEVER hardcode IDs (like class_id = 3). ALWAYS JOIN the master table and filter by its string column using LIKE or =. 
+                (Example: To find grade K2, use JOIN `classes` c ... WHERE c.`grade` = 'K2').
+            7. MULTIPLE CATEGORY RECAPITULATION (CRITICAL): If the user asks for a 'Rekapitulasi' (Summary/Recap) based on MULTIPLE INDEPENDENT categories:
+                - DO NOT group them all in one SELECT. Use `UNION ALL` to create a vertical table with 3 columns: `Kategori`, `Kriteria`, and `Total`.
+                - ALWAYS use Standard English for the 'Kategori' string literals, REGARDLESS of the user's language (e.g., use 'Residence Type' NOT 'Tipe Tempat Tinggal', use 'Payment', 'Grade', 'Discount', 'Student Status', 'Gender', 'Academic Status', 'School Year').
+                - Return TWO queries: index 0 must be the exact distinct student count (`SELECT COUNT(DISTINCT e.enrollment_id)...`), and index 1 is the UNION ALL query. (See Example 2).
+            8. DISAMBIGUATE STATUS:
+                - If checking Enrollment Status ('New', 'Old', or 'Transferee'), ALWAYS use `enrollments`.`student_status`.
+                - If checking Lifecycle Status ('Withdraw', 'Expelled', 'Graduate', or 'Not Graduate'), ALWAYS use `students`.`status`.
+    
             Constraints:
-            - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown, no explanations.
-            - Use the table and column names provided in the Schema explicitly.
+            - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
             - If the request cannot be answered with the schema, return SELECT 'I cannot answer that based on the available data' as message.
+            - MANDATORY TWO QUERIES RULE: Unless the user ONLY asks for a single number (e.g., 'Berapa total...?'), you MUST ALWAYS return exactly TWO queries in the array:
+                * Index 0: A query to get the EXACT DISTINCT COUNT of students matching the condition (e.g., `SELECT COUNT(DISTINCT e.enrollment_id) as total_siswa ...`).
+                * Index 1: The actual data query (`SELECT ... LIMIT 50` or the `UNION ALL` summary table).
             - Use ONLY SELECT statements. UPDATE/DELETE/INSERT are strictly forbidden.
-            - Always use LIMIT 50 for data listing queries, Except user want spesifik total data listing queries (not for COUNT queries).
+            - ALWAYS add LIMIT 50 for data listing queries (index 1), unless the user asks for a specific limit. Do NOT limit COUNT queries.
+
+            EXAMPLES:
+            Example 1 (Complex Conditional Payment & Discount Join):
+            User Question: 'Siapa saja siswa yang mendaftar hari ini dengan pembayaran installment dan mendapatkan diskon staff 12%. berikan total dan datanya'
+            Output: [
+                \"SELECT COUNT(*) as total_siswa FROM enrollments e JOIN students s ON e.id = s.id JOIN residence_halls rh ON e.residence_id = rh.residence_id JOIN payments p ON e.enrollment_id = p.enrollment_id JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id JOIN discount_types dt ON sd.discount_type_id = dt.discount_type_id WHERE DATE(e.registration_date) = CURDATE() AND ( (rh.type = 'Non-Residence hall' AND p.tuition_fees LIKE '%installment%') OR (rh.type IN ('Boys dormitory', 'Girls dormitory') AND p.residence_payment LIKE '%installment%') ) AND dt.name = 'Staff' AND sd.notes LIKE '%12%%'\",
+                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, rh.type as residence_type, p.tuition_fees, p.residence_payment, dt.name as discount_type, sd.notes as discount_notes FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN residence_halls rh ON e.residence_id = rh.residence_id JOIN payments p ON e.enrollment_id = p.enrollment_id JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id JOIN discount_types dt ON sd.discount_type_id = dt.discount_type_id WHERE DATE(e.registration_date) = CURDATE() AND ( (rh.type = 'Non-Residence hall' AND p.tuition_fees LIKE '%installment%') OR (rh.type IN ('Boys dormitory', 'Girls dormitory') AND p.residence_payment LIKE '%installment%') ) AND dt.name = 'Staff' AND sd.notes LIKE '%12%%' LIMIT 50\"
+            ]
+
+            Example 2 (Multiple Independent Categories Recap using UNION ALL):
+            User Question: 'Buatkan rekapitulasi pendaftaran hari ini berdasarkan tipe tempat tinggal, kelas, dan gender'
+            Output: [
+                \"SELECT COUNT(DISTINCT e.enrollment_id) as total_pendaftar FROM enrollments e WHERE DATE(e.registration_date) = CURDATE()\",
+                \"SELECT 'Residence Type' AS Kategori, rh.type AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY rh.type UNION ALL SELECT 'Grade' AS Kategori, c.grade AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN classes c ON e.class_id = c.class_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY c.grade UNION ALL SELECT 'Gender' AS Kategori, s.gender AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN students s ON e.id = s.id WHERE DATE(e.registration_date) = CURDATE() GROUP BY s.gender\"
+            ]
+
+            Example 3 (Year and Pickup Point Filtering):
+            User Question: 'Berapa jumlah siswa yang mendaftar untuk tahun ajaran 2026/2027 dengan pickup point Airmadidi? berikan beserta list datanya'
+            Output: [
+                \"SELECT COUNT(*) as total_siswa FROM enrollments e JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%'\",
+                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, sy.year as school_year, pp.name as pickup_point FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%' LIMIT 50\"
+            ]
 
             Schema:
             {$dbSchema}
@@ -65,16 +107,24 @@ class GeminiService
             $responseData = $response->json();
             $generatedText = $responseData['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
-            // Bersihkan output jika Gemini kasih markdown
-            $cleanJson = str_replace(['```sql', '```', "\n"], ['','',' '], $generatedText);
+            $start = strpos($generatedText, '[');
+            $end = strrpos($generatedText, ']');
+
+            if ($start !== false && $end !== false) {
+                // Potong string HANYA dari '[' sampai ']'
+                $cleanJson = substr($generatedText, $start, $end - $start + 1);
+            } else {
+                $cleanJson = $generatedText; 
+            }
 
             // Decode menjadi array PHP
             $queries = json_decode($cleanJson, true);
             
+            // Fallback jika json_decode gagal
             if (!is_array($queries)) {
-                return [trim($cleanJson)];
+                Log::warning('Failed to parse AI JSON. Raw output: ' . $generatedText);
+                return [$cleanJson];
             }
-
             return $queries;
 
         } catch (Exception $e) {
@@ -95,24 +145,11 @@ class GeminiService
         $contextJson = json_encode($executionResults);
 
         $specificRule = $hasTableData 
-            ? "The system will display a TABLE UI for the list data. Your job is to summarize the findings (especially the counts) and introduce the table. DO NOT list the table items manually."
-            : "The result is a direct answer (value/summary). Answer naturally.";
-        
-        // if ($isTable) {
-        //     $specificRule = "
-        //         The system will display a TABLE UI below your response.
-                
-        //         YOUR TASK:
-        //         1. If the user asked for a COUNT/TOTAL (e.g., 'how many', 'berapa'), YOU MUST ANSWER that specific number first based on the 'Total Rows Metadata' provided below.
-        //         2. Then, provide a short introductory sentence for the table (e.g., 'Berikut adalah rincian datanya:').
-        //         3. DO NOT list the data items manually in the text, because the Table UI will handle it.
-        //     ";
-        // } else {
-        //     $specificRule = "The result is a single value or summary. You MUST answer the user's question naturally based on this value.";
-        // }
+            ? "The system will display a TABLE UI below your response. YOUR TASK: First, find the actual total number of students/registrations. This is usually the value inside the FIRST query result (e.g., 'total_siswa' or 'total_pendaftar'). State this explicitly (e.g., 'Terdapat total 6 pendaftaran...'). WARNING: If the table is a 'UNION ALL' summary table (contains 'Kategori' column), DO NOT use 'total_rows_in_db' as the number of students, because that is just the number of summary rows! Second, write a brief, natural introductory sentence for the table. DO NOT list the actual row items manually."
+            : "The result is a direct answer or summary. Provide a conversational narrative based on the data without introducing any table.";
 
         $systemInstruction = "
-            Role: You are a helpful Data Analyst Assistant.
+            Role: You are a helpful Data Analyst Assistant for MIS Registrar.
             
             Context:
             - User Question: '$userPrompt'
@@ -127,6 +164,7 @@ class GeminiService
             2. If the user asks in English, you MUST answer in English.
             3. If the user asks in Indonesian, you MUST answer in Indonesian.
             4. Do not mix languages.
+            5. TERMINOLOGY RULE: When mentioning column names, keep them in their natural academic English terms (e.g., use 'Residence Type' instead of 'Tipe Hunian', 'Grade', 'Section', 'Installment'). Do not literally translate technical schema names.
 
             General Rules:
             - Be friendly and professional.

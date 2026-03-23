@@ -195,44 +195,43 @@ class AiSchemaService
              // --- MASTER DATA TABLES ---
 
             'classes' => [
-                'description' => 'Master data for Classes/Grades.',
+                'description' => 'Master data for Classes/Grades. Available grades: N, K1, K2, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12.',
                 'columns' => ['class_id', 'grade']
             ],
             'discount_types' => [
-                'description' => 'Master data for Discount names.',
+                'description' => 'Master data for Discount names. Available values: Beasiswa, Special Discount, Staff, Waiver, IP.',
                 'columns' => ['discount_type_id', 'name']
             ],
             'majors' => [
-                'description' => 'Master data for Majors (Jurusan).',
+                'description' => 'Master data for Majors (Jurusan). Available values: NO MAJOR, SOCIAL, SCIENCE.',
                 'columns' => ['major_id', 'name']
             ],
             'pickup_points' => [
-                'description' => 'Master data for transportation Pickup Points.',
+                'description' => 'Master data for transportation Pickup Points. Contains location names (e.g., Airmadidi, Bitung, Malalayang, dll).',
                 'columns' => ['pickup_point_id', 'name']
             ],
             'programs' => [
-                'description' => 'Master data for Programs.',
+                'description' => 'Master data for Programs. Available values: UAN, A Beka, Cambrige, Oxford, Other.',
                 'columns' => ['program_id', 'name']
             ],
             'residence_halls' => [
-                'description' => 'Master data for Residence Halls (Boys dormitory/Girls dormitory/Non-Residence hall). 
-                    - Linked via residence_id in enrollments.',
+                'description' => 'Master data for Residence Halls. Available values: Boys dormitory, Girls dormitory, Non-Residence hall.',
                 'columns' => ['residence_id', 'type']
             ],
             'school_years' => [
-                'description' => 'Master data for School Years.',
+                'description' => 'Master data for School Years. Contains dynamic academic year strings in the format "YYYY/YYYY" (Example: "2025/2026", "2030/2031"). Extract the exact year format from the user prompt to filter.',
                 'columns' => ['school_year_id', 'year']
             ],
             'sections' => [
-                'description' => 'Master data for educational Sections (ECP, Elementary School, Middle School, High School).',
+                'description' => 'Master data for educational Sections. Available values: ECP, Elementary School, Middle School, High School.',
                 'columns' => ['section_id', 'name']
             ],
             'semesters' => [
-                'description' => 'Master data for Semesters (1 or 2).',
+                'description' => 'Master data for Semesters.  Available values: One (1), Two (2).',
                 'columns' => ['semester_id', 'name', 'number']
             ],
             'transportations' => [
-                'description' => 'Master data for Transportation types (Own Car/School Bus).',
+                'description' => 'Master data for Transportation types. Available values: Own Car, School Bus.',
                 'columns' => ['transport_id', 'type']
             ],
         ];

@@ -55,13 +55,15 @@ class AiChatController extends Controller
                         return (array) $value;
                     }, $results);
 
+                    $rowCount = count($resultsArray);
+
                     $executionResults[] = [
                         'query_order' => $index + 1,
                         'sql_used' => $sql,
+                        'total_rows_in_db' => $rowCount,
                         'result' => $resultsArray
                     ];
 
-                    $rowCount = count($resultsArray);
                     if ($rowCount > 0) {
                         $firstRow = $resultsArray[0];
                         if (count($firstRow) > 1) {
