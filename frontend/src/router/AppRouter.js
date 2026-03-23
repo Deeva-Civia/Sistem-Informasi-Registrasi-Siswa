@@ -14,6 +14,7 @@ import MainLayout from '../components/Layout/Main';
 import StudentProfile from '../components/Pages/StudentList/StudentProfile/StudentProfile.js';
 import Logbook from '../components/Pages/Logbook/Logbook.js';
 import Users from '../components/Pages/Users/Users.js';
+import MISmart from '../components/Pages/MISmart/MISmart.js';
 
 import ProtectedRoute from './ProtectedRoute';
 
@@ -105,6 +106,18 @@ const appRoutes = [
         <MainLayout>
           <RegistrarAccess>
             <Registration />
+          </RegistrarAccess>
+        </MainLayout>
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/MISmart',
+    element: (
+      <ProtectedRoute>
+        <MainLayout>
+          <RegistrarAccess>
+            <MISmart />
           </RegistrarAccess>
         </MainLayout>
       </ProtectedRoute>
