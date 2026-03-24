@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AiChatController;
+use App\Http\Controllers\ChatSessionController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\StudentController;
@@ -85,6 +86,17 @@ Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_regist
 
 Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_registrar'])->group(function () {
     Route::post('/ai-chatbot/ask', [AiChatController::class, 'ask']);
+});
+
+Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_registrar'])->prefix('mis-smart')->group(function () {
+    Route::post('/sessions', [ChatSessionController::class, 'createChatSession']);
+    Route::get('/sessions/{session_id}/messages', [ChatSessionController::class, 'fetchChatDetails'])
+        ->whereNumber('session_id');
+    Route::get('/sessions/search', [ChatSessionController::class, 'searchSessions']);
+    Route::patch('/sessions/{session_id}/title', [ChatSessionController::class, 'updateChatTitle'])
+        ->whereNumber('session_id');
+    Route::delete('/sessions/{session_id}', [ChatSessionController::class, 'deleteChatSession'])
+        ->whereNumber('session_id');
 });
 
 
