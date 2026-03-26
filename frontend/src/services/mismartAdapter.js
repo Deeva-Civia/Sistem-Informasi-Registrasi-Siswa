@@ -9,6 +9,7 @@ const safeJsonParse = (value) => {
 
 const readMessageText = (messageContent) => {
   if (typeof messageContent === "string") return messageContent;
+  if (Array.isArray(messageContent)) return JSON.stringify(messageContent);
   if (!messageContent || typeof messageContent !== "object") return "";
 
   if (typeof messageContent.text === "string") return messageContent.text;
@@ -26,21 +27,24 @@ const normalizeSender = (senderType) => {
   return "ai";
 };
 
-export const mapApiMessageToUi = (apiMessage, index = 0) => {
+const mapApiMessageToUi = (apiMessage, index = 0) => {
   const parsedContent = safeJsonParse(apiMessage?.message_content);
+  const canDownloadValue =
+    apiMessage?.can_download ??
+    apiMessage?.canDownload ??
+    parsedContent?.can_download ??
+    false;
 
   return {
     id: String(apiMessage?.id ?? `msg-fallback-${index}`),
     sender: normalizeSender(apiMessage?.sender_type),
     text: readMessageText(parsedContent),
-    canDownload: Boolean(apiMessage?.can_download),
-    generatedSql: apiMessage?.generated_sql || null,
+    canDownload: Boolean(canDownloadValue),
     createdAt: apiMessage?.created_at || null,
-    raw: apiMessage,
   };
 };
 
-export const mapApiSessionToUi = (apiSession, index = 0) => ({
+const mapApiSessionToUi = (apiSession, index = 0) => ({
   id: String(apiSession?.id ?? `session-fallback-${index}`),
   title: String(apiSession?.title || "New Chat"),
   updatedAt: apiSession?.updated_at ? new Date(apiSession.updated_at).getTime() : Date.now(),
@@ -50,16 +54,17 @@ export const mapApiSessionToUi = (apiSession, index = 0) => ({
         mapApiMessageToUi(message, messageIndex)
       )
     : [],
-  raw: apiSession,
 });
 
 const pickArray = (payload, keys) => {
+  if (Array.isArray(payload)) return payload;
   if (!payload || typeof payload !== "object") return [];
 
   for (const key of keys) {
     if (Array.isArray(payload[key])) return payload[key];
   }
 
+  if (payload?.data && Array.isArray(payload.data)) return payload.data;
   return [];
 };
 
@@ -84,4 +89,3 @@ export const mapSessionSearchResponse = (response) => {
 
   return sourceSessions.map((item, index) => mapApiSessionToUi(item, index));
 };
-

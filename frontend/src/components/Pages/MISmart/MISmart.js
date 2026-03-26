@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ReactComponent as CopyIcon } from "../../../assets/MISmart_copy.svg";
 import { ReactComponent as DownloadIcon } from "../../../assets/MISmart_unduh.svg";
 import { ReactComponent as DeleteIcon } from "../../../assets/MISmart_delete.svg";
@@ -181,7 +181,10 @@ const MISmart = () => {
   const [chatSessions, setChatSessions] = useState(initialStateRef.current.chatSessions);
   const [activeSessionId, setActiveSessionId] = useState(null);
   const [openContextMenuSessionId, setOpenContextMenuSessionId] = useState(null);
+  const [openContextMenuSessionSnapshot, setOpenContextMenuSessionSnapshot] =
+    useState(null);
   const [renameModalSessionId, setRenameModalSessionId] = useState(null);
+  const [renameSessionSnapshot, setRenameSessionSnapshot] = useState(null);
   const [deleteModalSessionId, setDeleteModalSessionId] = useState(null);
   const [renameDraftTitle, setRenameDraftTitle] = useState("");
   const [contextMenuPosition, setContextMenuPosition] = useState(null);
@@ -215,6 +218,7 @@ const MISmart = () => {
   const historyAbortControllerRef = useRef(null);
   const sessionsRef = useRef(chatSessions);
   const activeSessionIdRef = useRef(activeSessionId);
+  const normalizedSearchRef = useRef("");
   const activeUserName = user?.full_name || user?.username || "User aktif";
   const defaultRecapPrompt =
     "Berikan data rekapan pendaftaran untuk hari ini dalam bentuk tabel";
@@ -233,15 +237,12 @@ const MISmart = () => {
   );
   const filteredSessions =
     MISMART_ENABLE_API && normalizedSearch ? searchResults : locallyFilteredSessions;
-  const openContextMenuSession =
-    chatSessions.find((session) => session.id === openContextMenuSessionId) || null;
-  const renameTargetSession =
-    chatSessions.find((session) => session.id === renameModalSessionId) || null;
+  const renameBaselineTitle = String(renameSessionSnapshot?.title || "").trim();
   const normalizedRenameDraftTitle = renameDraftTitle.trim();
   const canSubmitRename = Boolean(
-    renameTargetSession &&
+    renameModalSessionId &&
       normalizedRenameDraftTitle &&
-      normalizedRenameDraftTitle !== renameTargetSession.title
+      normalizedRenameDraftTitle !== renameBaselineTitle
   );
   const shouldShowComposer = !isChatMode || !isActiveSessionReadOnly;
 
@@ -252,6 +253,10 @@ const MISmart = () => {
   useEffect(() => {
     activeSessionIdRef.current = activeSessionId;
   }, [activeSessionId]);
+
+  useEffect(() => {
+    normalizedSearchRef.current = normalizedSearch;
+  }, [normalizedSearch]);
 
   const createMessage = (sender, text, canDownload = false) => ({
     id: `msg-${Date.now()}-${messageIdRef.current++}`,
@@ -296,14 +301,21 @@ const MISmart = () => {
     );
   };
 
-  const createSessionWithFirstMessage = (promptText, forcedSessionId = null) => {
+  const createSessionWithFirstMessage = (
+    promptText,
+    forcedSessionId = null,
+    forcedTitle = null
+  ) => {
     const sessionId = forcedSessionId
       ? String(forcedSessionId)
       : `session-${Date.now()}-${sessionIdRef.current++}`;
+    const resolvedTitle = MISMART_ENABLE_API
+      ? String(forcedTitle || "").trim()
+      : buildSessionTitle(promptText);
     const firstUserMessage = createMessage("user", promptText);
     const newSession = {
       id: sessionId,
-      title: buildSessionTitle(promptText),
+      title: resolvedTitle,
       updatedAt: Date.now(),
       isLocked: false,
       messages: [firstUserMessage],
@@ -311,6 +323,53 @@ const MISmart = () => {
     setChatSessions((prevSessions) => [newSession, ...prevSessions]);
     setActiveSessionId(sessionId);
     return sessionId;
+  };
+
+  const applyBackendSessionSnapshot = useCallback((mappedSessions) => {
+    setChatSessions((prevSessions) => {
+      const previousSessionMap = new Map(
+        prevSessions.map((session) => [String(session.id), session])
+      );
+
+      return mappedSessions.map((session) => {
+        const previousSession = previousSessionMap.get(String(session.id));
+        return {
+          ...session,
+          messages: previousSession?.messages || session.messages || [],
+          isLocked: previousSession?.isLocked ?? session.isLocked,
+        };
+      });
+    });
+
+    const normalizedSearchValue = normalizedSearchRef.current;
+    if (normalizedSearchValue) {
+      setSearchResults(
+        mappedSessions.filter((session) =>
+          sessionMatchesQuery(session, normalizedSearchValue)
+        )
+      );
+      return;
+    }
+
+    setSearchResults([]);
+  }, []);
+
+  const refreshSessionsFromBackend = async () => {
+    if (!MISMART_ENABLE_API) return [];
+
+    const response = await searchSessions("", { unwrapData: true });
+    const mappedSessions = mapSessionSearchResponse(response);
+    applyBackendSessionSnapshot(mappedSessions);
+
+    const activeId = activeSessionIdRef.current;
+    if (
+      activeId &&
+      !mappedSessions.some((session) => String(session.id) === String(activeId))
+    ) {
+      setActiveSessionId(null);
+    }
+
+    return mappedSessions;
   };
 
   const appendAiReply = (sessionId, canDownload) => {
@@ -358,7 +417,7 @@ const MISmart = () => {
     }, 800);
   };
 
-  const handleSendPrompt = async (promptText, inputType = "dynamic") => {
+  const handleSendPrompt = async (promptText) => {
     if (isAiTyping) return;
     const trimmedPrompt = promptText.trim();
     if (!trimmedPrompt) return;
@@ -374,15 +433,17 @@ const MISmart = () => {
       appendMessageToSession(targetSessionId, userMessage);
     } else {
       let backendSessionId = null;
+      let backendSessionTitle = null;
 
       if (MISMART_ENABLE_API) {
         try {
           const response = await createChatSession({
             text: trimmedPrompt,
-            input_type: inputType,
-          });
-          backendSessionId = response?.data?.id ?? null;
-          if (!backendSessionId) {
+          }, { unwrapData: true });
+          backendSessionId = response?.id ?? response?.data?.id ?? null;
+          backendSessionTitle =
+            typeof response?.title === "string" ? response.title.trim() : "";
+          if (!backendSessionId || !backendSessionTitle) {
             throw new Error("Invalid session response.");
           }
         } catch (error) {
@@ -393,7 +454,19 @@ const MISmart = () => {
         }
       }
 
-      targetSessionId = createSessionWithFirstMessage(trimmedPrompt, backendSessionId);
+      targetSessionId = createSessionWithFirstMessage(
+        trimmedPrompt,
+        backendSessionId,
+        backendSessionTitle
+      );
+
+      if (MISMART_ENABLE_API) {
+        try {
+          await refreshSessionsFromBackend();
+        } catch (_error) {
+          // Keep local state so user can continue even if refresh fails.
+        }
+      }
     }
 
     appendAiReply(targetSessionId, canDownload);
@@ -403,7 +476,7 @@ const MISmart = () => {
   };
 
   const handleEnterChatMode = () => {
-    handleSendPrompt(defaultRecapPrompt, "standard");
+    handleSendPrompt(defaultRecapPrompt);
   };
 
   const handleNewChatClick = () => {
@@ -412,6 +485,7 @@ const MISmart = () => {
     setSessionActionErrorMessage("");
     setActiveSessionId(null);
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setAskValue("");
     setActiveCopyMessageId(null);
@@ -447,6 +521,7 @@ const MISmart = () => {
     setSessionActionErrorMessage("");
     setActiveSessionId(sessionId);
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setAskValue("");
     setActiveCopyMessageId(null);
@@ -462,7 +537,10 @@ const MISmart = () => {
 
     setIsHistoryLoading(true);
 
-    fetchChatDetails(sessionId, { signal: abortController.signal })
+    fetchChatDetails(sessionId, {
+      signal: abortController.signal,
+      unwrapData: true,
+    })
       .then((response) => {
         const mappedMessages = mapChatDetailsResponse(response);
         setChatSessions((prevSessions) =>
@@ -487,13 +565,15 @@ const MISmart = () => {
 
   const handleSearchChange = (event) => {
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setSearchErrorMessage("");
     setSearchQuery(event.target.value);
   };
 
-  const handleToggleContextMenu = (event, sessionId) => {
+  const handleToggleContextMenu = (event, session) => {
     event.stopPropagation();
+    const sessionId = session.id;
     const triggerRect = event.currentTarget.getBoundingClientRect();
     const sessionRowElement = event.currentTarget.closest(
       `.${styles.historyItemRow}`
@@ -502,10 +582,12 @@ const MISmart = () => {
     const popupTop = (sessionRowRect?.bottom ?? triggerRect.bottom) + 3;
     setOpenContextMenuSessionId((prevSessionId) => {
       if (prevSessionId === sessionId) {
+        setOpenContextMenuSessionSnapshot(null);
         setContextMenuPosition(null);
         return null;
       }
 
+      setOpenContextMenuSessionSnapshot(session);
       setContextMenuPosition({
         top: popupTop,
         left: triggerRect.left,
@@ -515,27 +597,35 @@ const MISmart = () => {
   };
 
   const handleDeleteSession = (event) => {
-    if (!openContextMenuSession) return;
+    if (!openContextMenuSessionSnapshot) return;
     event.stopPropagation();
     setSessionActionErrorMessage("");
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setRenameModalSessionId(null);
-    setDeleteModalSessionId(openContextMenuSession.id);
+    setRenameSessionSnapshot(null);
+    setDeleteModalSessionId(openContextMenuSessionSnapshot.id);
   };
 
   const handleOpenRenameModal = (event, session) => {
     event.stopPropagation();
     setSessionActionErrorMessage("");
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setDeleteModalSessionId(null);
-    setRenameModalSessionId(session.id);
-    setRenameDraftTitle(session.title);
+    setRenameModalSessionId(String(session.id));
+    setRenameSessionSnapshot({
+      id: String(session.id),
+      title: String(session.title || ""),
+    });
+    setRenameDraftTitle(String(session.title || ""));
   };
 
   const handleCloseRenameModal = () => {
     setRenameModalSessionId(null);
+    setRenameSessionSnapshot(null);
     setRenameDraftTitle("");
     setSessionActionErrorMessage("");
   };
@@ -554,7 +644,7 @@ const MISmart = () => {
     if (MISMART_ENABLE_API) {
       setIsDeletingSession(true);
       try {
-        await deleteChatSession(targetSessionId);
+        await deleteChatSession(targetSessionId, { unwrapData: true });
       } catch (error) {
         setSessionActionErrorMessage(
           error?.message || "Failed to delete session. Please try again."
@@ -567,6 +657,9 @@ const MISmart = () => {
 
     setChatSessions((prevSessions) =>
       prevSessions.filter((session) => session.id !== targetSessionId)
+    );
+    setSearchResults((prevResults) =>
+      prevResults.filter((session) => session.id !== targetSessionId)
     );
 
     if (activeSessionId === targetSessionId) {
@@ -636,11 +729,20 @@ const MISmart = () => {
 
     const normalizedTitle = normalizedRenameDraftTitle;
     setSessionActionErrorMessage("");
+    let updatedSession = null;
 
     if (MISMART_ENABLE_API) {
       setIsRenamingTitle(true);
       try {
-        await updateChatTitle(renameModalSessionId, normalizedTitle);
+        updatedSession = await updateChatTitle(
+          renameModalSessionId,
+          normalizedTitle,
+          { unwrapData: true }
+        );
+        const updatedTitle = String(updatedSession?.title || "").trim();
+        if (!updatedTitle) {
+          throw new Error("Invalid session response.");
+        }
       } catch (error) {
         setSessionActionErrorMessage(
           error?.message || "Failed to rename session. Please try again."
@@ -654,12 +756,27 @@ const MISmart = () => {
     setChatSessions((prevSessions) =>
       prevSessions.map((session) =>
         session.id === renameModalSessionId
-          ? { ...session, title: normalizedTitle, updatedAt: Date.now() }
+          ? {
+              ...session,
+              title: MISMART_ENABLE_API ? updatedSession.title : normalizedTitle,
+              updatedAt: updatedSession?.updated_at
+                ? new Date(updatedSession.updated_at).getTime()
+                : Date.now(),
+            }
           : session
       )
     );
 
+    if (MISMART_ENABLE_API) {
+      try {
+        await refreshSessionsFromBackend();
+      } catch (_error) {
+        // Keep successful rename state even if refresh sync fails.
+      }
+    }
+
     setRenameModalSessionId(null);
+    setRenameSessionSnapshot(null);
     setRenameDraftTitle("");
     triggerRenameSuccessPopup();
   };
@@ -677,7 +794,7 @@ const MISmart = () => {
 
   const handleSendClick = () => {
     if (!canSend) return;
-    handleSendPrompt(askValue, "dynamic");
+    handleSendPrompt(askValue);
   };
 
   const handleAskInputKeyDown = (event) => {
@@ -723,11 +840,11 @@ const MISmart = () => {
     setIsInitialSessionsLoading(true);
     setSearchErrorMessage("");
 
-    searchSessions("")
+    searchSessions("", { unwrapData: true })
       .then((response) => {
         if (!isMounted) return;
         const mappedSessions = mapSessionSearchResponse(response);
-        setChatSessions(mappedSessions);
+        applyBackendSessionSnapshot(mappedSessions);
       })
       .catch((error) => {
         if (!isMounted) return;
@@ -743,7 +860,7 @@ const MISmart = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [applyBackendSessionSnapshot]);
 
   useEffect(() => {
     if (!MISMART_ENABLE_API) {
@@ -772,6 +889,7 @@ const MISmart = () => {
       try {
         const response = await searchSessions(normalizedSearch, {
           signal: abortController.signal,
+          unwrapData: true,
         });
         const mappedSessions = mapSessionSearchResponse(response);
         setSearchResults(mappedSessions);
@@ -820,6 +938,7 @@ const MISmart = () => {
       }
       if (target.closest(`.${styles.historyItemOptionButton}`)) return;
       setOpenContextMenuSessionId(null);
+      setOpenContextMenuSessionSnapshot(null);
       setContextMenuPosition(null);
     };
 
@@ -834,6 +953,7 @@ const MISmart = () => {
 
     const handleViewportChange = () => {
       setOpenContextMenuSessionId(null);
+      setOpenContextMenuSessionSnapshot(null);
       setContextMenuPosition(null);
     };
 
@@ -957,7 +1077,7 @@ const MISmart = () => {
                         ? styles.historyItemOptionButtonVisible
                         : ""
                     }`}
-                    onClick={(event) => handleToggleContextMenu(event, session.id)}
+                    onClick={(event) => handleToggleContextMenu(event, session)}
                   >
                     <img
                       src={titikTigaIcon}
@@ -986,8 +1106,8 @@ const MISmart = () => {
                 type="button"
                 className={styles.historyContextAction}
                 onClick={(event) =>
-                  openContextMenuSession
-                    ? handleOpenRenameModal(event, openContextMenuSession)
+                  openContextMenuSessionSnapshot
+                    ? handleOpenRenameModal(event, openContextMenuSessionSnapshot)
                     : undefined
                 }
               >
@@ -1059,7 +1179,7 @@ const MISmart = () => {
                         aria-label="Download File Exel"
                         onClick={() => handleDownloadClick(message.id)}
                       >
-                        <span>Download File Exel</span>
+                        <span>Download Exel</span>
                         <DownloadIcon className={styles.downloadIconSvg} />
                       </button>
                     ) : null}
@@ -1174,7 +1294,7 @@ const MISmart = () => {
                   onClick={handleCommitRename}
                   disabled={!canSubmitRename || isRenamingTitle}
                 >
-                  {isRenamingTitle ? "Renaming..." : "Rename"}
+                  {isRenamingTitle ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>
