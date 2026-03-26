@@ -46,7 +46,7 @@ class GeminiService
             7. MULTIPLE CATEGORY RECAPITULATION (CRITICAL): If the user asks for a 'Rekapitulasi' (Summary/Recap) based on MULTIPLE INDEPENDENT categories:
                 - DO NOT group them all in one SELECT. Use `UNION ALL` to create a vertical table with 3 columns: `Kategori`, `Kriteria`, and `Total`.
                 - ALWAYS use Standard English for the 'Kategori' string literals, REGARDLESS of the user's language (e.g., use 'Residence Type' NOT 'Tipe Tempat Tinggal', use 'Payment', 'Grade', 'Discount', 'Student Status', 'Gender', 'Academic Status', 'School Year').
-                - Return TWO queries: index 0 must be the exact distinct student count (`SELECT COUNT(DISTINCT e.enrollment_id)...`), and index 1 is the UNION ALL query. (See Example 2).
+                - If the user ALSO asks for 'nama' (names) or a specific list of students alongside the recap, do NOT put names in the UNION ALL. Instead, add a 3rd query in the JSON array specifically for the student list.
             8. DISAMBIGUATE STATUS:
                 - If checking Enrollment Status ('New', 'Old', or 'Transferee'), ALWAYS use `enrollments`.`student_status`.
                 - If checking Lifecycle Status ('Withdraw', 'Expelled', 'Graduate', or 'Not Graduate'), ALWAYS use `students`.`status`.
@@ -54,9 +54,10 @@ class GeminiService
             Constraints:
             - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
             - If the request cannot be answered with the schema, return SELECT 'I cannot answer that based on the available data' as message.
-            - MANDATORY TWO QUERIES RULE: Unless the user ONLY asks for a single number (e.g., 'Berapa total...?'), you MUST ALWAYS return exactly TWO queries in the array:
-                * Index 0: A query to get the EXACT DISTINCT COUNT of students matching the condition (e.g., `SELECT COUNT(DISTINCT e.enrollment_id) as total_siswa ...`).
-                * Index 1: The actual data query (`SELECT ... LIMIT 50` or the `UNION ALL` summary table).
+            - ARRAY STRUCTURE RULE (2 OR 3 QUERIES): You must return exactly 2 or 3 queries depending on the request:
+                * Index 0 (Mandatory): A query to get the EXACT DISTINCT COUNT of students (e.g., `SELECT COUNT(DISTINCT e.enrollment_id) as total_siswa ...`).
+                * Index 1 (Mandatory): The primary response query (`SELECT ... LIMIT 50` OR the `UNION ALL` summary table).
+                * Index 2 (Conditional): ONLY IF the user asks for BOTH a recapitulation/summary AND a detailed list of names/data. Put the `UNION ALL` in Index 1, and the detailed data query (`SELECT s.student_id, full_name ... LIMIT 50`) in Index 2.
             - Use ONLY SELECT statements. UPDATE/DELETE/INSERT are strictly forbidden.
             - ALWAYS add LIMIT 50 for data listing queries (index 1), unless the user asks for a specific limit. Do NOT limit COUNT queries.
 
@@ -81,6 +82,14 @@ class GeminiService
                 \"SELECT COUNT(*) as total_siswa FROM enrollments e JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%'\",
                 \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, sy.year as school_year, pp.name as pickup_point FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%' LIMIT 50\"
             ]
+            
+            Example 4 (Recap AND List of Names requested together):
+            User Question: 'Buatkan rekap pendaftaran hari ini berdasarkan tipe tempat tinggal dan kelas, berikan juga list namanya'
+            Output: [
+                \"SELECT COUNT(DISTINCT e.enrollment_id) as total_pendaftar FROM enrollments e WHERE DATE(e.registration_date) = CURDATE()\",
+                \"SELECT 'Residence Type' AS Kategori, rh.type AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY rh.type UNION ALL SELECT 'Grade' AS Kategori, c.grade AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN classes c ON e.class_id = c.class_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY c.grade\",
+                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, rh.type as residence_type FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() LIMIT 50\"
+            ]
 
             Schema:
             {$dbSchema}
@@ -89,7 +98,9 @@ class GeminiService
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])
+            ->timeout(60)
+            ->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -145,9 +156,9 @@ class GeminiService
         $contextJson = json_encode($executionResults);
 
         $specificRule = $hasTableData 
-            ? "The system will display a TABLE UI below your response. YOUR TASK: First, find the actual total number of students/registrations. This is usually the value inside the FIRST query result (e.g., 'total_siswa' or 'total_pendaftar'). State this explicitly (e.g., 'Terdapat total 6 pendaftaran...'). WARNING: If the table is a 'UNION ALL' summary table (contains 'Kategori' column), DO NOT use 'total_rows_in_db' as the number of students, because that is just the number of summary rows! Second, write a brief, natural introductory sentence for the table. DO NOT list the actual row items manually."
+            ? "The system will display TABLE(S) below your response. YOUR TASK: First, find the actual total number of students/registrations. This is usually the value inside the FIRST query result. State this explicitly (e.g., 'Terdapat total 6 pendaftaran...'). WARNING: If the table is a 'UNION ALL' summary table, DO NOT use 'total_rows_in_db' as the number of students. Second, write a brief, natural introductory sentence for the table(s). If there is a summary table AND a student list table, briefly introduce both."
             : "The result is a direct answer or summary. Provide a conversational narrative based on the data without introducing any table.";
-
+        
         $systemInstruction = "
             Role: You are a helpful Data Analyst Assistant for MIS Registrar.
             
@@ -174,7 +185,9 @@ class GeminiService
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->retry(3, 2000)->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])
+            ->timeout(60)
+            ->retry(3, 2000)->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [

@@ -67,7 +67,7 @@ class AiChatController extends Controller
                     if ($rowCount > 0) {
                         $firstRow = $resultsArray[0];
                         if (count($firstRow) > 1) {
-                            $tableData =  array_merge($tableData, $resultsArray);
+                            $tableData['table_' . $index] = $resultsArray;
                             $isTable = true;
                         }
                     }
