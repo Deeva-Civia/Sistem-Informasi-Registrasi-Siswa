@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ReactComponent as CopyIcon } from "../../../assets/MISmart_copy.svg";
 import { ReactComponent as DownloadIcon } from "../../../assets/MISmart_unduh.svg";
 import { ReactComponent as DeleteIcon } from "../../../assets/MISmart_delete.svg";
@@ -10,9 +10,21 @@ import searchIcon from "../../../assets/MISmart_search.svg";
 import rekapanIcon from "../../../assets/MISmart_rekapan.svg";
 import titikTigaIcon from "../../../assets/MISmart_titik3.svg";
 import useAuth from "../../../hooks/useAuth";
+import {
+  createChatSession,
+  deleteChatSession,
+  fetchChatDetails,
+  searchSessions,
+  updateChatTitle,
+} from "../../../services/mismartApi";
+import {
+  mapChatDetailsResponse,
+  mapSessionSearchResponse,
+} from "../../../services/mismartAdapter";
 import styles from "./MISmart.module.css";
 
 const MISMART_STORAGE_KEY = "mis_smart_chat_state_v1";
+const MISMART_ENABLE_API = process.env.REACT_APP_MISMART_USE_API === "true";
 
 const downloadKeywords = [
   "rekap",
@@ -48,6 +60,26 @@ const sessionMatchesQuery = (session, normalizedQuery) => {
   return session.messages.some((message) =>
     message.text.toLowerCase().includes(normalizedQuery)
   );
+};
+
+const mergeSessionsById = (existingSessions, incomingSessions) => {
+  const mergedMap = new Map(existingSessions.map((session) => [session.id, session]));
+
+  incomingSessions.forEach((incomingSession) => {
+    const existingSession = mergedMap.get(incomingSession.id);
+    const nextMessages =
+      incomingSession.messages.length > 0
+        ? incomingSession.messages
+        : existingSession?.messages || [];
+
+    mergedMap.set(incomingSession.id, {
+      ...existingSession,
+      ...incomingSession,
+      messages: nextMessages,
+    });
+  });
+
+  return [...mergedMap.values()].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 };
 
 const aiRecapResponseText =
@@ -100,6 +132,10 @@ const createInitialMockSessions = () => {
 };
 
 const getInitialStateFromStorage = () => {
+  if (MISMART_ENABLE_API) {
+    return { chatSessions: [], activeSessionId: null };
+  }
+
   if (typeof window === "undefined") {
     return { chatSessions: createInitialMockSessions(), activeSessionId: null };
   }
@@ -143,16 +179,28 @@ const MISmart = () => {
   const { user } = useAuth();
   const initialStateRef = useRef(getInitialStateFromStorage());
   const [chatSessions, setChatSessions] = useState(initialStateRef.current.chatSessions);
-  const [activeSessionId, setActiveSessionId] = useState(
-    initialStateRef.current.activeSessionId
-  );
+  const [activeSessionId, setActiveSessionId] = useState(null);
   const [openContextMenuSessionId, setOpenContextMenuSessionId] = useState(null);
+  const [openContextMenuSessionSnapshot, setOpenContextMenuSessionSnapshot] =
+    useState(null);
   const [renameModalSessionId, setRenameModalSessionId] = useState(null);
+  const [renameSessionSnapshot, setRenameSessionSnapshot] = useState(null);
   const [deleteModalSessionId, setDeleteModalSessionId] = useState(null);
   const [renameDraftTitle, setRenameDraftTitle] = useState("");
   const [contextMenuPosition, setContextMenuPosition] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isInitialSessionsLoading, setIsInitialSessionsLoading] = useState(false);
+  const [isSearchingSessions, setIsSearchingSessions] = useState(false);
+  const [searchErrorMessage, setSearchErrorMessage] = useState("");
   const [askValue, setAskValue] = useState("");
+  const [showRenameSuccessPopup, setShowRenameSuccessPopup] = useState(false);
+  const [showDeleteSuccessPopup, setShowDeleteSuccessPopup] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [historyErrorMessage, setHistoryErrorMessage] = useState("");
+  const [isRenamingTitle, setIsRenamingTitle] = useState(false);
+  const [isDeletingSession, setIsDeletingSession] = useState(false);
+  const [sessionActionErrorMessage, setSessionActionErrorMessage] = useState("");
   const [activeCopyMessageId, setActiveCopyMessageId] = useState(null);
   const [activeDownloadMessageId, setActiveDownloadMessageId] = useState(null);
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -164,8 +212,13 @@ const MISmart = () => {
   const downloadResetTimeoutRef = useRef(null);
   const aiReplyTimeoutRef = useRef(null);
   const contextMenuRef = useRef(null);
+  const renameSuccessTimeoutRef = useRef(null);
+  const deleteSuccessTimeoutRef = useRef(null);
+  const searchAbortControllerRef = useRef(null);
+  const historyAbortControllerRef = useRef(null);
   const sessionsRef = useRef(chatSessions);
   const activeSessionIdRef = useRef(activeSessionId);
+  const normalizedSearchRef = useRef("");
   const activeUserName = user?.full_name || user?.username || "User aktif";
   const defaultRecapPrompt =
     "Berikan data rekapan pendaftaran untuk hari ini dalam bentuk tabel";
@@ -179,18 +232,17 @@ const MISmart = () => {
   const canSend =
     askValue.trim().length > 0 && !isAiTyping && !isActiveSessionReadOnly;
   const normalizedSearch = searchQuery.trim().toLowerCase();
-  const filteredSessions = chatSessions.filter((session) =>
+  const locallyFilteredSessions = chatSessions.filter((session) =>
     sessionMatchesQuery(session, normalizedSearch)
   );
-  const openContextMenuSession =
-    chatSessions.find((session) => session.id === openContextMenuSessionId) || null;
-  const renameTargetSession =
-    chatSessions.find((session) => session.id === renameModalSessionId) || null;
+  const filteredSessions =
+    MISMART_ENABLE_API && normalizedSearch ? searchResults : locallyFilteredSessions;
+  const renameBaselineTitle = String(renameSessionSnapshot?.title || "").trim();
   const normalizedRenameDraftTitle = renameDraftTitle.trim();
   const canSubmitRename = Boolean(
-    renameTargetSession &&
+    renameModalSessionId &&
       normalizedRenameDraftTitle &&
-      normalizedRenameDraftTitle !== renameTargetSession.title
+      normalizedRenameDraftTitle !== renameBaselineTitle
   );
   const shouldShowComposer = !isChatMode || !isActiveSessionReadOnly;
 
@@ -201,6 +253,10 @@ const MISmart = () => {
   useEffect(() => {
     activeSessionIdRef.current = activeSessionId;
   }, [activeSessionId]);
+
+  useEffect(() => {
+    normalizedSearchRef.current = normalizedSearch;
+  }, [normalizedSearch]);
 
   const createMessage = (sender, text, canDownload = false) => ({
     id: `msg-${Date.now()}-${messageIdRef.current++}`,
@@ -245,12 +301,21 @@ const MISmart = () => {
     );
   };
 
-  const createSessionWithFirstMessage = (promptText) => {
-    const sessionId = `session-${Date.now()}-${sessionIdRef.current++}`;
+  const createSessionWithFirstMessage = (
+    promptText,
+    forcedSessionId = null,
+    forcedTitle = null
+  ) => {
+    const sessionId = forcedSessionId
+      ? String(forcedSessionId)
+      : `session-${Date.now()}-${sessionIdRef.current++}`;
+    const resolvedTitle = MISMART_ENABLE_API
+      ? String(forcedTitle || "").trim()
+      : buildSessionTitle(promptText);
     const firstUserMessage = createMessage("user", promptText);
     const newSession = {
       id: sessionId,
-      title: buildSessionTitle(promptText),
+      title: resolvedTitle,
       updatedAt: Date.now(),
       isLocked: false,
       messages: [firstUserMessage],
@@ -258,6 +323,53 @@ const MISmart = () => {
     setChatSessions((prevSessions) => [newSession, ...prevSessions]);
     setActiveSessionId(sessionId);
     return sessionId;
+  };
+
+  const applyBackendSessionSnapshot = useCallback((mappedSessions) => {
+    setChatSessions((prevSessions) => {
+      const previousSessionMap = new Map(
+        prevSessions.map((session) => [String(session.id), session])
+      );
+
+      return mappedSessions.map((session) => {
+        const previousSession = previousSessionMap.get(String(session.id));
+        return {
+          ...session,
+          messages: previousSession?.messages || session.messages || [],
+          isLocked: previousSession?.isLocked ?? session.isLocked,
+        };
+      });
+    });
+
+    const normalizedSearchValue = normalizedSearchRef.current;
+    if (normalizedSearchValue) {
+      setSearchResults(
+        mappedSessions.filter((session) =>
+          sessionMatchesQuery(session, normalizedSearchValue)
+        )
+      );
+      return;
+    }
+
+    setSearchResults([]);
+  }, []);
+
+  const refreshSessionsFromBackend = async () => {
+    if (!MISMART_ENABLE_API) return [];
+
+    const response = await searchSessions("", { unwrapData: true });
+    const mappedSessions = mapSessionSearchResponse(response);
+    applyBackendSessionSnapshot(mappedSessions);
+
+    const activeId = activeSessionIdRef.current;
+    if (
+      activeId &&
+      !mappedSessions.some((session) => String(session.id) === String(activeId))
+    ) {
+      setActiveSessionId(null);
+    }
+
+    return mappedSessions;
   };
 
   const appendAiReply = (sessionId, canDownload) => {
@@ -305,10 +417,13 @@ const MISmart = () => {
     }, 800);
   };
 
-  const handleSendPrompt = (promptText) => {
+  const handleSendPrompt = async (promptText) => {
     if (isAiTyping) return;
     const trimmedPrompt = promptText.trim();
     if (!trimmedPrompt) return;
+
+    setSessionActionErrorMessage("");
+    setHistoryErrorMessage("");
 
     const canDownload = hasDownloadIntent(trimmedPrompt);
     let targetSessionId = activeSessionId;
@@ -317,7 +432,41 @@ const MISmart = () => {
       const userMessage = createMessage("user", trimmedPrompt);
       appendMessageToSession(targetSessionId, userMessage);
     } else {
-      targetSessionId = createSessionWithFirstMessage(trimmedPrompt);
+      let backendSessionId = null;
+      let backendSessionTitle = null;
+
+      if (MISMART_ENABLE_API) {
+        try {
+          const response = await createChatSession({
+            text: trimmedPrompt,
+          }, { unwrapData: true });
+          backendSessionId = response?.id ?? response?.data?.id ?? null;
+          backendSessionTitle =
+            typeof response?.title === "string" ? response.title.trim() : "";
+          if (!backendSessionId || !backendSessionTitle) {
+            throw new Error("Invalid session response.");
+          }
+        } catch (error) {
+          setSessionActionErrorMessage(
+            error?.message || "Failed to create chat session."
+          );
+          return;
+        }
+      }
+
+      targetSessionId = createSessionWithFirstMessage(
+        trimmedPrompt,
+        backendSessionId,
+        backendSessionTitle
+      );
+
+      if (MISMART_ENABLE_API) {
+        try {
+          await refreshSessionsFromBackend();
+        } catch (_error) {
+          // Keep local state so user can continue even if refresh fails.
+        }
+      }
     }
 
     appendAiReply(targetSessionId, canDownload);
@@ -332,8 +481,11 @@ const MISmart = () => {
 
   const handleNewChatClick = () => {
     lockSessionById(activeSessionId);
+    setHistoryErrorMessage("");
+    setSessionActionErrorMessage("");
     setActiveSessionId(null);
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setAskValue("");
     setActiveCopyMessageId(null);
@@ -353,28 +505,75 @@ const MISmart = () => {
       clearTimeout(aiReplyTimeoutRef.current);
       aiReplyTimeoutRef.current = null;
     }
+    if (historyAbortControllerRef.current) {
+      historyAbortControllerRef.current.abort();
+      historyAbortControllerRef.current = null;
+    }
+    setIsHistoryLoading(false);
   };
 
   const handleSelectSession = (sessionId) => {
     if (activeSessionId && activeSessionId !== sessionId) {
       lockSessionById(activeSessionId);
     }
+
+    setHistoryErrorMessage("");
+    setSessionActionErrorMessage("");
     setActiveSessionId(sessionId);
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setAskValue("");
     setActiveCopyMessageId(null);
     setActiveDownloadMessageId(null);
+
+    if (!MISMART_ENABLE_API) return;
+
+    if (historyAbortControllerRef.current) {
+      historyAbortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    historyAbortControllerRef.current = abortController;
+
+    setIsHistoryLoading(true);
+
+    fetchChatDetails(sessionId, {
+      signal: abortController.signal,
+      unwrapData: true,
+    })
+      .then((response) => {
+        const mappedMessages = mapChatDetailsResponse(response);
+        setChatSessions((prevSessions) =>
+          prevSessions.map((session) =>
+            session.id === sessionId
+              ? { ...session, messages: mappedMessages, updatedAt: Date.now() }
+              : session
+          )
+        );
+      })
+      .catch((error) => {
+        if (abortController.signal.aborted) return;
+        setHistoryErrorMessage(error?.message || "Failed to load chat history.");
+      })
+      .finally(() => {
+        if (historyAbortControllerRef.current === abortController) {
+          historyAbortControllerRef.current = null;
+        }
+        setIsHistoryLoading(false);
+      });
   };
 
   const handleSearchChange = (event) => {
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
+    setSearchErrorMessage("");
     setSearchQuery(event.target.value);
   };
 
-  const handleToggleContextMenu = (event, sessionId) => {
+  const handleToggleContextMenu = (event, session) => {
     event.stopPropagation();
+    const sessionId = session.id;
     const triggerRect = event.currentTarget.getBoundingClientRect();
     const sessionRowElement = event.currentTarget.closest(
       `.${styles.historyItemRow}`
@@ -383,10 +582,12 @@ const MISmart = () => {
     const popupTop = (sessionRowRect?.bottom ?? triggerRect.bottom) + 3;
     setOpenContextMenuSessionId((prevSessionId) => {
       if (prevSessionId === sessionId) {
+        setOpenContextMenuSessionSnapshot(null);
         setContextMenuPosition(null);
         return null;
       }
 
+      setOpenContextMenuSessionSnapshot(session);
       setContextMenuPosition({
         top: popupTop,
         left: triggerRect.left,
@@ -396,40 +597,72 @@ const MISmart = () => {
   };
 
   const handleDeleteSession = (event) => {
-    if (!openContextMenuSession) return;
+    if (!openContextMenuSessionSnapshot) return;
     event.stopPropagation();
+    setSessionActionErrorMessage("");
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setRenameModalSessionId(null);
-    setDeleteModalSessionId(openContextMenuSession.id);
+    setRenameSessionSnapshot(null);
+    setDeleteModalSessionId(openContextMenuSessionSnapshot.id);
   };
 
   const handleOpenRenameModal = (event, session) => {
     event.stopPropagation();
+    setSessionActionErrorMessage("");
     setOpenContextMenuSessionId(null);
+    setOpenContextMenuSessionSnapshot(null);
     setContextMenuPosition(null);
     setDeleteModalSessionId(null);
-    setRenameModalSessionId(session.id);
-    setRenameDraftTitle(session.title);
+    setRenameModalSessionId(String(session.id));
+    setRenameSessionSnapshot({
+      id: String(session.id),
+      title: String(session.title || ""),
+    });
+    setRenameDraftTitle(String(session.title || ""));
   };
 
   const handleCloseRenameModal = () => {
     setRenameModalSessionId(null);
+    setRenameSessionSnapshot(null);
     setRenameDraftTitle("");
+    setSessionActionErrorMessage("");
   };
 
   const handleCloseDeleteModal = () => {
     setDeleteModalSessionId(null);
+    setSessionActionErrorMessage("");
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteModalSessionId) return;
+    const targetSessionId = deleteModalSessionId;
+
+    setSessionActionErrorMessage("");
+
+    if (MISMART_ENABLE_API) {
+      setIsDeletingSession(true);
+      try {
+        await deleteChatSession(targetSessionId, { unwrapData: true });
+      } catch (error) {
+        setSessionActionErrorMessage(
+          error?.message || "Failed to delete session. Please try again."
+        );
+        setIsDeletingSession(false);
+        return;
+      }
+      setIsDeletingSession(false);
+    }
 
     setChatSessions((prevSessions) =>
-      prevSessions.filter((session) => session.id !== deleteModalSessionId)
+      prevSessions.filter((session) => session.id !== targetSessionId)
+    );
+    setSearchResults((prevResults) =>
+      prevResults.filter((session) => session.id !== targetSessionId)
     );
 
-    if (activeSessionId === deleteModalSessionId) {
+    if (activeSessionId === targetSessionId) {
       setActiveSessionId(null);
       setAskValue("");
       setActiveCopyMessageId(null);
@@ -452,27 +685,100 @@ const MISmart = () => {
     }
 
     setDeleteModalSessionId(null);
+    triggerDeleteSuccessPopup();
   };
 
   const handleRenameInputChange = (event) => {
     setRenameDraftTitle(event.target.value);
   };
 
-  const handleCommitRename = () => {
-    if (!renameModalSessionId || !canSubmitRename) return;
+  const triggerRenameSuccessPopup = () => {
+    setShowDeleteSuccessPopup(false);
+    if (deleteSuccessTimeoutRef.current) {
+      clearTimeout(deleteSuccessTimeoutRef.current);
+      deleteSuccessTimeoutRef.current = null;
+    }
+    setShowRenameSuccessPopup(true);
+    if (renameSuccessTimeoutRef.current) {
+      clearTimeout(renameSuccessTimeoutRef.current);
+    }
+    renameSuccessTimeoutRef.current = setTimeout(() => {
+      setShowRenameSuccessPopup(false);
+      renameSuccessTimeoutRef.current = null;
+    }, 2000);
+  };
+
+  const triggerDeleteSuccessPopup = () => {
+    setShowRenameSuccessPopup(false);
+    if (renameSuccessTimeoutRef.current) {
+      clearTimeout(renameSuccessTimeoutRef.current);
+      renameSuccessTimeoutRef.current = null;
+    }
+    setShowDeleteSuccessPopup(true);
+    if (deleteSuccessTimeoutRef.current) {
+      clearTimeout(deleteSuccessTimeoutRef.current);
+    }
+    deleteSuccessTimeoutRef.current = setTimeout(() => {
+      setShowDeleteSuccessPopup(false);
+      deleteSuccessTimeoutRef.current = null;
+    }, 2000);
+  };
+
+  const handleCommitRename = async () => {
+    if (!renameModalSessionId || !canSubmitRename || isRenamingTitle) return;
 
     const normalizedTitle = normalizedRenameDraftTitle;
+    setSessionActionErrorMessage("");
+    let updatedSession = null;
+
+    if (MISMART_ENABLE_API) {
+      setIsRenamingTitle(true);
+      try {
+        updatedSession = await updateChatTitle(
+          renameModalSessionId,
+          normalizedTitle,
+          { unwrapData: true }
+        );
+        const updatedTitle = String(updatedSession?.title || "").trim();
+        if (!updatedTitle) {
+          throw new Error("Invalid session response.");
+        }
+      } catch (error) {
+        setSessionActionErrorMessage(
+          error?.message || "Failed to rename session. Please try again."
+        );
+        setIsRenamingTitle(false);
+        return;
+      }
+      setIsRenamingTitle(false);
+    }
 
     setChatSessions((prevSessions) =>
       prevSessions.map((session) =>
         session.id === renameModalSessionId
-          ? { ...session, title: normalizedTitle, updatedAt: Date.now() }
+          ? {
+              ...session,
+              title: MISMART_ENABLE_API ? updatedSession.title : normalizedTitle,
+              updatedAt: updatedSession?.updated_at
+                ? new Date(updatedSession.updated_at).getTime()
+                : Date.now(),
+            }
           : session
       )
     );
 
+    if (MISMART_ENABLE_API) {
+      try {
+        await refreshSessionsFromBackend();
+      } catch (_error) {
+        // Keep successful rename state even if refresh sync fails.
+      }
+    }
+
     setRenameModalSessionId(null);
+    setRenameSessionSnapshot(null);
     setRenameDraftTitle("");
+    triggerRenameSuccessPopup();
   };
 
   const handleRenameInputKeyDown = (event) => {
@@ -518,7 +824,7 @@ const MISmart = () => {
     const handleDeleteModalEscape = (event) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
-      handleCloseDeleteModal();
+      setDeleteModalSessionId(null);
     };
 
     document.addEventListener("keydown", handleDeleteModalEscape);
@@ -526,6 +832,92 @@ const MISmart = () => {
       document.removeEventListener("keydown", handleDeleteModalEscape);
     };
   }, [deleteModalSessionId]);
+
+  useEffect(() => {
+    if (!MISMART_ENABLE_API) return undefined;
+
+    let isMounted = true;
+    setIsInitialSessionsLoading(true);
+    setSearchErrorMessage("");
+
+    searchSessions("", { unwrapData: true })
+      .then((response) => {
+        if (!isMounted) return;
+        const mappedSessions = mapSessionSearchResponse(response);
+        applyBackendSessionSnapshot(mappedSessions);
+      })
+      .catch((error) => {
+        if (!isMounted) return;
+        setSearchErrorMessage(
+          error?.message || "Failed to load chat sessions."
+        );
+      })
+      .finally(() => {
+        if (!isMounted) return;
+        setIsInitialSessionsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [applyBackendSessionSnapshot]);
+
+  useEffect(() => {
+    if (!MISMART_ENABLE_API) {
+      setSearchResults([]);
+      setIsSearchingSessions(false);
+      return undefined;
+    }
+
+    if (searchAbortControllerRef.current) {
+      searchAbortControllerRef.current.abort();
+      searchAbortControllerRef.current = null;
+    }
+
+    if (!normalizedSearch) {
+      setSearchResults([]);
+      setIsSearchingSessions(false);
+      return undefined;
+    }
+
+    const abortController = new AbortController();
+    searchAbortControllerRef.current = abortController;
+
+    const timeoutId = window.setTimeout(async () => {
+      setIsSearchingSessions(true);
+      setSearchErrorMessage("");
+      try {
+        const response = await searchSessions(normalizedSearch, {
+          signal: abortController.signal,
+          unwrapData: true,
+        });
+        const mappedSessions = mapSessionSearchResponse(response);
+        setSearchResults(mappedSessions);
+        setChatSessions((prevSessions) =>
+          mergeSessionsById(prevSessions, mappedSessions)
+        );
+      } catch (error) {
+        if (abortController.signal.aborted) return;
+        setSearchErrorMessage(
+          error?.message || "Failed to search session list."
+        );
+        setSearchResults([]);
+      } finally {
+        if (searchAbortControllerRef.current === abortController) {
+          searchAbortControllerRef.current = null;
+        }
+        setIsSearchingSessions(false);
+      }
+    }, 250);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+      abortController.abort();
+      if (searchAbortControllerRef.current === abortController) {
+        searchAbortControllerRef.current = null;
+      }
+    };
+  }, [normalizedSearch]);
 
   useEffect(() => {
     if (!isChatMode || !chatViewportRef.current) return;
@@ -546,6 +938,7 @@ const MISmart = () => {
       }
       if (target.closest(`.${styles.historyItemOptionButton}`)) return;
       setOpenContextMenuSessionId(null);
+      setOpenContextMenuSessionSnapshot(null);
       setContextMenuPosition(null);
     };
 
@@ -560,6 +953,7 @@ const MISmart = () => {
 
     const handleViewportChange = () => {
       setOpenContextMenuSessionId(null);
+      setOpenContextMenuSessionSnapshot(null);
       setContextMenuPosition(null);
     };
 
@@ -603,6 +997,18 @@ const MISmart = () => {
       if (aiReplyTimeoutRef.current) {
         clearTimeout(aiReplyTimeoutRef.current);
       }
+      if (renameSuccessTimeoutRef.current) {
+        clearTimeout(renameSuccessTimeoutRef.current);
+      }
+      if (deleteSuccessTimeoutRef.current) {
+        clearTimeout(deleteSuccessTimeoutRef.current);
+      }
+      if (searchAbortControllerRef.current) {
+        searchAbortControllerRef.current.abort();
+      }
+      if (historyAbortControllerRef.current) {
+        historyAbortControllerRef.current.abort();
+      }
     };
   }, []);
 
@@ -639,7 +1045,13 @@ const MISmart = () => {
           </div>
 
           <div className={styles.historyList}>
-            {filteredSessions.length > 0 ? (
+            {MISMART_ENABLE_API && isInitialSessionsLoading ? (
+              <div className={styles.historyEmptyState}>Loading sessions...</div>
+            ) : MISMART_ENABLE_API && normalizedSearch && isSearchingSessions ? (
+              <div className={styles.historyEmptyState}>Searching...</div>
+            ) : MISMART_ENABLE_API && normalizedSearch && searchErrorMessage ? (
+              <div className={styles.historyEmptyState}>{searchErrorMessage}</div>
+            ) : filteredSessions.length > 0 ? (
               filteredSessions.map((session) => (
                 <div
                   key={session.id}
@@ -665,7 +1077,7 @@ const MISmart = () => {
                         ? styles.historyItemOptionButtonVisible
                         : ""
                     }`}
-                    onClick={(event) => handleToggleContextMenu(event, session.id)}
+                    onClick={(event) => handleToggleContextMenu(event, session)}
                   >
                     <img
                       src={titikTigaIcon}
@@ -694,8 +1106,8 @@ const MISmart = () => {
                 type="button"
                 className={styles.historyContextAction}
                 onClick={(event) =>
-                  openContextMenuSession
-                    ? handleOpenRenameModal(event, openContextMenuSession)
+                  openContextMenuSessionSnapshot
+                    ? handleOpenRenameModal(event, openContextMenuSessionSnapshot)
                     : undefined
                 }
               >
@@ -729,6 +1141,12 @@ const MISmart = () => {
         >
           {isChatMode ? (
             <div className={styles.chatViewport} ref={chatViewportRef}>
+              {isHistoryLoading ? (
+                <div className={styles.historyEmptyState}>Loading chat history...</div>
+              ) : null}
+              {historyErrorMessage ? (
+                <div className={styles.historyEmptyState}>{historyErrorMessage}</div>
+              ) : null}
               {activeMessages.map((message) =>
                 message.sender === "user" ? (
                   <div key={message.id} className={styles.userMessageBlock}>
@@ -761,7 +1179,7 @@ const MISmart = () => {
                         aria-label="Download File Exel"
                         onClick={() => handleDownloadClick(message.id)}
                       >
-                        <span>Download File Exel</span>
+                        <span>Download Exel</span>
                         <DownloadIcon className={styles.downloadIconSvg} />
                       </button>
                     ) : null}
@@ -829,6 +1247,11 @@ const MISmart = () => {
                   <SendIcon className={styles.askSendIconSvg} />
                 </button>
               </div>
+              {sessionActionErrorMessage &&
+              !renameModalSessionId &&
+              !deleteModalSessionId ? (
+                <p className={styles.composerErrorText}>{sessionActionErrorMessage}</p>
+              ) : null}
             </div>
           ) : null}
         </main>
@@ -854,6 +1277,9 @@ const MISmart = () => {
                 onChange={handleRenameInputChange}
                 onKeyDown={handleRenameInputKeyDown}
               />
+              {sessionActionErrorMessage ? (
+                <p className={styles.modalActionErrorText}>{sessionActionErrorMessage}</p>
+              ) : null}
               <div className={styles.renameModalActions}>
                 <button
                   type="button"
@@ -866,9 +1292,9 @@ const MISmart = () => {
                   type="button"
                   className={styles.renameModalSubmitButton}
                   onClick={handleCommitRename}
-                  disabled={!canSubmitRename}
+                  disabled={!canSubmitRename || isRenamingTitle}
                 >
-                  Rename
+                  {isRenamingTitle ? "Saving..." : "Save"}
                 </button>
               </div>
             </div>
@@ -893,6 +1319,9 @@ const MISmart = () => {
                 This action will delete any commands, responses, and content in this
                 chat session.
               </p>
+              {sessionActionErrorMessage ? (
+                <p className={styles.modalActionErrorText}>{sessionActionErrorMessage}</p>
+              ) : null}
               <div className={styles.renameModalActions}>
                 <button
                   type="button"
@@ -905,11 +1334,24 @@ const MISmart = () => {
                   type="button"
                   className={styles.deleteModalSubmitButton}
                   onClick={handleConfirmDelete}
+                  disabled={isDeletingSession}
                 >
-                  Delete
+                  {isDeletingSession ? "Deleting..." : "Delete"}
                 </button>
               </div>
             </div>
+          </div>
+        ) : null}
+
+        {showRenameSuccessPopup ? (
+          <div className={styles.renameSuccessPopup} role="status" aria-live="polite">
+            Chat renamed successfully
+          </div>
+        ) : null}
+
+        {showDeleteSuccessPopup ? (
+          <div className={styles.renameSuccessPopup} role="status" aria-live="polite">
+            Chat has been deleted
           </div>
         ) : null}
       </section>
