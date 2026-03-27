@@ -22,7 +22,6 @@ class GeminiService
         $systemInstruction = "
             Role: You are an expert SQL Generator for MySQL.
             Task: Convert the user's natural language question into a VALID MySQL query based on the provided schema.
-            Task: Convert the user's natural language question into a VALID MySQL query based on the provided schema.
             
             DATABASE STRATEGY (How to Join Tables):
             1. The `enrollments` table is the CENTRAL HUB. Almost all queries must start here or join through here.
@@ -53,7 +52,6 @@ class GeminiService
                 - If checking Lifecycle Status ('Withdraw', 'Expelled', 'Graduate', or 'Not Graduate'), ALWAYS use `students`.`status`.
     
             Constraints:
-            - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
             - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
             - If the request cannot be answered with the schema, return SELECT 'I cannot answer that based on the available data' as message.
             - ARRAY STRUCTURE RULE (2 OR 3 QUERIES): You must return exactly 2 or 3 queries depending on the request:
@@ -129,24 +127,12 @@ class GeminiService
             } else {
                 $cleanJson = $generatedText; 
             }
-            $start = strpos($generatedText, '[');
-            $end = strrpos($generatedText, ']');
-
-            if ($start !== false && $end !== false) {
-                // Potong string HANYA dari '[' sampai ']'
-                $cleanJson = substr($generatedText, $start, $end - $start + 1);
-            } else {
-                $cleanJson = $generatedText; 
-            }
 
             // Decode menjadi array PHP
             $queries = json_decode($cleanJson, true);
             
             // Fallback jika json_decode gagal
-            // Fallback jika json_decode gagal
             if (!is_array($queries)) {
-                Log::warning('Failed to parse AI JSON. Raw output: ' . $generatedText);
-                return [$cleanJson];
                 Log::warning('Failed to parse AI JSON. Raw output: ' . $generatedText);
                 return [$cleanJson];
             }
@@ -175,7 +161,6 @@ class GeminiService
         
         $systemInstruction = "
             Role: You are a helpful Data Analyst Assistant for MIS Registrar.
-            Role: You are a helpful Data Analyst Assistant for MIS Registrar.
             
             Context:
             - User Question: '$userPrompt'
@@ -190,7 +175,6 @@ class GeminiService
             2. If the user asks in English, you MUST answer in English.
             3. If the user asks in Indonesian, you MUST answer in Indonesian.
             4. Do not mix languages.
-            5. TERMINOLOGY RULE: When mentioning column names, keep them in their natural academic English terms (e.g., use 'Residence Type' instead of 'Tipe Hunian', 'Grade', 'Section', 'Installment'). Do not literally translate technical schema names.
             5. TERMINOLOGY RULE: When mentioning column names, keep them in their natural academic English terms (e.g., use 'Residence Type' instead of 'Tipe Hunian', 'Grade', 'Section', 'Installment'). Do not literally translate technical schema names.
 
             General Rules:
@@ -224,6 +208,35 @@ class GeminiService
         } catch (Exception $e) {
             Log::error($e->getMessage());
             return "Terjadi kesalahan saat memproses jawaban.";
+        }
+    }
+
+    public function generateTitle(string $userPrompt)
+    {
+        $systemInstruction = "You are a helpful assistant. Summarize the user's prompt into a short, concise title (maximum 4-5 words) in Indonesian or English depends on user prompt. Do not use quotes or punctuation.";
+
+        try {
+            $response = Http::withHeaders([
+                'Content-Type' => 'application/json',
+            ])->timeout(30)->post("{$this->baseUrl}?key={$this->apiKey}", [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $systemInstruction . "\n\nUser Prompt: " . $userPrompt]
+                        ]
+                    ]
+                ]
+            ]);
+
+            if ($response->successful()) {
+                $responseData = $response->json();
+                return $responseData['candidates'][0]['content']['parts'][0]['text'] ?? 'Percakapan Baru';
+            }
+
+            return 'Percakapan Baru';
+        } catch (Exception $e) {
+            Log::error('Gemini Title Error: ' . $e->getMessage());
+            return 'Percakapan Baru';
         }
     }
 }
