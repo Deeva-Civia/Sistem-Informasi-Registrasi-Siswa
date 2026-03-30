@@ -84,12 +84,10 @@ Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_regist
     Route::get('/analytics', [AnalyticsController::class, 'index']);
 });
 
-Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_registrar'])->group(function () {
-    Route::post('/ai-chatbot/ask', [AiChatController::class, 'ask']);
-});
-
+// MISmart
 Route::middleware(['auth:sanctum', 'lifetime', 'role:admin,registrar,head_registrar'])->prefix('mis-smart')->group(function () {
-    Route::post('/sessions', [ChatSessionController::class, 'createChatSession']);
+    Route::post('/ai-chatbot/ask', [AiChatController::class, 'ask']);
+    Route::post('/sessions', [ChatSessionController::class, 'handleSession']);
     Route::get('/sessions/{session_id}/messages', [ChatSessionController::class, 'fetchChatDetails'])
         ->whereNumber('session_id');
     Route::get('/sessions/search', [ChatSessionController::class, 'searchSessions']);

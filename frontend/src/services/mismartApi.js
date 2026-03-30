@@ -1,7 +1,12 @@
 const API_BASE_URL = process.env.REACT_APP_API_URL || "";
 const MISMART_API_PREFIX = process.env.REACT_APP_MISMART_API_PREFIX || "/mis-smart";
 
-const buildUrl = (endpoint) => `${API_BASE_URL}${endpoint}`;
+// Pastikan tidak ada slash ganda antara API_BASE_URL dan endpoint
+const buildUrl = (endpoint) => {
+  const baseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
+  const safeEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${baseUrl}${safeEndpoint}`;
+};
 
 const createApiError = ({
   message = "Unknown API error",
@@ -137,4 +142,16 @@ export const deleteChatSession = async (sessionId, options = {}) => {
     method: "DELETE",
     signal: options.signal,
   }, { unwrapData: options.unwrapData === true });
+};
+
+// Sequence: askAiChatbot(prompt, session_id)
+export const askAiChatbot = async (payload, options = {}) => {
+  return request(`${MISMART_API_PREFIX}/ai-chatbot/ask`, {
+    method: "POST",
+    body: JSON.stringify({
+      prompt: payload.prompt,
+      session_id: payload.sessionId || null,
+    }),
+    signal: options.signal,
+  }, { unwrapData: false }); 
 };

@@ -26,6 +26,7 @@ class GeminiService
             DATABASE STRATEGY (How to Join Tables):
             1. The `enrollments` table is the CENTRAL HUB. Almost all queries must start here or join through here.
             2. MANDATORY SELECT COLUMNS: For any query that returns a list of data (not COUNT), you MUST ALWAYS include:
+                - `enrollments`.`registration_date`
                 - `students`.`student_id`
                 - Full Name (use CONCAT_WS(' ', first_name, middle_name, last_name))
                 - `sections`.`name` as section
@@ -40,7 +41,10 @@ class GeminiService
                 - DISCOUNT: ALWAYS JOIN `student_discounts` sd ON `enrollments`.`enrollment_id` = sd.`enrollment_id` JOIN `discount_types` dt ON sd.`discount_type_id` = dt.`discount_type_id`.
                     Match the discount category (e.g., 'Staff', 'Beasiswa') in `dt`.`name`.
                     Match the specific amount or details (e.g., '12%', 'November') using LIKE in `sd`.`notes`.          
-            5. For 'Hari ini' (Today), use DATE(enrollments.registration_date) = CURDATE().
+            5. DATE & SCHOOL YEAR FILTERING (CRITICAL BUSINESS LOGIC):
+                - ONLY filter by exact date (e.g., DATE(registration_date) = CURDATE()) IF the user explicitly mentions 'hari ini' (today), 'kemarin', or a specific date.
+                - IF the user does NOT mention any specific timeframe (e.g., 'siapa saja siswa yang mendaftar dengan installment'), DO NOT apply any date filtering. 
+                - Instead, ALWAYS include the `school_years`.`year` column in your SELECT statements. Let the query pull the historical and future data, but ORDER BY `school_years`.`year` DESC so the registrar can clearly see the active and upcoming academic years at the top of the list.
             6. FILTERING MASTER DATA: NEVER hardcode IDs (like class_id = 3). ALWAYS JOIN the master table and filter by its string column using LIKE or =. 
                 (Example: To find grade K2, use JOIN `classes` c ... WHERE c.`grade` = 'K2').
             7. MULTIPLE CATEGORY RECAPITULATION (CRITICAL): If the user asks for a 'Rekapitulasi' (Summary/Recap) based on MULTIPLE INDEPENDENT categories:
@@ -50,14 +54,18 @@ class GeminiService
             8. DISAMBIGUATE STATUS:
                 - If checking Enrollment Status ('New', 'Old', or 'Transferee'), ALWAYS use `enrollments`.`student_status`.
                 - If checking Lifecycle Status ('Withdraw', 'Expelled', 'Graduate', or 'Not Graduate'), ALWAYS use `students`.`status`.
-    
+            9. COMPARISONS & BOOLEAN STATES (CRITICAL): 
+                - If the user asks for a comparison of states (e.g., 'siapa yang mendapat diskon dan yang tidak', 'lunas vs belum lunas'), ALWAYS create a dynamic column using IF() or CASE to clearly label the state for every row. 
+                - Example: IF(sd.discount_type_id IS NOT NULL, 'With Discount', 'No Discount') AS discount_status. 
+                - This ensures the frontend system can dynamically group the data.
+
             Constraints:
             - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
             - If the request cannot be answered with the schema, return SELECT 'I cannot answer that based on the available data' as message.
-            - ARRAY STRUCTURE RULE (2 OR 3 QUERIES): You must return exactly 2 or 3 queries depending on the request:
-                * Index 0 (Mandatory): A query to get the EXACT DISTINCT COUNT of students (e.g., `SELECT COUNT(DISTINCT e.enrollment_id) as total_siswa ...`).
-                * Index 1 (Mandatory): The primary response query (`SELECT ... LIMIT 50` OR the `UNION ALL` summary table).
-                * Index 2 (Conditional): ONLY IF the user asks for BOTH a recapitulation/summary AND a detailed list of names/data. Put the `UNION ALL` in Index 1, and the detailed data query (`SELECT s.student_id, full_name ... LIMIT 50`) in Index 2.
+            - ARRAY STRUCTURE RULE (ALWAYS INCLUDE DETAILED LIST): The frontend requires raw detailed data to generate the Excel Matrix.
+                * Index 0 (Mandatory): A query to get the EXACT DISTINCT COUNT of students.
+                * Index 1 (Mandatory): The primary response query (A `UNION ALL` or `GROUP BY` summary table, OR the detailed list if no summary is needed).
+                * Index 2 (Mandatory if Index 1 is a summary): You MUST ALWAYS provide the detailed data query (`SELECT e.registration_date, s.student_id, full_name ... LIMIT 50`). You must provide this detailed list EVEN IF the user only asks 'Berapa' (How many) or does not explicitly ask for names.
             - Use ONLY SELECT statements. UPDATE/DELETE/INSERT are strictly forbidden.
             - ALWAYS add LIMIT 50 for data listing queries (index 1), unless the user asks for a specific limit. Do NOT limit COUNT queries.
 
@@ -156,9 +164,9 @@ class GeminiService
         $contextJson = json_encode($executionResults);
 
         $specificRule = $hasTableData 
-            ? "The system will display TABLE(S) below your response. YOUR TASK: First, find the actual total number of students/registrations. This is usually the value inside the FIRST query result. State this explicitly (e.g., 'Terdapat total 6 pendaftaran...'). WARNING: If the table is a 'UNION ALL' summary table, DO NOT use 'total_rows_in_db' as the number of students. Second, write a brief, natural introductory sentence for the table(s). If there is a summary table AND a student list table, briefly introduce both."
-            : "The result is a direct answer or summary. Provide a conversational narrative based on the data without introducing any table.";
-        
+            ? "The system will display TABLE(S) below your response. YOUR TASK: First, find the actual total number of students/registrations. State this explicitly and wrap the number in double asterisks. SECOND (CRITICAL): If the user asks for a comparison or breakdown (e.g., 'yang dapat diskon dan yang tidak', 'laki-laki dan perempuan'), you MUST look at the data in the JSON result, calculate the breakdown manually, and explain it in your narrative (e.g., 'Terdapat total **3** pendaftar, dengan rincian **2** siswa mendapat diskon dan **1** siswa tidak mendapat diskon.'). Third, write a brief, natural introductory sentence for the table(s)."
+            : "The result is a direct answer or summary. Provide a conversational narrative based on the data without introducing any table. If there are numbers representing totals, wrap them in double asterisks to make them bold.";
+
         $systemInstruction = "
             Role: You are a helpful Data Analyst Assistant for MIS Registrar.
             
@@ -213,12 +221,20 @@ class GeminiService
 
     public function generateTitle(string $userPrompt)
     {
-        $systemInstruction = "You are a helpful assistant. Summarize the user's prompt into a short, concise title (maximum 4-5 words) in Indonesian or English depends on user prompt. Do not use quotes or punctuation.";
+        $systemInstruction = "You are a helpful assistant. Summarize the user's prompt into a short, concise title (maximum 4-5 words). 
+        TERMINOLOGY RULES:
+        - ALWAYS use 'Installment' instead of 'cicilan' or 'kredit'.
+        - ALWAYS use 'Residence Hall' instead of 'hunian' or 'asrama'.
+        - Do not use quotes or punctuation.";
+
 
         try {
             $response = Http::withHeaders([
                 'Content-Type' => 'application/json',
-            ])->timeout(30)->post("{$this->baseUrl}?key={$this->apiKey}", [
+            ])
+            ->timeout(30)
+            ->retry(3, 2000) 
+            ->post("{$this->baseUrl}?key={$this->apiKey}", [
                 'contents' => [
                     [
                         'parts' => [
@@ -230,9 +246,14 @@ class GeminiService
 
             if ($response->successful()) {
                 $responseData = $response->json();
-                return $responseData['candidates'][0]['content']['parts'][0]['text'] ?? 'Percakapan Baru';
+                $title = $responseData['candidates'][0]['content']['parts'][0]['text'] ?? 'Percakapan Baru';
+
+                $cleanTitle = trim(str_replace(['"', "'", "\n", "\r"], '', $title));
+                
+                return !empty($cleanTitle) ? $cleanTitle : 'Percakapan Baru';
             }
 
+            Log::warning('Gemini Title Failed: ' . $response->body());
             return 'Percakapan Baru';
         } catch (Exception $e) {
             Log::error('Gemini Title Error: ' . $e->getMessage());

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('chat_messages', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('chat_session_id');
-            $table->enum('sender_type', ['user', 'AI', 'Backend']);
+            $table->enum('sender_type', ['user', 'AI', 'Backend', 'system']);
             $table->json('message_content');
             $table->text('genereted_sql')->nullable();
             $table->timestamp('created_at')->useCurrent();

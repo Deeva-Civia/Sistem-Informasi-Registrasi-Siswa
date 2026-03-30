@@ -48,18 +48,6 @@ class ChatSessionService
             'generated_sql' => $generatedSql, 
         ]);
     }
-    
-    public function createSession(int $userId, string $text): array
-    {
-        $title = $this->generateTitle($text);
-
-        $session = ChatSession::query()->create([
-            'user_id' => $userId,
-            'title' => $title,
-        ]);
-
-        return $this->formatSession($session);
-    }
 
     public function fetchSessionMessages(int $userId, int $sessionId): ?array
     {
@@ -131,21 +119,6 @@ class ChatSessionService
             ->first();
     }
 
-    public function generateTitle(string $text): string
-    {
-        $normalizedText = preg_replace('/\s+/', ' ', trim($text));
-
-        if ($normalizedText === '') {
-            return 'New Chat';
-        }
-
-        if (mb_strlen($normalizedText) <= 42) {
-            return $normalizedText;
-        }
-
-        return rtrim(mb_substr($normalizedText, 0, 42)) . '...';
-    }
-
     private function parseMessages($chatMessages): array
     {
         return $chatMessages->map(function (ChatMessage $message) {
@@ -162,7 +135,7 @@ class ChatSessionService
                 'chat_session_id' => $message->chat_session_id,
                 'sender_type' => $message->sender_type,
                 'message_content' => $messageContent,
-                'generated_sql' => $message->genereted_sql,
+                'generated_sql' => $message->generated_sql,
                 'created_at' => optional($message->created_at)->toISOString(),
             ];
         })->values()->toArray();

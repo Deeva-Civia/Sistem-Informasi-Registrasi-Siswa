@@ -44,12 +44,15 @@ class AiChatController extends Controller
 
         if ($validator->fails()) {
             $errorMsg = 'Pesan tidak valid atau melebihi 500 karakter.';
-            $this->chatSessionService->saveMessage($sessionId, 'backend', $errorMsg);
+            $this->chatSessionService->saveMessage($sessionId, 'system', $errorMsg);
             
             return response()->json([
                 'success' => false,
                 'message' => $errorMsg,
-                'session_id' => $sessionId
+                'session_id' => $sessionId,
+                'title' => $sessionData['title'] ?? 'Percakapan Baru', 
+                'display_type' => 'text', 
+                'data' => null
             ], 400);
         }
 
@@ -74,12 +77,15 @@ class AiChatController extends Controller
                     str_contains($upperSql, 'ALTER')) {
                     
                     $forbiddenMsg = 'Action forbidden. Coba kalimat lain.';
-                    $this->chatSessionService->saveMessage($sessionId, 'backend', $forbiddenMsg, $sqlTextLog);
+                    $this->chatSessionService->saveMessage($sessionId, 'system', $forbiddenMsg, $sqlTextLog);
 
                     return response()->json([
                         'success' => false,
                         'message' => $forbiddenMsg,
-                        'session_id' => $sessionId
+                        'session_id' => $sessionId,
+                        'title' => $sessionData['title'] ?? 'Percakapan Baru', 
+                        'display_type' => 'text',
+                        'data' => null
                     ], 403);
                 }
 
@@ -121,21 +127,34 @@ class AiChatController extends Controller
             // Jika hasil query benar-benar kosong/tidak valid
             if (empty($executionResults) || empty($tableData)) {
                 $emptyMsg = 'Maaf, data tidak ditemukan atau kosong.';
-                $this->chatSessionService->saveMessage($sessionId, 'backend', $emptyMsg, $sqlTextLog);
+                $this->chatSessionService->saveMessage($sessionId, 'system', $emptyMsg, $sqlTextLog);
                 
                 return response()->json([
                     'success' => false, 
                     'message' => $emptyMsg,
-                    'session_id' => $sessionId
-                ], 404); 
+                    'session_id' => $sessionId,
+                    'title' => $sessionData['title'] ?? 'Percakapan Baru',
+                    'display_type' => 'text',
+                    'data' => null
+                ], 200); 
             }
+
+            $totalDataCount = 0;
+            if (!empty($executionResults) && isset($executionResults[0]['result'][0])) {
+                $firstRow = $executionResults[0]['result'][0];
+                $totalDataCount = (int) current($firstRow);
+            }
+
 
             // Sorting khusus 
             foreach($tableData as &$table) {
-                usort($table, function ($a, $b) {
-                    return strtotime($b['registration_date'] ?? 0) - strtotime($a['registration_date'] ?? 0);
-                });
+                if (!empty($table) && isset($table[0]['registration_date'])) {
+                    usort($table, function ($a, $b) {
+                        return strtotime($a['registration_date'] ?? 0) - strtotime($b['registration_date'] ?? 0);
+                    });
+                }
             }
+
 
             // 5. Interpretasi Naratif AI
             $humanAnswer = $this->geminiService->interpretResult(
@@ -144,8 +163,16 @@ class AiChatController extends Controller
                 $isTable
             );
             
+            $backendPayload = json_encode([
+                'can_download' => $isTable,
+                'tableData'    => $tableData,
+                'totalCount'   => $totalDataCount
+            ]);
+            $this->chatSessionService->saveMessage($sessionId, 'backend', $backendPayload, $sqlTextLog);
+
             // 6. Simpan hasil akhir (Naratif AI & SQL) ke Database
-            $this->chatSessionService->saveMessage($sessionId, 'AI', $humanAnswer, $sqlTextLog);
+            $this->chatSessionService->saveMessage($sessionId, 'AI', $humanAnswer, null);
+
 
             return response()->json([
                 'success' => true,
@@ -156,18 +183,20 @@ class AiChatController extends Controller
                 'data' => $tableData,
                 'meta' => [
                     'prompt' => $request->prompt,
-                    'executed_queries' => $sqlQueries
+                    'executed_queries' => $sqlQueries,
+                    'total_count' => $totalDataCount 
                 ]
             ]);
 
         } catch (Exception $e) {
             $sysErrorMsg = 'Terjadi kesalahan sistem: ' . $e->getMessage();
-            $this->chatSessionService->saveMessage($sessionId, 'backend', $sysErrorMsg);
+            $this->chatSessionService->saveMessage($sessionId, 'system', $sysErrorMsg);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Terjadi kesalahan sistem saat memproses permintaan Anda.',
-                'session_id' => $sessionId
+                'session_id' => $sessionId,
+                'title' => $sessionData['title'] ?? 'Percakapan Baru'
             ], 500);
         }
     }

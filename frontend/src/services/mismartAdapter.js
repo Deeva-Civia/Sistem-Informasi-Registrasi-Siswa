@@ -23,23 +23,24 @@ const normalizeSender = (senderType) => {
   const normalized = String(senderType || "").toLowerCase();
   if (normalized === "user") return "user";
   if (normalized === "ai") return "ai";
-  if (normalized === "backend") return "ai";
+  if (normalized === "backend") return "backend";
   return "ai";
 };
 
-const mapApiMessageToUi = (apiMessage, index = 0) => {
+const mapApiMessageToUi = (apiMessage, index = 0, injectedBackendData = null) => {
   const parsedContent = safeJsonParse(apiMessage?.message_content);
-  const canDownloadValue =
-    apiMessage?.can_download ??
-    apiMessage?.canDownload ??
-    parsedContent?.can_download ??
-    false;
+  
+  const canDownloadValue = injectedBackendData?.can_download ?? parsedContent?.can_download ?? false;
+  const tableDataValue = injectedBackendData?.tableData ?? parsedContent?.tableData ?? null;
+  const totalCountValue = injectedBackendData?.totalCount ?? parsedContent?.totalCount ?? 0;
 
   return {
     id: String(apiMessage?.id ?? `msg-fallback-${index}`),
     sender: normalizeSender(apiMessage?.sender_type),
     text: readMessageText(parsedContent),
     canDownload: Boolean(canDownloadValue),
+    tableData: tableDataValue,
+    totalCount: totalCountValue,
     createdAt: apiMessage?.created_at || null,
   };
 };
@@ -50,9 +51,7 @@ const mapApiSessionToUi = (apiSession, index = 0) => ({
   updatedAt: apiSession?.updated_at ? new Date(apiSession.updated_at).getTime() : Date.now(),
   isLocked: Boolean(apiSession?.is_locked ?? true),
   messages: Array.isArray(apiSession?.messages)
-    ? apiSession.messages.map((message, messageIndex) =>
-        mapApiMessageToUi(message, messageIndex)
-      )
+    ? mapChatDetailsResponse({ data: apiSession.messages }) 
     : [],
 });
 
@@ -76,7 +75,23 @@ export const mapChatDetailsResponse = (response) => {
     "history",
   ]);
 
-  return sourceMessages.map((item, index) => mapApiMessageToUi(item, index));
+  const uiMessages = [];
+  let pendingBackendData = null;
+
+  sourceMessages.forEach((item, index) => {
+    const sender = normalizeSender(item?.sender_type);
+
+    if (sender === "backend") {
+      pendingBackendData = safeJsonParse(item?.message_content);
+    } else if (sender === "ai") {
+      uiMessages.push(mapApiMessageToUi(item, index, pendingBackendData));
+      pendingBackendData = null; 
+    } else {
+      uiMessages.push(mapApiMessageToUi(item, index, null));
+    }
+  });
+
+  return uiMessages;
 };
 
 export const mapSessionSearchResponse = (response) => {
