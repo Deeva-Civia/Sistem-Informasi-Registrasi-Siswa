@@ -18,7 +18,7 @@ class ChatMessage extends Model
         'chat_session_id',
         'sender_type',
         'message_content',
-        'genereted_sql',
+        'generated_sql',
         'created_at',
     ];
 

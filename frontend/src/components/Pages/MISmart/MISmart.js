@@ -11,7 +11,6 @@ import rekapanIcon from "../../../assets/MISmart_rekapan.svg";
 import titikTigaIcon from "../../../assets/MISmart_titik3.svg";
 import useAuth from "../../../hooks/useAuth";
 import {
-  createChatSession,
   deleteChatSession,
   fetchChatDetails,
   searchSessions,
@@ -27,26 +26,6 @@ import { generateExcelReport } from "../../../utils/excelHelper";
 
 const MISMART_STORAGE_KEY = "mis_smart_chat_state_v1";
 const MISMART_ENABLE_API = process.env.REACT_APP_MISMART_USE_API === "true";
-
-const downloadKeywords = [
-  "rekap",
-  "rekapan",
-  "tabel",
-  "table",
-  "excel",
-  "exel",
-  "unduh",
-  "download",
-  "file",
-  "laporan",
-  "export",
-  "data",
-];
-
-const hasDownloadIntent = (text) => {
-  const normalizedPrompt = text.toLowerCase();
-  return downloadKeywords.some((keyword) => normalizedPrompt.includes(keyword));
-};
 
 const buildSessionTitle = (text) => {
   const normalizedText = text.replace(/\s+/g, " ").trim();
@@ -84,73 +63,24 @@ const mergeSessionsById = (existingSessions, incomingSessions) => {
   return [...mergedMap.values()].sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 };
 
-const aiRecapResponseText =
-  "Berikut ini adalah data rekapan harian pendaftaran siswa dalam bentuk tabel lengkap per section, termasuk total pendaftar, confirmed, cancelled, serta perbandingan dengan data hari sebelumnya, dan data tersebut sudah siap untuk diunduh dalam format file exel agar bisa langsung dipakai untuk laporan.";
-const aiGeneralResponseText =
-  "Berikut ringkasan data pendaftaran yang kamu minta. Kamu bisa lanjutkan dengan instruksi lebih spesifik agar hasilnya lebih detail.";
-
-const mockSessionTitles = [
-  "Rekapan Pendaftaran",
-  "Jumlah Pendaftaran",
-  "Jumlah Pendaftaran Kelas 1",
-  "Jumlah Pendaftaran Kelas 2",
-  "Jumlah Pendaftaran Kelas 3",
-  "Jumlah Pendaftaran New Student",
-  "Jumlah Pendaftaran Existing Student",
-  "Jumlah Pendaftaran per Section",
-  "Jumlah Pendaftaran per Major",
-  "Jumlah Pendaftaran Harian",
-  "Jumlah Pendaftaran Mingguan",
-  "Jumlah Pendaftaran Bulanan",
-];
-
-const createInitialMockSessions = () => {
-  const now = Date.now();
-  return mockSessionTitles.map((title, index) => {
-    const canDownload = hasDownloadIntent(title);
-    return {
-      id: `mock-session-${index + 1}`,
-      title,
-      updatedAt: now - index * 60_000,
-      isLocked: true,
-      messages: [
-        {
-          id: `mock-user-${index + 1}`,
-          sender: "user",
-          text: canDownload
-            ? `Berikan ${title.toLowerCase()} untuk hari ini dalam bentuk tabel`
-            : title,
-          canDownload: false,
-        },
-        {
-          id: `mock-ai-${index + 1}`,
-          sender: "ai",
-          text: canDownload ? aiRecapResponseText : aiGeneralResponseText,
-          canDownload,
-        },
-      ],
-    };
-  });
-};
-
 const getInitialStateFromStorage = () => {
   if (MISMART_ENABLE_API) {
     return { chatSessions: [], activeSessionId: null };
   }
 
   if (typeof window === "undefined") {
-    return { chatSessions: createInitialMockSessions(), activeSessionId: null };
+    return { chatSessions: [], activeSessionId: null };
   }
 
   try {
     const rawValue = window.localStorage.getItem(MISMART_STORAGE_KEY);
     if (!rawValue) {
-      return { chatSessions: createInitialMockSessions(), activeSessionId: null };
+      return { chatSessions: [], activeSessionId: null };
     }
 
     const parsedValue = JSON.parse(rawValue);
     if (!Array.isArray(parsedValue?.chatSessions)) {
-      return { chatSessions: createInitialMockSessions(), activeSessionId: null };
+      return { chatSessions: [], activeSessionId: null };
     }
 
     return {
@@ -161,7 +91,7 @@ const getInitialStateFromStorage = () => {
           : null,
     };
   } catch (_error) {
-    return { chatSessions: createInitialMockSessions(), activeSessionId: null };
+    return { chatSessions: [], activeSessionId: null };
   }
 };
 
@@ -208,7 +138,6 @@ const MISmart = () => {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const [typingSessionId, setTypingSessionId] = useState(null);
   const messageIdRef = useRef(0);
-  const sessionIdRef = useRef(0);
   const chatViewportRef = useRef(null);
   const copyResetTimeoutRef = useRef(null);
   const downloadResetTimeoutRef = useRef(null);
@@ -303,30 +232,6 @@ const MISmart = () => {
     );
   };
 
-  const createSessionWithFirstMessage = (
-    promptText,
-    forcedSessionId = null,
-    forcedTitle = null
-  ) => {
-    const sessionId = forcedSessionId
-      ? String(forcedSessionId)
-      : `session-${Date.now()}-${sessionIdRef.current++}`;
-    const resolvedTitle = MISMART_ENABLE_API
-      ? String(forcedTitle || "").trim()
-      : buildSessionTitle(promptText);
-    const firstUserMessage = createMessage("user", promptText);
-    const newSession = {
-      id: sessionId,
-      title: resolvedTitle,
-      updatedAt: Date.now(),
-      isLocked: false,
-      messages: [firstUserMessage],
-    };
-    setChatSessions((prevSessions) => [newSession, ...prevSessions]);
-    setActiveSessionId(sessionId);
-    return sessionId;
-  };
-
   const applyBackendSessionSnapshot = useCallback((mappedSessions) => {
     setChatSessions((prevSessions) => {
       const previousSessionMap = new Map(
@@ -372,26 +277,6 @@ const MISmart = () => {
     }
 
     return mappedSessions;
-  };
-
-  const appendAiReply = (sessionId, canDownload) => {
-    setIsAiTyping(true);
-    setTypingSessionId(sessionId);
-    if (aiReplyTimeoutRef.current) {
-      clearTimeout(aiReplyTimeoutRef.current);
-    }
-
-    aiReplyTimeoutRef.current = setTimeout(() => {
-      const aiMessage = createMessage(
-        "ai",
-        canDownload ? aiRecapResponseText : aiGeneralResponseText,
-        canDownload
-      );
-      appendMessageToSession(sessionId, aiMessage);
-      setIsAiTyping(false);
-      setTypingSessionId(null);
-      aiReplyTimeoutRef.current = null;
-    }, 900);
   };
 
   const handleCopyMessage = async (messageId, messageText) => {
