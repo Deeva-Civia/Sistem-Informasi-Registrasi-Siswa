@@ -23,7 +23,7 @@ import {
   mapSessionSearchResponse,
 } from "../../../services/mismartAdapter";
 import styles from "./MISmart.module.css";
-import * as XLSX from "xlsx-js-style";
+import { generateExcelReport } from "../../../utils/excelHelper";
 
 const MISMART_STORAGE_KEY = "mis_smart_chat_state_v1";
 const MISMART_ENABLE_API = process.env.REACT_APP_MISMART_USE_API === "true";
@@ -429,270 +429,22 @@ const MISmart = () => {
     });
   };
   
-  const handleDownloadClick = (messageId, tableData, contextTitle = "Data Ekspor", totalCount = 0) => {
+  const handleDownloadClick = (messageId, tableData, contextTitle = "Data Ekspor", totalCount = 0, isDailyReport = false) => {
     setActiveDownloadMessageId(messageId);
 
-    if (tableData) {
-      const workbook = XLSX.utils.book_new();
-
-      // 1. NAMA FILE Dinamis
-      const safeTitle = contextTitle
-        .replace(/[^a-zA-Z0-9 ]/g, "")
-        .trim()
-        .replace(/\s+/g, "_")
-        .substring(0, 35);
-      
-      const dateStr = new Date().toISOString().split('T')[0];
-      const fileName = `MISmart_${safeTitle}_${dateStr}.xlsx`;
-
-      // 2. MENCARI DATA LIST SISWA
-      let listTable = null;
-      Object.values(tableData).forEach(table => {
-        if (table.length > 0 && table[0].student_id !== undefined && table[0].full_name !== undefined) {
-          listTable = table;
-        }
-      });
-
-      if (listTable) {
-        // --- STRATEGI MATRIX/CROSSTAB DINAMIS ---
-        const allKeys = Object.keys(listTable[0]);
-        
-        // Base Columns dinamis untuk kemudahan pengurutan posisi
-        const baseColumns = [];
-        const baseHeaders = ["No."]; 
-        
-        // Cek dan letakkan Reg Date tepat setelah "No."
-        if (allKeys.includes("registration_date")) {
-          baseColumns.push("registration_date");
-          baseHeaders.push("Reg Date");
-        }
-
-        // Letakkan Student ID dan Full Name setelah Reg Date
-        baseColumns.push("student_id", "full_name");
-        baseHeaders.push("Student ID", "Full Name");
-        
-        // Grade diletakkan di akhir Base Column
-        if (allKeys.includes("grade")) {
-          baseColumns.push("grade");
-          baseHeaders.push("Grade");
-        }
-
-        // Kategori dinamis (sisa kolom selain base column)
-        const categoryKeys = allKeys.filter((key) => !baseColumns.includes(key));
-
-        const categoryMap = {};
-        categoryKeys.forEach((cat) => (categoryMap[cat] = new Set()));
-
-        listTable.forEach((row) => {
-          categoryKeys.forEach((cat) => {
-            const val = row[cat];
-            if (val !== null && val !== undefined && val !== "") {
-              categoryMap[cat].add(String(val));
-            }
-          });
-        });
-
-        const orderedCriteria = [];
-        categoryKeys.forEach((cat) => {
-          Array.from(categoryMap[cat]).forEach((crit) => {
-            orderedCriteria.push({ category: cat, criteria: crit });
-          });
-        });
-
-        const formatHeader = (str) => str.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-
-        // Helper Format Tanggal (Dari YYYY-MM-DD HH:mm:ss menjadi DD/MM/YYYY)
-        const formatDate = (dateString) => {
-           if (!dateString) return "";
-           const datePart = String(dateString).split(' ')[0]; // Ambil bagian tanggal saja
-           const parts = datePart.split('-');
-           if (parts.length === 3) {
-               return `${parts[2]}/${parts[1]}/${parts[0]}`; // DD/MM/YYYY
-           }
-           return dateString;
-        };
-
-        // Inisiasi Data 
-        const aoaData = [
-          [`Total Data: ${totalCount}`],
-          [] // Baris kosong spacing atas
-        ];
-
-        const criteriaTotals = Array(orderedCriteria.length).fill(0);
-
-        // 3. ISI DATA NILAI
-        listTable.forEach((row, index) => {
-          const studentRow = [index + 1]; // Mulai dengan No. urut
-          
-          // Isi base column sesuai urutan
-          baseColumns.forEach(col => {
-             if (col === "registration_date") {
-                 studentRow.push(formatDate(row[col]));
-             } else {
-                 studentRow.push(row[col] || "");
-             }
-          });
-          
-          // Masukkan Matrix 1/Kosong untuk kategori lainnya
-          orderedCriteria.forEach((colDef, cIndex) => {
-            if (String(row[colDef.category]) === colDef.criteria) {
-              studentRow.push(1);
-              criteriaTotals[cIndex]++;
-            } else {
-              studentRow.push(""); 
-            }
-          });
-          aoaData.push(studentRow);
-        });
-
-        // 4. BARIS KOSONG PEMBATAS 
-        const emptySeparatorRow = Array(baseHeaders.length + orderedCriteria.length).fill("");
-        aoaData.push(emptySeparatorRow);
-
-        // 5. BUAT FOOTER (Kategori, Kriteria, Total)
-        const footerStartRowIndex = aoaData.length; 
-
-        const kategoriRow = [...baseHeaders]; 
-        const kriteriaRow = Array(baseHeaders.length).fill("");     
-        const totalRow = Array(baseHeaders.length).fill("");
-        
-        // Mencari index Full Name dan Grade secara dinamis
-        const fullNameIndex = baseHeaders.indexOf("Full Name");
-        const gradeIndex = baseHeaders.indexOf("Grade");
-
-        // Setup Total Row untuk Base Columns
-        if (fullNameIndex !== -1) totalRow[fullNameIndex] = "Total:"; 
-        if (gradeIndex !== -1) totalRow[gradeIndex] = totalCount;
-
-        orderedCriteria.forEach((colDef, index) => {
-          const isFirstOfCategory = index === 0 || orderedCriteria[index - 1].category !== colDef.category;
-          kategoriRow.push(isFirstOfCategory ? formatHeader(colDef.category) : "");
-          kriteriaRow.push(colDef.criteria);
-          totalRow.push(criteriaTotals[index]);
-        });
-
-        aoaData.push(kategoriRow);
-        aoaData.push(kriteriaRow);
-        aoaData.push(totalRow);
-
-        const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
-
-        // 6. STYLING & MERGING EXCEL
-        const merges = [];
-        
-        merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } });
-
-        // Merge Vertikal untuk Base Columns 
-        for (let i = 0; i < baseHeaders.length; i++) {
-          merges.push({
-            s: { r: footerStartRowIndex, c: i },
-            e: { r: footerStartRowIndex + 1, c: i }
-          });
-        }
-
-        // Merge Horizontal untuk Kategori Dinamis
-        let colIndex = baseHeaders.length;
-        categoryKeys.forEach((cat) => {
-          const count = categoryMap[cat].size;
-          if (count > 1) {
-            merges.push({
-              s: { r: footerStartRowIndex, c: colIndex },
-              e: { r: footerStartRowIndex, c: colIndex + count - 1 },
-            });
-          }
-          colIndex += count;
-        });
-        worksheet["!merges"] = merges;
-
-        // Terapkan Styling menggunakan xlsx-js-style
-        const range = XLSX.utils.decode_range(worksheet["!ref"]);
-        
-        for (let R = 0; R <= range.e.r; ++R) {
-          for (let C = 0; C <= range.e.c; ++C) {
-            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-            
-            if (!worksheet[cellAddress]) {
-               worksheet[cellAddress] = { t: 's', v: '' };
-            }
-            const cell = worksheet[cellAddress];
-            cell.s = cell.s || {};
-
-            if (R === 0 && C === 0) {
-              cell.s.font = { bold: true };
-              cell.s.alignment = { horizontal: "left" };
-              continue;
-            }
-
-            if (R < 2) continue;
-
-            // GLOBAL BORDER 
-            cell.s.border = {
-              top: { style: "thin", color: { rgb: "000000" } },
-              bottom: { style: "thin", color: { rgb: "000000" } },
-              left: { style: "thin", color: { rgb: "000000" } },
-              right: { style: "thin", color: { rgb: "000000" } }
-            };
-            cell.s.alignment = { vertical: "center", horizontal: "center" };
-
-            // STYLING BARIS NILAI 
-            if (R >= 2 && R < footerStartRowIndex) {
-               if (C === 0) {
-                 cell.s.font = { bold: true };
-               } else if (C === fullNameIndex) {
-                 cell.s.alignment = { vertical: "center", horizontal: "left" };
-               }
-            }
-
-            // STYLING HEADER KATEGORI & KRITERIA 
-            if (R === footerStartRowIndex || R === footerStartRowIndex + 1) {
-              cell.s.font = { bold: true, color: { rgb: "000000" } };
-              cell.s.fill = { fgColor: { rgb: "BDD7EE" } }; 
-              cell.s.alignment = { vertical: "center", horizontal: "center" };
-            }
-
-            // STYLING ROW TOTAL 
-            if (R === footerStartRowIndex + 2) {
-               cell.s.font = { bold: true, color: { rgb: "000000" } };
-               if (C === fullNameIndex) { 
-                  cell.s.alignment = { vertical: "center", horizontal: "right" };
-               }
-            }
-          }
-        }
-
-        // 7. AUTO LEBAR KOLOM (Setup lebar secara dinamis berdasar posisi index)
-        worksheet['!cols'] = Array(range.e.c + 1).fill({ wch: 15 });
-        worksheet['!cols'][0] = { wch: 5 };  // No.
-        
-        const regDateIndex = baseHeaders.indexOf("Reg Date");
-        if (regDateIndex !== -1) worksheet['!cols'][regDateIndex] = { wch: 12 }; 
-        
-        const studentIdIndex = baseHeaders.indexOf("Student ID");
-        if (studentIdIndex !== -1) worksheet['!cols'][studentIdIndex] = { wch: 15 }; 
-
-        if (fullNameIndex !== -1) worksheet['!cols'][fullNameIndex] = { wch: 30 }; 
-        if (gradeIndex !== -1) worksheet['!cols'][gradeIndex] = { wch: 10 }; 
-
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Rekapan Pendaftaran");
-
-      } else {
-        Object.keys(tableData).forEach((tableKey, index) => {
-          const sheetData = tableData[tableKey];
-          if (!sheetData || sheetData.length === 0) return;
-          const worksheet = XLSX.utils.json_to_sheet(sheetData);
-          XLSX.utils.book_append_sheet(workbook, worksheet, `Data ${index + 1}`);
-        });
+    try {
+      generateExcelReport(tableData, contextTitle, totalCount, isDailyReport);
+    } catch (error) {
+      console.error("Gagal mendownload Excel:", error);
+    } finally {
+      // Reset state tombol download
+      if (downloadResetTimeoutRef.current) {
+        clearTimeout(downloadResetTimeoutRef.current);
       }
-
-      XLSX.writeFile(workbook, fileName);
+      downloadResetTimeoutRef.current = setTimeout(() => {
+        setActiveDownloadMessageId(null);
+      }, 800);
     }
-
-    if (downloadResetTimeoutRef.current) {
-      clearTimeout(downloadResetTimeoutRef.current);
-    }
-    downloadResetTimeoutRef.current = setTimeout(() => {
-      setActiveDownloadMessageId(null);
-    }, 800);
   };
 
   const handleSendPrompt = async (promptText) => {
@@ -1516,7 +1268,8 @@ const MISmart = () => {
                           message.id, 
                           message.tableData,  
                           message.sessionTitle || activeSession?.title || "Rekapan Data", 
-                          message.totalCount
+                          message.totalCount,
+                          message.isDailyReport
                         )}
                       >
                         <span>Download Exel</span>
