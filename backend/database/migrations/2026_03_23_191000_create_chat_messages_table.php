@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('chat_session_id');
             $table->enum('sender_type', ['user', 'AI', 'Backend', 'system']);
             $table->json('message_content');
-            $table->text('genereted_sql')->nullable();
+            $table->text('generated_sql')->nullable();
             $table->timestamp('created_at')->useCurrent();
 
             $table->foreign('chat_session_id')
