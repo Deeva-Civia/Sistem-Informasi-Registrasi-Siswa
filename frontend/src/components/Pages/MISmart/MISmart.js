@@ -414,19 +414,46 @@ const MISmart = () => {
     
     // Pecah string berdasarkan newline \n
     const lines = text.split('\n');
-    return lines.map((line, lineIndex) => {
-      // Pecah string berdasarkan tag ** untuk bold
-      const parts = line.split(/\*\*(.*?)\*\*/g);
-      
-      return (
-        <React.Fragment key={lineIndex}>
-          {parts.map((part, i) => 
-            i % 2 === 1 ? <strong key={i}>{part}</strong> : part
-          )}
-          {lineIndex < lines.length - 1 && <br />}
-        </React.Fragment>
-      );
+    const elements = [];
+    let listItems = [];
+
+    const renderBold = (str) => {
+      const parts = str.split(/\*\*(.*?)\*\*/g);
+      return parts.map((part, i) => (i % 2 === 1 ? <strong key={i}>{part}</strong> : part));
+    };
+
+    lines.forEach((line, lineIndex) => {
+      const trimmedLine = line.trim();
+      // Deteksi bullet point manual (bintang atau strip)
+      if (trimmedLine.startsWith('* ') || trimmedLine.startsWith('- ')) {
+        listItems.push(
+          <li key={lineIndex} style={{ marginLeft: '20px', marginBottom: '4px' }}>
+            {renderBold(trimmedLine.substring(2))}
+          </li>
+        );
+      } else {
+        // Jika sebelumnya ada list, tutup dulu <ul>-nya
+        if (listItems.length > 0) {
+          elements.push(<ul key={`ul-${lineIndex}`} style={{ margin: '8px 0', paddingLeft: '20px' }}>{listItems}</ul>);
+          listItems = [];
+        }
+        
+        if (trimmedLine !== "") {
+          elements.push(<div key={lineIndex} style={{ marginBottom: '8px', lineHeight: '1.5' }}>{renderBold(trimmedLine)}</div>);
+        } else {
+          // Jangan tambahkan spasi kosong berlebihan jika ada enter ganda
+          if (lineIndex < lines.length - 1 && lines[lineIndex + 1].trim() !== "") {
+            elements.push(<br key={`br-${lineIndex}`} />);
+          }
+        }
+      }
     });
+
+    if (listItems.length > 0) {
+      elements.push(<ul key="ul-end" style={{ margin: '8px 0', paddingLeft: '20px' }}>{listItems}</ul>);
+    }
+
+    return <>{elements}</>;
   };
   
   const handleDownloadClick = (messageId, tableData, contextTitle = "Data Ekspor", totalCount = 0, isDailyReport = false) => {
@@ -499,7 +526,8 @@ const MISmart = () => {
         canDownload: hasTableData,
         tableData: hasTableData ? response.data : null,
         sessionTitle: finalTitle, 
-        totalCount: totalCount
+        totalCount: totalCount,
+        isDailyReport: response.meta?.is_daily_report_format || false
       };
 
       if (isNewChat) {

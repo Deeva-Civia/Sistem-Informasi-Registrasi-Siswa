@@ -13,30 +13,50 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
     let comparativeTable = null;
 
     // ==========================================
-    // 1. DATA EXTRACTION
+    // 1. DATA EXTRACTION (SMART DYNAMIC PARSER)
     // ==========================================
-    const extractFromMatrix = (matrix) => {
-        if (Array.isArray(matrix) && matrix.length >= 2 && Array.isArray(matrix[0]) && Array.isArray(matrix[1])) {
-            if (matrix[0].length > 0 && (matrix[0][0].Kategori !== undefined || matrix[0][0].kategori !== undefined)) {
-                summaryData = matrix[0];
-                detailsData = matrix[1];
-                if (matrix.length > 2 && Array.isArray(matrix[2])) {
-                    comparativeTable = matrix[2];
-                }
+    const extractDataSets = (data) => {
+        let matrices = [];
+
+        if (Array.isArray(data)) {
+            if (data.length > 0 && !Array.isArray(data[0])) {
+                matrices.push(data);
+            } else {
+                matrices = [...data];
             }
+        } else if (typeof data === 'object' && data !== null) {
+            Object.values(data).forEach(val => {
+                if (Array.isArray(val)) {
+                    if (val.length > 0 && !Array.isArray(val[0])) matrices.push(val);
+                    else matrices.push(...val);
+                }
+            });
         }
+
+        matrices.forEach(arr => {
+            if (!Array.isArray(arr) || arr.length === 0) return;
+            
+            const keys = Object.keys(arr[0] || {}).map(k => String(k).toLowerCase());
+
+            if (keys.includes("kategori") || keys.includes("kriteria")) {
+                summaryData = arr;
+            } else if (keys.includes("student_id") || keys.includes("full_name") || keys.includes("grade")) {
+                detailsData = arr;
+            } else if (keys.includes("school year") || keys.includes("total new") || keys.includes("total returning")) {
+                comparativeTable = arr;
+            }
+        });
     };
 
-    if (Array.isArray(tableData)) {
-        extractFromMatrix(tableData);
-    } else if (typeof tableData === 'object' && tableData !== null) {
-        if (tableData.data) extractFromMatrix(tableData.data);
-        else if (tableData.table_1) extractFromMatrix(tableData.table_1);
-        
-        if (tableData.table_2) comparativeTable = tableData.table_2;
-    }
+    extractDataSets(tableData);
 
-    if (summaryData && detailsData) {
+    // ==========================================
+    // LOGIKA UTAMA 
+    // ==========================================
+    if (summaryData || detailsData) { 
+        summaryData = summaryData || [];
+        detailsData = detailsData || [];
+
         // ==========================================
         // 2. SETUP BASE COLUMNS & HEADERS
         // ==========================================
@@ -44,30 +64,90 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         const baseColumns = [];
         const baseHeaders = ["No."];
 
-        if (allKeys.includes("registration_date")) {
-            baseColumns.push("registration_date");
-            baseHeaders.push("Reg Date");
-        }
+        const formatHeader = (str) => String(str).replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+        
+        // Custom format untuk me-rename teks header Cash
+        const formatDisplayHeader = (str) => {
+            const s = String(str).toLowerCase().trim();
+            if (s === 'cash 12%') return '12%cash';
+            if (s === 'cash 10%') return '10%cash';
+            if (s === 'cash 5%') return '5%cash';
+            return formatHeader(str);
+        };
 
-        baseColumns.push("student_id", "full_name");
-        baseHeaders.push("Student ID", "Name of students"); 
+        const formatDisplayCriteria = (str) => {
+            const s = String(str).toLowerCase().trim();
+            if (s === 'cash 12%') return '12%cash';
+            if (s === 'cash 10%') return '10%cash';
+            if (s === 'cash 5%') return '5%cash';
+            return str;
+        };
 
-        if (allKeys.includes("grade")) {
-            baseColumns.push("grade");
-            baseHeaders.push("Grade");
-        }
+        // KONDISI: Tampilkan Student ID jika bukan Daily Report Format
+        const allowedBaseKeys = isDailyReport 
+            ? ["full_name", "grade"] 
+            : ["student_id", "full_name", "grade"];
+        const allowedBaseHeaders = isDailyReport 
+            ? ["Name of students", "Grade"] 
+            : ["Student ID", "Name of students", "Grade"];
+
+        allowedBaseKeys.forEach((key, index) => {
+            if (allKeys.includes(key)) {
+                baseColumns.push(key);
+                baseHeaders.push(allowedBaseHeaders[index]);
+            }
+        });
 
         // ==========================================
-        // 3. SETUP MATRIX CRITERIA
+        // 3. SETUP MATRIX CRITERIA & HEADERS
         // ==========================================
-        let orderedCriteria = summaryData.map(item => ({
-            category: item.Kategori || item.kategori,
-            criteria: item.Kriteria || item.kriteria
-        }));
+        let orderedCriteria = summaryData.map(item => {
+            const getVal = (keyStr) => {
+                const key = Object.keys(item).find(k => k.toLowerCase() === keyStr);
+                return key ? item[key] : "";
+            };
+            return {
+                category: getVal('kategori'),
+                criteria: getVal('kriteria'),
+                total: getVal('total') || 0
+            };
+        });
 
-        orderedCriteria = orderedCriteria.filter(col => String(col.category).toLowerCase() !== "grade");
+        // KONDISI: Hapus School Year hanya jika ini adalah Daily Report Format
+        orderedCriteria = orderedCriteria.filter(col => {
+            const catLower = String(col.category).toLowerCase();
+            const critLower = String(col.criteria).toLowerCase();
+            if (isDailyReport) {
+                return catLower !== "grade" && catLower !== "school year" && critLower !== "transferee";
+            }
+            // Jika false, tetap tampilkan school year
+            return catLower !== "grade" && critLower !== "transferee";
+        });
 
-        const formatHeader = (str) => str.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+        // MEMBUAT HEADER UNTUK BAGIAN ATAS & BAWAH
+        const kategoriRow = [...baseHeaders];
+        const kriteriaRow = Array(baseHeaders.length).fill("");
+
+        orderedCriteria.forEach((colDef, index) => {
+            const isFirstOfCategory = index === 0 || orderedCriteria[index - 1].category !== colDef.category;
+            const catLower = String(colDef.category).toLowerCase();
+            const isMergedVertically = ["student status", "academic status", "payment"].includes(catLower);
+
+            if (isMergedVertically) {
+                kategoriRow.push(formatDisplayHeader(colDef.criteria)); 
+                kriteriaRow.push(""); 
+            } else {
+                kategoriRow.push(isFirstOfCategory ? formatDisplayHeader(colDef.category) : "");
+                kriteriaRow.push(formatDisplayCriteria(colDef.criteria));
+            }
+        });
+
+        // Tambahkan Header Reg dan Date di posisi paling akhir
+        kategoriRow.push("Reg");
+        kriteriaRow.push(""); 
+        kategoriRow.push("Date");
+        kriteriaRow.push(""); 
+
         const formatDate = (dateString) => {
             if (!dateString) return "";
             const datePart = String(dateString).split(' ')[0];
@@ -77,12 +157,18 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         };
 
         const currentTotal = isDailyReport ? detailsData.length : (totalCount || detailsData.length);
+        
         const aoaData = [
             [`Total Data: ${currentTotal}`],
-            []
+            [],
+            [...kategoriRow], // HEADER ATAS - Baris Kategori
+            [...kriteriaRow]  // HEADER ATAS - Baris Kriteria
         ];
 
         const criteriaTotals = Array(orderedCriteria.length).fill(0);
+
+        // Cari keys untuk Date secara dinamis 
+        const dateKey = allKeys.find(k => k.toLowerCase() === "registration_date" || k.toLowerCase() === "date") || "registration_date";
 
         // ==========================================
         // 4. SMART MATCHING FUNCTION
@@ -91,19 +177,27 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             const catLower = String(categoryName).toLowerCase();
             const critLower = String(criteriaName).toLowerCase();
 
-            const status = String(student.student_status || "").toLowerCase();
+            const status = String(student.student_status || student.status || student["student status"] || "").toLowerCase().trim();
             const gender = String(student.gender || "").toLowerCase();
-            const payment = String(student.payment_method || "").toLowerCase();
+            const payment = String(student.payment_method || student.payment_details || student.tuition_fees || student.residence_payment || "").toLowerCase();
             const discType = String(student.discount_type || "").toLowerCase();
             const discNotes = String(student.discount_notes || "").toLowerCase();
             const acadStatus = String(student.academic_status || "").toLowerCase();
             const schoolYear = String(student.school_year || "").toLowerCase(); 
 
+            const section = String(student.section || "").toLowerCase();
+            const residence = String(student.residence_type || "").toLowerCase();
+
             const isInstallment = payment.includes("installment");
             const isFullPayment = payment.includes("full payment") || payment === "cash";
 
+            if (catLower === "section") return section === critLower;
+            if (catLower === "residence type" || catLower === "residence") return residence === critLower;
+
             if (catLower === "gender") return gender === critLower || gender.startsWith(critLower);
-            if (catLower === "student status") return status === critLower;
+            if (catLower === "student status" || catLower === "status") {
+                return status === critLower || (status === "" && false); // Pastikan status terdeteksi
+            }
             if (catLower === "school year") return schoolYear === critLower;
 
             if (catLower === "academic status") {
@@ -114,8 +208,9 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             
             if (catLower === "payment") {
                 if (critLower === "cash") return isFullPayment && discType !== "ip";
-                if (critLower === "ip") return isFullPayment && discType === "ip"; 
-                return payment === critLower; 
+                if (critLower === "ip") return isInstallment && discType === "ip"; 
+                if (critLower === "installment") return isInstallment;
+                return payment.includes(critLower) || payment === critLower;
             }
 
             const isStatusMatch = (status === critLower); 
@@ -129,7 +224,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             if (catLower === "cash 5%") return isStatusMatch && isFullPayment && discNotes.includes("5%");
             
             if (catLower === "ip%") {
-                return isStatusMatch && isInstallment && discType === "ip";
+                return isStatusMatch && isFullPayment && discType === "ip";
             }
             
             for (const [key, val] of Object.entries(student)) {
@@ -152,11 +247,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             const studentRow = [index + 1];
 
             baseColumns.forEach(col => {
-                if (col === "registration_date") {
-                    studentRow.push(formatDate(student[col]));
-                } else {
-                    studentRow.push(student[col] || "");
-                }
+                studentRow.push(student[col] || "");
             });
 
             orderedCriteria.forEach((colDef, cIndex) => {
@@ -168,11 +259,13 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                 }
             });
             
-            studentRow.push(1); // Kolom REG
+            studentRow.push(1); // Kolom Reg
+            studentRow.push(formatDate(student[dateKey])); // Kolom Date di akhir
             aoaData.push(studentRow);
         });
 
-        const emptySeparatorRow = Array(baseHeaders.length + orderedCriteria.length + 1).fill("");
+        // Separator row kini harus +2 untuk (Reg & Date)
+        const emptySeparatorRow = Array(baseHeaders.length + orderedCriteria.length + 2).fill("");
         aoaData.push(emptySeparatorRow);
 
         const footerStartRowIndex = aoaData.length;
@@ -180,8 +273,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         // ==========================================
         // 6. SETUP FOOTER (Total Row)
         // ==========================================
-        const kategoriRow = [...baseHeaders];
-        const kriteriaRow = Array(baseHeaders.length).fill("");
         const totalRow = Array(baseHeaders.length).fill("");
 
         const fullNameIndex = baseHeaders.indexOf("Name of students"); 
@@ -191,32 +282,19 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         if (gradeIndex !== -1) totalRow[gradeIndex] = currentTotal;
 
         orderedCriteria.forEach((colDef, index) => {
-            const isFirstOfCategory = index === 0 || orderedCriteria[index - 1].category !== colDef.category;
-            const catLower = String(colDef.category).toLowerCase();
-            
-            const isMergedVertically = ["student status", "academic status", "payment"].includes(catLower);
-
-            if (isMergedVertically) {
-                kategoriRow.push(formatHeader(colDef.criteria)); 
-                kriteriaRow.push(""); 
-            } else {
-                kategoriRow.push(isFirstOfCategory ? formatHeader(colDef.category) : "");
-                kriteriaRow.push(colDef.criteria);
-            }
-            
-            totalRow.push(criteriaTotals[index]);
+            const finalTotal = detailsData.length > 0 ? criteriaTotals[index] : colDef.total;
+            totalRow.push(finalTotal);
         });
 
-        kategoriRow.push("Reg");
-        kriteriaRow.push(""); 
-        totalRow.push(currentTotal); 
+        totalRow.push(currentTotal); // Total untuk kolom Reg
+        totalRow.push("");           // Blank untuk kolom Date 
 
-        aoaData.push(kategoriRow);
-        aoaData.push(kriteriaRow);
+        aoaData.push([...kategoriRow]); // HEADER BAWAH
+        aoaData.push([...kriteriaRow]); 
         aoaData.push(totalRow);
 
         // ==========================================
-        // 7. COMPARATIVE TABLE
+        // 7. COMPARATIVE TABLE & DESCRIPTIONS
         // ==========================================
         let comparativeStartRowIndex = -1;
         
@@ -224,16 +302,13 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             aoaData.push([]); 
             comparativeStartRowIndex = aoaData.length;
             
-            // Baris Title Comparative Data
             aoaData.push(["Comparative Data of Enrollee"]);
             
-            // Baris Date Hari ini (Format: As Per Month DD, YYYY)
             const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const today = new Date();
             const formattedDate = `As Per ${monthNames[today.getMonth()]} ${String(today.getDate()).padStart(2, '0')}, ${today.getFullYear()}`;
             aoaData.push([formattedDate]);
             
-            // Baris Headers School Year (Tambahkan awalan SY)
             const schoolYearHeaders = comparativeTable.map(item => "SY " + (item["School Year"] || item.school_year));
             const headers = ["", "", ...schoolYearHeaders];
             aoaData.push(headers);
@@ -258,6 +333,37 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             aoaData.push(buildRow("Total Enrollee", "Total Enrollee"));
         }
 
+        // KONDISI: MENAMBAHKAN DESKRIPSI (LEGEND) HANYA JIKA isDailyReport TRUE
+        let legendStartIndex = -1;
+        let legendEndIndex = -1;
+        if (isDailyReport) {
+            aoaData.push([]);
+            legendStartIndex = aoaData.length; // Posisi mulai legend
+            aoaData.push(["Keterangan:"]);
+            const descriptions = [
+                "Grade     : Kelas",
+                "New, Old  : Student Status",
+                "SG        : Schoolarship Grantee",
+                "SD        : Special Discount",
+                "SC        : Staff Child",
+                "IP%       : Beasiswa IP dengan pembayaran Full Payment",
+                "IP        : Beasiswa IP dengan pembayaran Installment",
+                "Cash      : Full Payment",
+                "12%cash   : Beasiswa 12% dengan pembayaran Full Payment",
+                "10%cash   : Beasiswa 10% dengan pembayaran Full Payment",
+                "5%cash    : Beasiswa 5% dengan pembayaran Full Payment",
+                "Regular   : Academic Status Regular",
+                "Sit In    : Academic Status Sit In",
+                "Reg       : Registration (total registration)",
+                "SY        : School Year",
+                "Returning : Old Student"
+            ];
+            descriptions.forEach(desc => {
+                aoaData.push([desc]);
+            });
+            legendEndIndex = aoaData.length - 1; // Posisi akhir legend
+        }
+
         const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
 
         // ==========================================
@@ -266,65 +372,67 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         const merges = [];
         merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }); 
 
-        for (let i = 0; i < baseHeaders.length; i++) {
-            merges.push({ s: { r: footerStartRowIndex, c: i }, e: { r: footerStartRowIndex + 1, c: i } });
-        }
-
-        let colIndex = baseHeaders.length;
-        let startCol = colIndex;
-        let lastCategory = null;
-
-        orderedCriteria.forEach((col, i) => {
-            const catLower = String(col.category).toLowerCase();
-            const isMergedVertically = ["student status", "academic status", "payment"].includes(catLower);
-
-            if (col.category !== lastCategory) {
-                if (i > 0 && !["student status", "academic status", "payment"].includes(String(lastCategory).toLowerCase())) {
-                    merges.push({
-                        s: { r: footerStartRowIndex, c: startCol },
-                        e: { r: footerStartRowIndex, c: colIndex - 1 }
-                    });
-                }
-                startCol = colIndex;
-                lastCategory = col.category;
-            }
-            
-            if (isMergedVertically) {
-                merges.push({ s: { r: footerStartRowIndex, c: colIndex }, e: { r: footerStartRowIndex + 1, c: colIndex } });
-            }
-            
-            colIndex++;
-        });
-        
-        if (orderedCriteria.length > 0 && !["student status", "academic status", "payment"].includes(String(lastCategory).toLowerCase())) {
-            merges.push({
-                s: { r: footerStartRowIndex, c: startCol },
-                e: { r: footerStartRowIndex, c: colIndex - 1 }
-            });
-        }
-        
         const regColumnIndex = baseHeaders.length + orderedCriteria.length;
-        merges.push({ s: { r: footerStartRowIndex, c: regColumnIndex }, e: { r: footerStartRowIndex + 1, c: regColumnIndex } });
+        const dateColumnIndex = regColumnIndex + 1;
 
-        // Comparative Table Merges
+        // Fungsi bantu agar code rapi saat merge header atas & bawah
+        const applyHeaderMerges = (startRowIndex) => {
+            for (let i = 0; i < baseHeaders.length; i++) {
+                merges.push({ s: { r: startRowIndex, c: i }, e: { r: startRowIndex + 1, c: i } });
+            }
+
+            let colIndex = baseHeaders.length;
+            let startCol = colIndex;
+            let lastCategory = null;
+
+            orderedCriteria.forEach((col, i) => {
+                const catLower = String(col.category).toLowerCase();
+                const isMergedVertically = ["student status", "academic status", "payment"].includes(catLower);
+
+                if (col.category !== lastCategory) {
+                    if (i > 0 && !["student status", "academic status", "payment"].includes(String(lastCategory).toLowerCase())) {
+                        merges.push({
+                            s: { r: startRowIndex, c: startCol },
+                            e: { r: startRowIndex, c: colIndex - 1 }
+                        });
+                    }
+                    startCol = colIndex;
+                    lastCategory = col.category;
+                }
+                
+                if (isMergedVertically) {
+                    merges.push({ s: { r: startRowIndex, c: colIndex }, e: { r: startRowIndex + 1, c: colIndex } });
+                }
+                colIndex++;
+            });
+            
+            if (orderedCriteria.length > 0 && !["student status", "academic status", "payment"].includes(String(lastCategory).toLowerCase())) {
+                merges.push({
+                    s: { r: startRowIndex, c: startCol },
+                    e: { r: startRowIndex, c: colIndex - 1 }
+                });
+            }
+            
+            merges.push({ s: { r: startRowIndex, c: regColumnIndex }, e: { r: startRowIndex + 1, c: regColumnIndex } });
+            merges.push({ s: { r: startRowIndex, c: dateColumnIndex }, e: { r: startRowIndex + 1, c: dateColumnIndex } });
+        };
+
+        applyHeaderMerges(2); // Merge untuk header Atas
+        applyHeaderMerges(footerStartRowIndex); // Merge untuk header Bawah
+
         if (comparativeStartRowIndex !== -1) {
             const lastCompColIndex = 1 + comparativeTable.length;
-            
-            merges.push({
-                s: { r: comparativeStartRowIndex, c: 0 },
-                e: { r: comparativeStartRowIndex, c: lastCompColIndex }
-            });
-            
-            merges.push({
-                s: { r: comparativeStartRowIndex + 1, c: 0 },
-                e: { r: comparativeStartRowIndex + 1, c: lastCompColIndex }
-            });
-            
+            merges.push({ s: { r: comparativeStartRowIndex, c: 0 }, e: { r: comparativeStartRowIndex, c: lastCompColIndex } });
+            merges.push({ s: { r: comparativeStartRowIndex + 1, c: 0 }, e: { r: comparativeStartRowIndex + 1, c: lastCompColIndex } });
             for (let r = 2; r <= 7; r++) {
-                merges.push({
-                    s: { r: comparativeStartRowIndex + r, c: 0 },
-                    e: { r: comparativeStartRowIndex + r, c: 1 }
-                });
+                merges.push({ s: { r: comparativeStartRowIndex + r, c: 0 }, e: { r: comparativeStartRowIndex + r, c: 1 } });
+            }
+        }
+
+        // KONDISI: Merge kolom Keterangan (Legend) jika isDailyReport
+        if (isDailyReport && legendStartIndex !== -1) {
+            for (let r = legendStartIndex; r <= legendEndIndex; r++) {
+                merges.push({ s: { r: r, c: 0 }, e: { r: r, c: 3 } }); 
             }
         }
 
@@ -335,7 +443,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         // ==========================================
         const range = XLSX.utils.decode_range(worksheet["!ref"]);
         for (let R = 0; R <= range.e.r; ++R) {
-            if (R === footerStartRowIndex - 1) continue; 
 
             for (let C = 0; C <= range.e.c; ++C) {
                 const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
@@ -349,6 +456,18 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                     continue;
                 }
 
+                // Styling Legend
+                if (isDailyReport && legendStartIndex !== -1 && R >= legendStartIndex && R <= legendEndIndex) {
+                    if (C === 0) {
+                        cell.s.alignment = { horizontal: "left", vertical: "center" };
+                        if (R === legendStartIndex) {
+                            cell.s.font = { bold: true };
+                        }
+                    }
+                    continue;
+                }
+
+                // Menambahkan border tegas ke seluruh data table (termasuk baris kosong)
                 if (R >= 2 && R <= footerStartRowIndex + 2) {
                     cell.s.border = {
                         top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } },
@@ -357,46 +476,52 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                     cell.s.alignment = { vertical: "center", horizontal: "center" };
                 }
 
-                if (R >= 2 && R < footerStartRowIndex) {
+                // Styling Data Tabel Utama (Baris 4 hingga sebelum Footer)
+                if (R >= 4 && R < footerStartRowIndex) {
                     if (C === 0) cell.s.font = { bold: true };
                     else if (C === fullNameIndex) cell.s.alignment = { vertical: "center", horizontal: "left" };
                 }
 
-                if (R === footerStartRowIndex || R === footerStartRowIndex + 1) {
+                // Styling Header Atas (2 & 3) dan Header Bawah
+                if (R === 2 || R === 3 || R === footerStartRowIndex || R === footerStartRowIndex + 1) {
                     cell.s.font = { bold: true, color: { rgb: "000000" } };
                     cell.s.fill = { fgColor: { rgb: "BDD7EE" } };
                     cell.s.alignment = { vertical: "center", horizontal: "center" };
+                    cell.s.border = {
+                        top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } },
+                        left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } }
+                    };
                 }
 
+                // Styling Baris Total Paling Bawah
                 if (R === footerStartRowIndex + 2) {
                     cell.s.font = { bold: true, color: { rgb: "000000" } };
                     if (C === fullNameIndex) cell.s.alignment = { vertical: "center", horizontal: "right" };
                 }
 
-                // Styling Khusus Comparative Table
-                if (comparativeStartRowIndex !== -1 && R >= comparativeStartRowIndex) {
+                // Styling Comparative Table
+                if (comparativeStartRowIndex !== -1 && R >= comparativeStartRowIndex && R < comparativeStartRowIndex + 8) {
                     const maxColBound = 1 + comparativeTable.length;
-                    
                     if (C <= maxColBound) {
                         cell.s.border = {
                             top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } },
                             left: { style: "thin", color: { rgb: "000000" } }, right: { style: "thin", color: { rgb: "000000" } }
                         };
-
+                        
                         if (R === comparativeStartRowIndex || R === comparativeStartRowIndex + 1) {
                             cell.s.font = { bold: true };
                             cell.s.alignment = { horizontal: "center", vertical: "center" };
                         } else {
                             if (C === 0 || C === 1) {
-                                cell.s.font = { bold: true };
+                                cell.s.font = { bold: false };
                                 cell.s.fill = { fgColor: { rgb: "BDD7EE" } };
-                                cell.s.alignment = { vertical: "center", horizontal: "left" }; // Teks label jadi rata kiri
+                                cell.s.alignment = { vertical: "center", horizontal: "left" };
                             } else {
                                 cell.s.alignment = { vertical: "center", horizontal: "center" };
                             }
-
+                            
                             if (R === comparativeStartRowIndex + 2) {
-                                cell.s.font = { bold: true };
+                                cell.s.font = { bold: false };
                                 cell.s.fill = { fgColor: { rgb: "BDD7EE" } };
                             }
                         }
@@ -406,36 +531,49 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         }
 
         // ==========================================
-        // 10. SETUP UKURAN KOLOM LEBAR
+        // 10. SETUP UKURAN KOLOM
         // ==========================================
         worksheet['!cols'] = Array(range.e.c + 1).fill({ wch: 15 });
         worksheet['!cols'][0] = { wch: 5 }; 
-
-        const regDateIndex = baseHeaders.indexOf("Reg Date");
-        if (regDateIndex !== -1) worksheet['!cols'][regDateIndex] = { wch: 14 };
 
         const studentIdIndex = baseHeaders.indexOf("Student ID");
         if (studentIdIndex !== -1) worksheet['!cols'][studentIdIndex] = { wch: 15 };
 
         if (fullNameIndex !== -1) worksheet['!cols'][fullNameIndex] = { wch: 30 };
-        if (gradeIndex !== -1) worksheet['!cols'][gradeIndex] = { wch: 10 };
+        if (gradeIndex !== -1) worksheet['!cols'][gradeIndex] = { wch: 6 }; 
         
         orderedCriteria.forEach((col, i) => {
-            const criteriaLength = String(col.criteria).length;
-            worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 3, 6) };
+            const critLower = String(col.criteria).toLowerCase();
+            const catLower = String(col.category).toLowerCase();
+
+            if (critLower === "new" || critLower === "old") {
+                worksheet['!cols'][baseHeaders.length + i] = { wch: 5 };
+            } else if (catLower === "school year") {
+                // Beri space lebih banyak agar School year bisa sejajar dan tidak terpotong
+                const criteriaLength = String(col.criteria).length;
+                worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 4, 12) };
+            } else {
+                const criteriaLength = String(col.criteria).length;
+                worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 3, 6) };
+            }
         });
         
         worksheet['!cols'][regColumnIndex] = { wch: 8 };
+        worksheet['!cols'][dateColumnIndex] = { wch: 14 };
 
-        // Pastikan kolom-kolom di area Comparative Table cukup lebar agar teks SY tidak terpotong
+        // Logika Dynamic Width untuk menyeimbangkan tabel SY Comparative
         if (comparativeStartRowIndex !== -1 && comparativeTable) {
             for (let i = 0; i < comparativeTable.length; i++) {
-                // Kolom dimulai dari index ke-2 (karena 0 dan 1 dimerge untuk teks kriteria)
                 const targetColIndex = 2 + i;
+                const syText = "SY " + (comparativeTable[i]["School Year"] || comparativeTable[i].school_year);
+                const minSyWidth = syText.length + 2; 
                 
-                // Setel minimal lebar 16 agar teks "SY 2024/2025" muat
-                if (worksheet['!cols'][targetColIndex].wch < 16) {
-                    worksheet['!cols'][targetColIndex].wch = 16;
+                // Pastikan index kolom ada (mencegah error jika comparative lebih banyak drpd base table)
+                if(worksheet['!cols'][targetColIndex]) {
+                    const currentWch = worksheet['!cols'][targetColIndex].wch;
+                    if (currentWch < minSyWidth || currentWch === 15) {
+                        worksheet['!cols'][targetColIndex] = { wch: minSyWidth };
+                    }
                 }
             }
         }
@@ -445,6 +583,9 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         return;
     }
 
+    // ==========================================
+    // FALLBACK
+    // ==========================================
     Object.keys(tableData).forEach((tableKey, index) => {
         const sheetData = tableData[tableKey];
         if (!sheetData || sheetData.length === 0) return;
