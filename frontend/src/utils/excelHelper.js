@@ -12,9 +12,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
     let detailsData = null;
     let comparativeTable = null;
 
-    // ==========================================
     // 1. DATA EXTRACTION (SMART DYNAMIC PARSER)
-    // ==========================================
     const extractDataSets = (data) => {
         let matrices = [];
 
@@ -50,16 +48,11 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
     extractDataSets(tableData);
 
-    // ==========================================
-    // LOGIKA UTAMA 
-    // ==========================================
     if (summaryData || detailsData) { 
         summaryData = summaryData || [];
         detailsData = detailsData || [];
 
-        // ==========================================
         // 2. SETUP BASE COLUMNS & HEADERS
-        // ==========================================
         const allKeys = Object.keys(detailsData[0] || {});
         const baseColumns = [];
         const baseHeaders = ["No."];
@@ -98,9 +91,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             }
         });
 
-        // ==========================================
         // 3. SETUP MATRIX CRITERIA & HEADERS
-        // ==========================================
         let orderedCriteria = summaryData.map(item => {
             const getVal = (keyStr) => {
                 const key = Object.keys(item).find(k => k.toLowerCase() === keyStr);
@@ -161,8 +152,8 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         const aoaData = [
             [`Total Data: ${currentTotal}`],
             [],
-            [...kategoriRow], // HEADER ATAS - Baris Kategori
-            [...kriteriaRow]  // HEADER ATAS - Baris Kriteria
+            [...kategoriRow], 
+            [...kriteriaRow]
         ];
 
         const criteriaTotals = Array(orderedCriteria.length).fill(0);
@@ -170,9 +161,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         // Cari keys untuk Date secara dinamis 
         const dateKey = allKeys.find(k => k.toLowerCase() === "registration_date" || k.toLowerCase() === "date") || "registration_date";
 
-        // ==========================================
         // 4. SMART MATCHING FUNCTION
-        // ==========================================
         const isMatch = (student, categoryName, criteriaName) => {
             const catLower = String(categoryName).toLowerCase();
             const critLower = String(criteriaName).toLowerCase();
@@ -196,7 +185,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
             if (catLower === "gender") return gender === critLower || gender.startsWith(critLower);
             if (catLower === "student status" || catLower === "status") {
-                return status === critLower || (status === "" && false); // Pastikan status terdeteksi
+                return status === critLower || (status === "" && false);
             }
             if (catLower === "school year") return schoolYear === critLower;
 
@@ -240,9 +229,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             return false;
         };
 
-        // ==========================================
         // 5. MENGISI DATA MATRIX SISWA
-        // ==========================================
         detailsData.forEach((student, index) => {
             const studentRow = [index + 1];
 
@@ -264,15 +251,12 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             aoaData.push(studentRow);
         });
 
-        // Separator row kini harus +2 untuk (Reg & Date)
         const emptySeparatorRow = Array(baseHeaders.length + orderedCriteria.length + 2).fill("");
         aoaData.push(emptySeparatorRow);
 
         const footerStartRowIndex = aoaData.length;
 
-        // ==========================================
         // 6. SETUP FOOTER (Total Row)
-        // ==========================================
         const totalRow = Array(baseHeaders.length).fill("");
 
         const fullNameIndex = baseHeaders.indexOf("Name of students"); 
@@ -286,16 +270,14 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             totalRow.push(finalTotal);
         });
 
-        totalRow.push(currentTotal); // Total untuk kolom Reg
-        totalRow.push("");           // Blank untuk kolom Date 
+        totalRow.push(currentTotal); 
+        totalRow.push("");           
 
-        aoaData.push([...kategoriRow]); // HEADER BAWAH
+        aoaData.push([...kategoriRow]); 
         aoaData.push([...kriteriaRow]); 
         aoaData.push(totalRow);
 
-        // ==========================================
         // 7. COMPARATIVE TABLE & DESCRIPTIONS
-        // ==========================================
         let comparativeStartRowIndex = -1;
         
         if (comparativeTable && comparativeTable.length > 0) {
@@ -333,12 +315,12 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             aoaData.push(buildRow("Total Enrollee", "Total Enrollee"));
         }
 
-        // KONDISI: MENAMBAHKAN DESKRIPSI (LEGEND) HANYA JIKA isDailyReport TRUE
+        // KONDISI: MENAMBAHKAN DESKRIPSI HANYA JIKA isDailyReport TRUE
         let legendStartIndex = -1;
         let legendEndIndex = -1;
         if (isDailyReport) {
             aoaData.push([]);
-            legendStartIndex = aoaData.length; // Posisi mulai legend
+            legendStartIndex = aoaData.length; 
             aoaData.push(["Keterangan:"]);
             const descriptions = [
                 "Grade     : Kelas",
@@ -361,21 +343,18 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             descriptions.forEach(desc => {
                 aoaData.push([desc]);
             });
-            legendEndIndex = aoaData.length - 1; // Posisi akhir legend
+            legendEndIndex = aoaData.length - 1; 
         }
 
         const worksheet = XLSX.utils.aoa_to_sheet(aoaData);
 
-        // ==========================================
         // 8. SETUP MERGES 
-        // ==========================================
         const merges = [];
         merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 1 } }); 
 
         const regColumnIndex = baseHeaders.length + orderedCriteria.length;
         const dateColumnIndex = regColumnIndex + 1;
 
-        // Fungsi bantu agar code rapi saat merge header atas & bawah
         const applyHeaderMerges = (startRowIndex) => {
             for (let i = 0; i < baseHeaders.length; i++) {
                 merges.push({ s: { r: startRowIndex, c: i }, e: { r: startRowIndex + 1, c: i } });
@@ -429,7 +408,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             }
         }
 
-        // KONDISI: Merge kolom Keterangan (Legend) jika isDailyReport
+        // KONDISI: Merge kolom Keterangan jika isDailyReport
         if (isDailyReport && legendStartIndex !== -1) {
             for (let r = legendStartIndex; r <= legendEndIndex; r++) {
                 merges.push({ s: { r: r, c: 0 }, e: { r: r, c: 3 } }); 
@@ -438,9 +417,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
         worksheet["!merges"] = merges;
 
-        // ==========================================
         // 9. APPLY STYLING MATRIX
-        // ==========================================
         const range = XLSX.utils.decode_range(worksheet["!ref"]);
         for (let R = 0; R <= range.e.r; ++R) {
 
@@ -456,7 +433,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                     continue;
                 }
 
-                // Styling Legend
+                // Styling Keterangan
                 if (isDailyReport && legendStartIndex !== -1 && R >= legendStartIndex && R <= legendEndIndex) {
                     if (C === 0) {
                         cell.s.alignment = { horizontal: "left", vertical: "center" };
@@ -467,7 +444,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                     continue;
                 }
 
-                // Menambahkan border tegas ke seluruh data table (termasuk baris kosong)
                 if (R >= 2 && R <= footerStartRowIndex + 2) {
                     cell.s.border = {
                         top: { style: "thin", color: { rgb: "000000" } }, bottom: { style: "thin", color: { rgb: "000000" } },
@@ -530,9 +506,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             }
         }
 
-        // ==========================================
         // 10. SETUP UKURAN KOLOM
-        // ==========================================
         worksheet['!cols'] = Array(range.e.c + 1).fill({ wch: 15 });
         worksheet['!cols'][0] = { wch: 5 }; 
 
@@ -549,7 +523,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             if (critLower === "new" || critLower === "old") {
                 worksheet['!cols'][baseHeaders.length + i] = { wch: 5 };
             } else if (catLower === "school year") {
-                // Beri space lebih banyak agar School year bisa sejajar dan tidak terpotong
                 const criteriaLength = String(col.criteria).length;
                 worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 4, 12) };
             } else {
@@ -568,7 +541,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                 const syText = "SY " + (comparativeTable[i]["School Year"] || comparativeTable[i].school_year);
                 const minSyWidth = syText.length + 2; 
                 
-                // Pastikan index kolom ada (mencegah error jika comparative lebih banyak drpd base table)
                 if(worksheet['!cols'][targetColIndex]) {
                     const currentWch = worksheet['!cols'][targetColIndex].wch;
                     if (currentWch < minSyWidth || currentWch === 15) {
@@ -583,9 +555,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         return;
     }
 
-    // ==========================================
     // FALLBACK
-    // ==========================================
     Object.keys(tableData).forEach((tableKey, index) => {
         const sheetData = tableData[tableKey];
         if (!sheetData || sheetData.length === 0) return;
