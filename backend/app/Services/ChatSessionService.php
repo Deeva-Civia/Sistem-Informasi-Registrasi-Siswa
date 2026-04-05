@@ -45,7 +45,7 @@ class ChatSessionService
             'chat_session_id' => $sessionId,
             'sender_type' => $senderType, 
             'message_content' => $messageContent,
-            'genereted_sql' => $generatedSql, 
+            'generated_sql' => $generatedSql, 
         ]);
     }
 
