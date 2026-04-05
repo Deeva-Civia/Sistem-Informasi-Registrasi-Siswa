@@ -69,6 +69,7 @@ class GeminiService
             Constraints:
             - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
             - If the request cannot be answered with the schema, return SELECT 'I cannot answer that based on the available data' as message.
+            - COMPLEXITY LIMIT (CRITICAL): Count the number of filter categories the user requests (e.g., residence type, payment method, grade, discount, gender, etc.). If the user requests a combination of MORE THAN 5 categories in a single prompt, DO NOT generate the actual queries. Instead, return ONLY this JSON array: [\"SELECT 'Maaf, untuk menjaga kecepatan dan akurasi sistem, maksimal kombinasi pencarian yang diizinkan adalah 5 kategori. Mohon sederhanakan instruksi Anda.' AS error_message\"]
             - ARRAY STRUCTURE RULE (CRITICAL FOR UI MATRIX): The frontend requires exactly 3 queries to draw the Matrix Excel.
                 * Index 0 (Mandatory): A query to get the EXACT DISTINCT COUNT of students.
                 * Index 1 (Mandatory Summary): A `UNION ALL` query returning exactly 3 columns: `Kategori`, `Kriteria`, and `Total`. YOU MUST ALWAYS include the breakdown for 'Section', 'School Year', and 'Residence Type' in this UNION ALL, PLUS any specific filter requested by the user (e.g., 'Payment', 'Discount'). 
