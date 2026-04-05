@@ -29,6 +29,8 @@ class AiChatController extends Controller
 
     public function ask(Request $request)
     {
+        set_time_limit(0);
+        
         $prompt = $request->input('prompt');
         $inputSessionId = $request->input('session_id');
         $userId = auth()->id();
@@ -163,7 +165,7 @@ class AiChatController extends Controller
                         if ($rowCount > 0) {
                             $firstRow = $resultsArray[0];
                             if (count($firstRow) > 1) {
-                                $tableData['table_' . $index] = $resultsArray;
+                                $tableData[] = $resultsArray;
                                 $isTable = true;
                             }
                         }
