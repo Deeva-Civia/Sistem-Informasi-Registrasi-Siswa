@@ -128,11 +128,9 @@ class AiChatController extends Controller
                 foreach ($sqlQueries as $index => $sql) {
                     // Validation for Security
                     $upperSql = strtoupper($sql);
-                    if (str_contains($upperSql, 'DELETE') || str_contains($upperSql, 'UPDATE') ||
-                        str_contains($upperSql, 'INSERT') || str_contains($upperSql, 'DROP') ||
-                        str_contains($upperSql, 'ALTER')) {
+                    if (preg_match('/^\s*(DELETE|UPDATE|INSERT|DROP|ALTER)\b/i', $sql)) {
                         
-                        $forbiddenMsg = 'Action forbidden. Coba kalimat lain.';
+                        $forbiddenMsg = 'Maaf, Action Forbidden. Sistem hanya mengizinkan pencarian data.';
                         $this->chatSessionService->saveMessage($sessionId, 'system', $forbiddenMsg, $sqlTextLog);
     
                         return response()->json([
@@ -155,6 +153,21 @@ class AiChatController extends Controller
     
                         $rowCount = count($resultsArray);
     
+                        if ($rowCount > 0 && isset($resultsArray[0]['error_message'])) {
+                            $customErrorMsg = $resultsArray[0]['error_message'];
+                            
+                            $this->chatSessionService->saveMessage($sessionId, 'system', $customErrorMsg, $sqlTextLog);
+                            
+                            return response()->json([
+                                'success' => false,
+                                'message' => $customErrorMsg,
+                                'session_id' => $sessionId,
+                                'title' => $sessionData['title'] ?? 'Percakapan Baru',
+                                'display_type' => 'text',
+                                'data' => null
+                            ], 400); 
+                        }
+
                         $executionResults[] = [
                             'query_order' => $index + 1,
                             'sql_used' => $sql,
