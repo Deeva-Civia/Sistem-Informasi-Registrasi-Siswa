@@ -57,8 +57,17 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         const baseColumns = [];
         const baseHeaders = ["No."];
 
-        const formatHeader = (str) => String(str).replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
-        
+        const formatHeader = (str) => {
+            const cleanStr = String(str).replace(/_/g, " ");
+            // Daftar singkatan yang HARUS huruf besar semua
+            const exactUppers = ["nik", "nisn", "kitas", "id", "va"]; 
+            
+            if (exactUppers.includes(cleanStr.toLowerCase())) {
+                return cleanStr.toUpperCase();
+            }
+            return cleanStr.replace(/\b\w/g, (l) => l.toUpperCase());
+        };
+
         // Custom format untuk me-rename teks header Cash
         const formatDisplayHeader = (str) => {
             const s = String(str).toLowerCase().trim();
@@ -83,13 +92,54 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         const allowedBaseHeaders = isDailyReport 
             ? ["Name of students", "Grade"] 
             : ["Student ID", "Name of students", "Grade"];
+        
+        // Ambil semua kategori dari summaryData untuk membedakan mana yang Matrix
+        const matrixCategoriesLower = summaryData.map(item => {
+            const catKey = Object.keys(item).find(k => k.toLowerCase() === 'kategori');
+            return catKey ? String(item[catKey]).toLowerCase() : "";
+        });
 
+        const dynamicBaseKeys = [];
+        const dynamicBaseHeaders = [];
+
+        if (!isDailyReport) {
+            allKeys.forEach(key => {
+                const lowerKey = String(key).toLowerCase();
+                const formattedLowerKey = lowerKey.replace(/_/g, ' ');
+
+                if (
+                    !allowedBaseKeys.includes(lowerKey) &&
+                    lowerKey !== "registration_date" &&
+                    lowerKey !== "date" &&
+                    !matrixCategoriesLower.includes(formattedLowerKey) &&
+                    !matrixCategoriesLower.includes(lowerKey)
+                ) {
+                    dynamicBaseKeys.push(key);
+                    dynamicBaseHeaders.push(formatHeader(key)); // ex: mothers_name -> Mothers Name
+                }
+            });
+        }
+
+        // Masukkan allowedBaseKeys KECUALI grade terlebih dahulu
         allowedBaseKeys.forEach((key, index) => {
-            if (allKeys.includes(key)) {
+            if (key !== "grade" && allKeys.includes(key)) {
                 baseColumns.push(key);
                 baseHeaders.push(allowedBaseHeaders[index]);
             }
         });
+
+        // Sisipkan Dynamic Columns (seperti Mother's name, dll)
+        dynamicBaseKeys.forEach((key, index) => {
+            baseColumns.push(key);
+            baseHeaders.push(dynamicBaseHeaders[index]);
+        });
+
+        // Masukkan Grade di paling akhir urutan base columns
+        const gradeIndexInAllowed = allowedBaseKeys.indexOf("grade");
+        if (gradeIndexInAllowed !== -1 && allKeys.includes("grade")) {
+            baseColumns.push("grade");
+            baseHeaders.push(allowedBaseHeaders[gradeIndexInAllowed]);
+        }
 
         // 3. SETUP MATRIX CRITERIA & HEADERS
         let orderedCriteria = summaryData.map(item => {
@@ -234,7 +284,20 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
             const studentRow = [index + 1];
 
             baseColumns.forEach(col => {
-                studentRow.push(student[col] || "");
+                let val = student[col] !== undefined && student[col] !== null ? student[col] : "";
+                const colLower = String(col).toLowerCase();
+
+                const isLongNumericString = ['nik', 'nisn', 'kitas'].includes(colLower) || 
+                                            colLower.includes('phone') || 
+                                            colLower.includes('va_') || 
+                                            colLower.includes('virtual_account');
+
+                if (isLongNumericString && val !== "") {
+                    // format menjadi Teks/String (t: 's') agar angka tidak berubah jadi e+
+                    studentRow.push({ v: String(val), t: 's' }); 
+                } else {
+                    studentRow.push(val);
+                }
             });
 
             orderedCriteria.forEach((colDef, cIndex) => {
@@ -261,8 +324,11 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
         const fullNameIndex = baseHeaders.indexOf("Name of students"); 
         const gradeIndex = baseHeaders.indexOf("Grade");
+        
+        // [PERUBAHAN 4]: Menentukan posisi kata "Total:" agar persis di kiri kolom Grade
+        const totalLabelIndex = gradeIndex > 0 ? gradeIndex - 1 : fullNameIndex; 
 
-        if (fullNameIndex !== -1) totalRow[fullNameIndex] = "Total:";
+        if (totalLabelIndex !== -1) totalRow[totalLabelIndex] = "Total:";
         if (gradeIndex !== -1) totalRow[gradeIndex] = currentTotal;
 
         orderedCriteria.forEach((colDef, index) => {
@@ -455,7 +521,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                 // Styling Data Tabel Utama (Baris 4 hingga sebelum Footer)
                 if (R >= 4 && R < footerStartRowIndex) {
                     if (C === 0) cell.s.font = { bold: true };
-                    else if (C === fullNameIndex) cell.s.alignment = { vertical: "center", horizontal: "left" };
+                    else if (baseHeaders[C] === "Name of students") cell.s.alignment = { vertical: "center", horizontal: "left" };
                 }
 
                 // Styling Header Atas (2 & 3) dan Header Bawah
@@ -469,10 +535,10 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                     };
                 }
 
-                // Styling Baris Total Paling Bawah
+                // [PERUBAHAN 5]: Styling Baris Total Paling Bawah agar "Total:" sejajar di kanan (menempel Grade)
                 if (R === footerStartRowIndex + 2) {
                     cell.s.font = { bold: true, color: { rgb: "000000" } };
-                    if (C === fullNameIndex) cell.s.alignment = { vertical: "center", horizontal: "right" };
+                    if (C === totalLabelIndex) cell.s.alignment = { vertical: "center", horizontal: "right" };
                 }
 
                 // Styling Comparative Table
@@ -515,6 +581,16 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
         if (fullNameIndex !== -1) worksheet['!cols'][fullNameIndex] = { wch: 30 };
         if (gradeIndex !== -1) worksheet['!cols'][gradeIndex] = { wch: 6 }; 
+        
+        if (!isDailyReport) {
+            dynamicBaseHeaders.forEach(header => {
+                const hIndex = baseHeaders.indexOf(header);
+                if (hIndex !== -1) {
+                    // Lebar kolom menyesuaikan panjang judul (minimal 20)
+                    worksheet['!cols'][hIndex] = { wch: Math.max(header.length + 5, 20) };
+                }
+            });
+        }
         
         orderedCriteria.forEach((col, i) => {
             const critLower = String(col.criteria).toLowerCase();

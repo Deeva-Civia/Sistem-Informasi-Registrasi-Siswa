@@ -19,10 +19,21 @@ class GeminiService
 
     public function generateSQL(string $userPrompt, string $dbSchema)
     {
+        $currentDate = date('Y-m-d');
+        $currentMonth = (int) date('m');
+        $currentYear = (int) date('Y');
+        $activeSchoolYear = ($currentMonth >= 7) ? $currentYear . '/' . ($currentYear + 1) : ($currentYear - 1) . '/' . $currentYear;
+        $nextSchoolYear = ($currentMonth >= 7) ? ($currentYear + 1) . '/' . ($currentYear + 2) : $currentYear . '/' . ($currentYear + 1);
+
         $systemInstruction = "
             Role: You are an expert SQL Generator for MySQL.
             Task: Convert the user's natural language question into a VALID MySQL query based on the provided schema.
             
+            CONTEXT:
+            - Current Date: $currentDate
+            - Active School Year: '$activeSchoolYear'
+            - Next School Year: '$nextSchoolYear'
+
             DATABASE STRATEGY (How to Join Tables):
             1. The `enrollments` table is the CENTRAL HUB. Almost all queries must start here or join through here.
             2. MANDATORY SELECT COLUMNS: For any query that returns a list of data (not COUNT), you MUST ALWAYS include:
@@ -51,7 +62,7 @@ class GeminiService
                     In the detailed list (Query 2), use REGEXP_SUBSTR(sd.notes, '[0-9]+%') AS discount_notes.
             5. DATE & SCHOOL YEAR FILTERING (CRITICAL BUSINESS LOGIC):
                 - ONLY filter by exact date (e.g., DATE(registration_date) = CURDATE()) IF the user explicitly mentions 'hari ini' (today), 'kemarin', or a specific date.
-                - IF the user does NOT mention any specific timeframe (e.g., 'siapa saja siswa yang mendaftar dengan installment'), DO NOT apply any date filtering. 
+                - IF the user does NOT mention any specific timeframe (e.g., 'siapa saja siswa yang mendaftar dengan installment'), YOU MUST filter the data to only include the Active School Year ('$activeSchoolYear') AND Next School Year ('$nextSchoolYear'). Example: `WHERE sy.year IN ('$activeSchoolYear', '$nextSchoolYear')`.
                 - Instead, ALWAYS include the `school_years`.`year` column in your SELECT statements. Let the query pull the historical and future data, but ORDER BY `school_years`.`year` DESC so the registrar can clearly see the active and upcoming academic years at the top of the list.
             6. FILTERING MASTER DATA: NEVER hardcode IDs (like class_id = 3). ALWAYS JOIN the master table and filter by its string column using LIKE or =. 
                 (Example: To find grade K2, use JOIN `classes` c ... WHERE c.`grade` = 'K2').
@@ -65,6 +76,14 @@ class GeminiService
             9. COMPARISONS & BOOLEAN STATES (CRITICAL): 
                 - If the user asks for a comparison of states (e.g., 'siapa yang mendapat diskon dan yang tidak', 'lunas vs belum lunas'), ALWAYS create a dynamic column using IF() or CASE to clearly label the state for every row. 
                 - NEVER use generic terms like 'With Discount' for discounts. Always output the exact `dt`.`name` and `sd`.`notes` as instructed in Point 4.
+            10. MASTER DATA VS UNIQUE DATA (CRITICAL FOR UI MATRIX):
+                - Master/Categorical Data: Fields shared by multiple students (e.g., 'Religion', 'Gender', 'Residence Type', 'Payment', 'Discount', 'Status', 'Section', 'School Year', 'Semester'). If asked, include these in BOTH the UNION ALL summary (Query 1) AND the detailed list (Query 2).
+                - Unique/Personal Data: Fields unique to each student (e.g., 'Mother Name', 'Father Name', 'NIK', 'Phone', 'Address', 'DOB', 'Email', 'Virtual Account'). If the user requests these, DO NOT group or include them in the UNION ALL summary (Query 1). ONLY add them as columns in the detailed list (Query 2). The frontend will format them as dynamic base columns.
+            11. STRICT COLUMN NAMING (CRITICAL FOR FRONTEND PARSING):
+                - When selecting columns for the detailed list (Query 2), NEVER translate the column names into Indonesian or any other language, regardless of the user's prompt language.
+                - ALWAYS use the exact English column names from the provided schema as the alias.
+                - Example: If the user asks for 'nama ibu', use `parents`.`mother_name` AS mother_name. DO NOT use `AS 'nama ibu'`. 
+                - Example: If user asks 'tempat lahir', use `students`.`place_of_birth` AS place_of_birth.
 
             Constraints:
             - Output ONLY the raw JSON Array: [\"SQL 1\", \"SQL 2\"]. No Markdown formatting like ```json or ```sql, no explanations.
@@ -72,18 +91,18 @@ class GeminiService
             - FORBIDDEN ACTIONS (CRITICAL): If the user asks to UPDATE, DELETE, INSERT, DROP, or ALTER data, DO NOT generate those statements. Return ONLY this JSON array: [\"SELECT 'Maaf, Action Forbidden. Anda tidak memiliki izin untuk memanipulasi atau menghapus data.' AS error_message\"]
             - COMPLEXITY LIMIT (CRITICAL): Count the number of filter categories the user requests (e.g., residence type, payment method, grade, discount, gender, etc.). If the user requests a combination of MORE THAN 5 categories in a single prompt, DO NOT generate the actual queries. Instead, return ONLY this JSON array: [\"SELECT 'Maaf, untuk menjaga kecepatan dan akurasi sistem, maksimal kombinasi pencarian yang diizinkan adalah 5 kategori. Mohon sederhanakan instruksi Anda.' AS error_message\"]
             - ARRAY STRUCTURE RULE (CRITICAL FOR UI MATRIX): The frontend requires exactly 3 queries to draw the Matrix Excel.
-                * Index 0 (Mandatory): A query to get the EXACT DISTINCT COUNT of students.
+                * Index 0 (Mandatory): A query to get BOTH the total enrollments AND total distinct students. YOU MUST use aliases `total_enrollments` and `total_students`. (Example: SELECT COUNT(e.enrollment_id) AS total_enrollments, COUNT(DISTINCT s.student_id) AS total_students FROM ...).
                 * Index 1 (Mandatory Summary): A `UNION ALL` query returning exactly 3 columns: `Kategori`, `Kriteria`, and `Total`. YOU MUST ALWAYS include the breakdown for 'Section', 'School Year', and 'Residence Type' in this UNION ALL, PLUS any specific filter requested by the user (e.g., 'Payment', 'Discount'). 
                     (Example: IF user asks 'who paid installment?', Index 1 MUST be: SELECT 'Section' AS Kategori, sec.name AS Kriteria, COUNT(*) as Total ... UNION ALL SELECT 'School Year' ... UNION ALL SELECT 'Residence Type' ... UNION ALL SELECT 'Payment' AS Kategori, 'Installment' AS Kriteria, COUNT(*) ...). The UI matrix will fail if this is not comprehensive.
                 * Index 2 (Mandatory List): The detailed data query (`SELECT e.registration_date, s.student_id, full_name, sec.name as section, c.grade, sy.year as school_year, rh.type as residence_type ... LIMIT 50`).
             - Use ONLY SELECT statements. UPDATE/DELETE/INSERT are strictly forbidden.
-            - ALWAYS add LIMIT 50 for data listing queries (index 1), unless the user asks for a specific limit. Do NOT limit COUNT queries.
+            - ALWAYS add LIMIT 50 for data listing queries (index 2), unless the user asks for a specific limit. Do NOT limit COUNT queries.
 
             EXAMPLES:
             Example 1 (Complex Conditional Payment & Discount Join):
             User Question: 'Siapa saja siswa yang mendaftar hari ini dengan pembayaran installment dan mendapatkan diskon staff 12%. berikan total dan datanya'
             Output: [
-                \"SELECT COUNT(*) as total_siswa FROM enrollments e JOIN students s ON e.id = s.id JOIN payments p ON e.enrollment_id = p.enrollment_id JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id JOIN discount_types dt ON sd.discount_type_id = dt.discount_type_id WHERE DATE(e.registration_date) = CURDATE() AND (p.tuition_fees LIKE '%installment%' OR p.residence_payment LIKE '%installment%') AND dt.name = 'Staff' AND sd.notes LIKE '%12%%'\",
+                \"SELECT COUNT(e.enrollment_id) AS total_enrollments, COUNT(DISTINCT s.student_id) AS total_students FROM enrollments e JOIN students s ON e.id = s.id JOIN payments p ON e.enrollment_id = p.enrollment_id JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id JOIN discount_types dt ON sd.discount_type_id = dt.discount_type_id WHERE DATE(e.registration_date) = CURDATE() AND (p.tuition_fees LIKE '%installment%' OR p.residence_payment LIKE '%installment%') AND dt.name = 'Staff' AND sd.notes LIKE '%12%%'\",
                 \"SELECT 'Payment' AS Kategori, 'Installment' AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN payments p ON e.enrollment_id = p.enrollment_id WHERE DATE(e.registration_date) = CURDATE() AND (p.tuition_fees LIKE '%installment%' OR p.residence_payment LIKE '%installment%') UNION ALL SELECT 'Discount' AS Kategori, dt.name AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id JOIN discount_types dt ON sd.discount_type_id = dt.discount_type_id WHERE dt.name = 'Staff' UNION ALL SELECT 'Discount Notes' AS Kategori, REGEXP_SUBSTR(sd.notes, '[0-9]+%') AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id WHERE sd.notes LIKE '%12%%'\",
                 \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, rh.type as residence_type, IF(p.tuition_fees LIKE '%installment%' OR p.residence_payment LIKE '%installment%', 'Installment', 'Full Payment') AS payment_method, dt.name as discount_type, REGEXP_SUBSTR(sd.notes, '[0-9]+%') as discount_notes FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN residence_halls rh ON e.residence_id = rh.residence_id JOIN payments p ON e.enrollment_id = p.enrollment_id JOIN student_discounts sd ON e.enrollment_id = sd.enrollment_id JOIN discount_types dt ON sd.discount_type_id = dt.discount_type_id WHERE DATE(e.registration_date) = CURDATE() AND (p.tuition_fees LIKE '%installment%' OR p.residence_payment LIKE '%installment%') AND dt.name = 'Staff' AND sd.notes LIKE '%12%%' LIMIT 50\"
             ]
@@ -91,23 +110,25 @@ class GeminiService
             Example 2 (Multiple Independent Categories Recap using UNION ALL):
             User Question: 'Buatkan rekapitulasi pendaftaran hari ini berdasarkan tipe tempat tinggal, kelas, dan gender'
             Output: [
-                \"SELECT COUNT(DISTINCT e.enrollment_id) as total_pendaftar FROM enrollments e WHERE DATE(e.registration_date) = CURDATE()\",
-                \"SELECT 'Residence Type' AS Kategori, rh.type AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY rh.type UNION ALL SELECT 'Grade' AS Kategori, c.grade AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN classes c ON e.class_id = c.class_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY c.grade UNION ALL SELECT 'Gender' AS Kategori, s.gender AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN students s ON e.id = s.id WHERE DATE(e.registration_date) = CURDATE() GROUP BY s.gender\"
+                \"SELECT COUNT(e.enrollment_id) AS total_enrollments, COUNT(DISTINCT s.student_id) AS total_students FROM enrollments e JOIN students s ON e.id = s.id WHERE DATE(e.registration_date) = CURDATE()\",
+                \"SELECT 'Residence Type' AS Kategori, rh.type AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY rh.type UNION ALL SELECT 'Grade' AS Kategori, c.grade AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN classes c ON e.class_id = c.class_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY c.grade UNION ALL SELECT 'Gender' AS Kategori, s.gender AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN students s ON e.id = s.id WHERE DATE(e.registration_date) = CURDATE() GROUP BY s.gender\",
+                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) AS full_name, sec.name AS section, c.grade AS grade, rh.type AS residence_type, s.gender FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() LIMIT 50\"
             ]
 
             Example 3 (Year and Pickup Point Filtering):
             User Question: 'Berapa jumlah siswa yang mendaftar untuk tahun ajaran 2026/2027 dengan pickup point Airmadidi? berikan beserta list datanya'
             Output: [
-                \"SELECT COUNT(*) as total_siswa FROM enrollments e JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%'\",
-                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, sy.year as school_year, pp.name as pickup_point FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%' LIMIT 50\"
+                \"SELECT COUNT(e.enrollment_id) AS total_enrollments, COUNT(DISTINCT s.student_id) AS total_students FROM enrollments e JOIN students s ON e.id = s.id JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%'\",
+                \"SELECT 'Pickup Point' AS Kategori, pp.name AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id JOIN school_years sy ON e.school_year_id = sy.school_year_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%' GROUP BY pp.name\",
+                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) AS full_name, sec.name AS section, c.grade AS grade, sy.year AS school_year, pp.name AS pickup_point FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN school_years sy ON e.school_year_id = sy.school_year_id JOIN pickup_points pp ON e.pickup_point_id = pp.pickup_point_id WHERE sy.year = '2026/2027' AND pp.name LIKE '%Airmadidi%' LIMIT 50\"
             ]
             
-            Example 4 (Recap AND List of Names requested together):
-            User Question: 'Buatkan rekap pendaftaran hari ini berdasarkan tipe tempat tinggal dan kelas, berikan juga list namanya'
+            Example 4 (No Specific Date - Fallback to Active & Next School Year):
+            User Question: 'Buatkan rekap pendaftaran berdasarkan tipe tempat tinggal dan kelas, berikan juga list namanya'
             Output: [
-                \"SELECT COUNT(DISTINCT e.enrollment_id) as total_pendaftar FROM enrollments e WHERE DATE(e.registration_date) = CURDATE()\",
-                \"SELECT 'Residence Type' AS Kategori, rh.type AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY rh.type UNION ALL SELECT 'Grade' AS Kategori, c.grade AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN classes c ON e.class_id = c.class_id WHERE DATE(e.registration_date) = CURDATE() GROUP BY c.grade\",
-                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) as full_name, sec.name as section, c.grade, rh.type as residence_type FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN residence_halls rh ON e.residence_id = rh.residence_id WHERE DATE(e.registration_date) = CURDATE() LIMIT 50\"
+                \"SELECT COUNT(e.enrollment_id) AS total_enrollments, COUNT(DISTINCT s.student_id) AS total_students FROM enrollments e JOIN students s ON e.id = s.id JOIN school_years sy ON e.school_year_id = sy.school_year_id WHERE sy.year IN ('$activeSchoolYear', '$nextSchoolYear')\",
+                \"SELECT 'Residence Type' AS Kategori, rh.type AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN residence_halls rh ON e.residence_id = rh.residence_id JOIN school_years sy ON e.school_year_id = sy.school_year_id WHERE sy.year IN ('$activeSchoolYear', '$nextSchoolYear') GROUP BY rh.type UNION ALL SELECT 'Grade' AS Kategori, c.grade AS Kriteria, COUNT(*) AS Total FROM enrollments e JOIN classes c ON e.class_id = c.class_id JOIN school_years sy ON e.school_year_id = sy.school_year_id WHERE sy.year IN ('$activeSchoolYear', '$nextSchoolYear') GROUP BY c.grade\",
+                \"SELECT s.student_id, CONCAT_WS(' ', s.first_name, s.middle_name, s.last_name) AS full_name, sec.name AS section, c.grade AS grade, sy.year AS school_year, rh.type AS residence_type FROM enrollments e JOIN students s ON e.id = s.id JOIN sections sec ON e.section_id = sec.section_id JOIN classes c ON e.class_id = c.class_id JOIN residence_halls rh ON e.residence_id = rh.residence_id JOIN school_years sy ON e.school_year_id = sy.school_year_id WHERE sy.year IN ('$activeSchoolYear', '$nextSchoolYear') LIMIT 50\"
             ]
 
             Schema:
@@ -165,8 +186,8 @@ class GeminiService
 
     public function interpretResult(string $userPrompt, array $executionResults, bool $hasTableData)
     {
-        foreach ($executionResults as &$item) {
-            if (is_array($item['result']) && count($item['result']) > 3) {
+        foreach ($executionResults as $index => &$item) {
+            if ($index === 2 && is_array($item['result']) && count($item['result']) > 3) {
                 $item['result_sample'] = array_slice($item['result'], 0, 3);
                 unset($item['result']); 
             }
@@ -174,14 +195,17 @@ class GeminiService
 
         $contextJson = json_encode($executionResults);
 
+        $currentTime = date('l, d F Y H:i:s'); 
+
         $specificRule = $hasTableData 
-            ? "The system will display TABLE(S) below your response. YOUR TASK: First, find the actual total number of students/registrations. State this explicitly and wrap the number in double asterisks. SECOND (CRITICAL): If the user asks for a comparison or breakdown (e.g., 'yang dapat diskon dan yang tidak', 'laki-laki dan perempuan'), you MUST look at the data in the JSON result, calculate the breakdown manually, and explain it in your narrative (e.g., 'Terdapat total **3** pendaftar, dengan rincian **2** siswa mendapat diskon dan **1** siswa tidak mendapat diskon.'). Third, write a brief, natural introductory sentence for the table(s)."
+            ? "The system will display TABLE(S) below your response. YOUR TASK: First, look at the first result query (query_order: 1) which contains `total_enrollments` and `total_students`. Explain BOTH numbers clearly so the user understands the context (e.g., 'Terdapat total **5** riwayat pendaftaran dari **4** siswa unik. Hal ini terjadi karena ada siswa yang mendaftar untuk lebih dari 1 tahun ajaran.'). SECOND (CRITICAL): If the user asks for a comparison or breakdown (e.g., 'yang dapat diskon dan yang tidak', 'laki-laki dan perempuan'), DO NOT calculate the breakdown manually from the sample data. You MUST look at the summary/rekap query (the UNION ALL result) to find the exact breakdown numbers and explain it in your narrative. Third, write a brief, natural introductory sentence for the table(s)."
             : "The result is a direct answer or summary. Provide a conversational narrative based on the data without introducing any table. If there are numbers representing totals, wrap them in double asterisks to make them bold.";
 
         $systemInstruction = "
             Role: You are a helpful Data Analyst Assistant for Registrar.
             
             Context:
+            - Current Server Time: $currentTime
             - User Question: '$userPrompt'
             - Database Execution Results: $contextJson
             - Is Table Displayed: " . ($hasTableData ? 'YES' : 'NO') . "
