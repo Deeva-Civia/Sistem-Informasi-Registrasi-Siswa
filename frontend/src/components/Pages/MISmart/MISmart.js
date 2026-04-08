@@ -176,6 +176,27 @@ const MISmart = () => {
       normalizedRenameDraftTitle !== renameBaselineTitle
   );
   const shouldShowComposer = !isChatMode || !isActiveSessionReadOnly;
+  const textareaRef = useRef(null);
+
+  const adjustTextareaHeight = () => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto";
+      const nextHeight = textarea.scrollHeight;
+      
+      if (nextHeight > 120) {
+        textarea.style.height = "120px";
+        textarea.style.overflowY = "auto"; 
+      } else {
+        textarea.style.height = `${nextHeight}px`;
+        textarea.style.overflowY = "hidden"; 
+      }
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [askValue]);
 
   useEffect(() => {
     sessionsRef.current = chatSessions;
@@ -793,12 +814,7 @@ const MISmart = () => {
   const handleSendClick = () => {
     if (!canSend) return;
     handleSendPrompt(askValue);
-  };
-
-  const handleAskInputKeyDown = (event) => {
-    if (event.key !== "Enter") return;
-    event.preventDefault();
-    handleSendClick();
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
   };
 
   useEffect(() => {
@@ -1232,13 +1248,20 @@ const MISmart = () => {
               </button>
 
               <div className={styles.askBar}>
-                <input
+                <textarea
+                  ref={textareaRef}
                   className={styles.askInput}
-                  type="text"
                   placeholder="Ask MISmart"
+                  rows={1}
+                  type="text"
                   value={askValue}
                   onChange={(event) => setAskValue(event.target.value)}
-                  onKeyDown={handleAskInputKeyDown}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendClick();
+                    }
+                  }}
                   disabled={isAiTyping}
                 />
                 <button

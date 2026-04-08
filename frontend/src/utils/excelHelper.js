@@ -51,7 +51,7 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
     if (comparativeTable && comparativeTable.length > 0) {
         isDailyReport = true;
     }
-    
+
     if (summaryData || detailsData) { 
         summaryData = summaryData || [];
         detailsData = detailsData || [];
@@ -621,7 +621,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                         } else {
                             if (C === 0 || C === 1) {
                                 cell.s.font = { bold: false };
-                                cell.s.fill = { fgColor: { rgb: "BDD7EE" } };
                                 cell.s.alignment = { vertical: "center", horizontal: "left" };
                             } else {
                                 cell.s.alignment = { vertical: "center", horizontal: "center" };
@@ -629,7 +628,6 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                             
                             if (R === comparativeStartRowIndex + 2) {
                                 cell.s.font = { bold: false };
-                                cell.s.fill = { fgColor: { rgb: "BDD7EE" } };
                             }
                         }
                     }
