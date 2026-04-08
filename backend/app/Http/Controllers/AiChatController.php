@@ -242,7 +242,7 @@ class AiChatController extends Controller
                 'tableData'    => $tableData,
                 'totalCount'   => $totalDataCount,
                 'is_daily_report_format' => $isDailyReport
-            ]);
+            ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             $this->chatSessionService->saveMessage($sessionId, 'backend', $backendPayload, $sqlTextLog);
 
             // 6. Simpan hasil akhir (Naratif AI & SQL) ke Database

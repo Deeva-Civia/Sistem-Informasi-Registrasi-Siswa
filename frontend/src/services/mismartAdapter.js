@@ -33,6 +33,7 @@ const mapApiMessageToUi = (apiMessage, index = 0, injectedBackendData = null) =>
   const canDownloadValue = injectedBackendData?.can_download ?? parsedContent?.can_download ?? false;
   const tableDataValue = injectedBackendData?.tableData ?? parsedContent?.tableData ?? null;
   const totalCountValue = injectedBackendData?.totalCount ?? parsedContent?.totalCount ?? 0;
+  const isDailyReportValue = injectedBackendData?.is_daily_report_format ?? parsedContent?.is_daily_report_format ?? false;
 
   return {
     id: String(apiMessage?.id ?? `msg-fallback-${index}`),
@@ -41,6 +42,7 @@ const mapApiMessageToUi = (apiMessage, index = 0, injectedBackendData = null) =>
     canDownload: Boolean(canDownloadValue),
     tableData: tableDataValue,
     totalCount: totalCountValue,
+    isDailyReport: Boolean(isDailyReportValue),
     createdAt: apiMessage?.created_at || null,
   };
 };
@@ -73,6 +75,7 @@ export const mapChatDetailsResponse = (response) => {
     "messages",
     "chat_messages",
     "history",
+    "is_daily_report_format"
   ]);
 
   const uiMessages = [];

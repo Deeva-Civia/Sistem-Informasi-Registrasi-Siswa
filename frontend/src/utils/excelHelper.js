@@ -48,6 +48,10 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
     extractDataSets(tableData);
 
+    if (comparativeTable && comparativeTable.length > 0) {
+        isDailyReport = true;
+    }
+    
     if (summaryData || detailsData) { 
         summaryData = summaryData || [];
         detailsData = detailsData || [];
@@ -88,11 +92,20 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         // KONDISI: Tampilkan Student ID jika bukan Daily Report Format
         const allowedBaseKeys = isDailyReport 
             ? ["full_name", "grade"] 
-            : ["student_id", "full_name", "grade"];
+            : [
+                "student_name", "student_id", "registration_id", "nickname", 
+                "nik", "nisn", "place_of_birth", "age", "date_of_birth", 
+                "kitas", "address", "previous_school", "email_siswa", 
+                "phone_number_siswa", "grade"
+            ];
         const allowedBaseHeaders = isDailyReport 
             ? ["Name of students", "Grade"] 
-            : ["Student ID", "Name of students", "Grade"];
-        
+            : [
+                "Student's Name", "Student ID", "Registration ID", "Nickname", 
+                "NIK", "NISN", "Place of Birth", "Age", "Date of Birth", 
+                "KITAS", "Address", "Previous School", "Email Siswa", 
+                "Phone Number", "Grade"
+            ];
         // Ambil semua kategori dari summaryData untuk membedakan mana yang Matrix
         const matrixCategoriesLower = summaryData.map(item => {
             const catKey = Object.keys(item).find(k => k.toLowerCase() === 'kategori');
@@ -102,20 +115,28 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         const dynamicBaseKeys = [];
         const dynamicBaseHeaders = [];
 
+        const personalDataKeywords = [
+            'address', 'guardian', 'relation', 'company', 'occupation', 'name', 
+            'nik', 'nisn', 'kitas', 'phone', 'dob', 'birth', 'email', 'account',
+            'father', 'mother', 'previous', 'nickname', 'age', 'registration_id', 'virtual'
+        ];
+
         if (!isDailyReport) {
             allKeys.forEach(key => {
                 const lowerKey = String(key).toLowerCase();
                 const formattedLowerKey = lowerKey.replace(/_/g, ' ');
+                const isDiscount = lowerKey.includes('discount'); 
+                const isPersonalData = personalDataKeywords.some(keyword => formattedLowerKey.includes(keyword));
 
                 if (
                     !allowedBaseKeys.includes(lowerKey) &&
                     lowerKey !== "registration_date" &&
                     lowerKey !== "date" &&
-                    !matrixCategoriesLower.includes(formattedLowerKey) &&
-                    !matrixCategoriesLower.includes(lowerKey)
+                    !isDiscount && 
+                    (isPersonalData  || (!matrixCategoriesLower.includes(formattedLowerKey) && !matrixCategoriesLower.includes(lowerKey)))
                 ) {
                     dynamicBaseKeys.push(key);
-                    dynamicBaseHeaders.push(formatHeader(key)); // ex: mothers_name -> Mothers Name
+                    dynamicBaseHeaders.push(formatHeader(key)); 
                 }
             });
         }
@@ -158,6 +179,10 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         orderedCriteria = orderedCriteria.filter(col => {
             const catLower = String(col.category).toLowerCase();
             const critLower = String(col.criteria).toLowerCase();
+            
+            const isPersonalCategory = personalDataKeywords.some(keyword => catLower.includes(keyword));
+            if (isPersonalCategory) return false;
+
             if (isDailyReport) {
                 return catLower !== "grade" && catLower !== "school year" && critLower !== "transferee";
             }
@@ -252,7 +277,14 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                 return payment.includes(critLower) || payment === critLower;
             }
 
-            const isStatusMatch = (status === critLower); 
+            if (catLower === "discount" || catLower === "discount type") {
+                return discType === critLower;
+            }
+            if (catLower === "discount notes") {
+                return discNotes.includes(critLower);
+            }
+
+            const isStatusMatch = isDailyReport ? (status === critLower) : true; 
             
             if (catLower === "sg") return isStatusMatch && discType === "beasiswa";
             if (catLower === "sd") return isStatusMatch && discType === "special discount";
@@ -290,7 +322,8 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                 const isLongNumericString = ['nik', 'nisn', 'kitas'].includes(colLower) || 
                                             colLower.includes('phone') || 
                                             colLower.includes('va_') || 
-                                            colLower.includes('virtual_account');
+                                            colLower.includes('virtual') ||
+                                            colLower.includes('account');
 
                 if (isLongNumericString && val !== "") {
                     // format menjadi Teks/String (t: 's') agar angka tidak berubah jadi e+
@@ -322,7 +355,9 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         // 6. SETUP FOOTER (Total Row)
         const totalRow = Array(baseHeaders.length).fill("");
 
-        const fullNameIndex = baseHeaders.indexOf("Name of students"); 
+        const fullNameIndex = baseHeaders.findIndex(header => 
+            ["Name of students", "Student's Name", "Full Name"].includes(header)
+        );
         const gradeIndex = baseHeaders.indexOf("Grade");
         
         // [PERUBAHAN 4]: Menentukan posisi kata "Total:" agar persis di kiri kolom Grade
@@ -387,27 +422,28 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
         if (isDailyReport) {
             aoaData.push([]);
             legendStartIndex = aoaData.length; 
-            aoaData.push(["Keterangan:"]);
+            aoaData.push(["Keterangan:", ""]);
             const descriptions = [
-                "Grade     : Kelas",
-                "New, Old  : Student Status",
-                "SG        : Schoolarship Grantee",
-                "SD        : Special Discount",
-                "SC        : Staff Child",
-                "IP%       : Beasiswa IP dengan pembayaran Full Payment",
-                "IP        : Beasiswa IP dengan pembayaran Installment",
-                "Cash      : Full Payment",
-                "12%cash   : Beasiswa 12% dengan pembayaran Full Payment",
-                "10%cash   : Beasiswa 10% dengan pembayaran Full Payment",
-                "5%cash    : Beasiswa 5% dengan pembayaran Full Payment",
-                "Regular   : Academic Status Regular",
-                "Sit In    : Academic Status Sit In",
-                "Reg       : Registration (total registration)",
-                "SY        : School Year",
-                "Returning : Old Student"
+                ["Grade", ": Kelas"],
+                ["New, Old", ": Student Status"],
+                ["SG", ": Scholarship Grantee"],
+                ["SD", ": Special Discount"],
+                ["SC", ": Staff Child"],
+                ["IP%", ": Beasiswa IP dengan pembayaran Full Payment"],
+                ["IP", ": Beasiswa IP dengan pembayaran Installment"],
+                ["Cash", ": Full Payment"],
+                ["12%cash", ": Beasiswa 12% dengan pembayaran Full Payment"],
+                ["10%cash", ": Beasiswa 10% dengan pembayaran Full Payment"],
+                ["5%cash", ": Beasiswa 5% dengan pembayaran Full Payment"],
+                ["Regular", ": Academic Status Regular"],
+                ["Sit In", ": Academic Status Sit In"],
+                ["Reg", ": Registration (total registration)"],
+                ["SY", ": School Year"],
+                ["Returning", ": Old Student"]
             ];
-            descriptions.forEach(desc => {
-                aoaData.push([desc]);
+
+            descriptions.forEach((desc, index) => {
+                aoaData.push([`${index + 1}.`, desc[0], desc[1]]); 
             });
             legendEndIndex = aoaData.length - 1; 
         }
@@ -476,8 +512,10 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
         // KONDISI: Merge kolom Keterangan jika isDailyReport
         if (isDailyReport && legendStartIndex !== -1) {
-            for (let r = legendStartIndex; r <= legendEndIndex; r++) {
-                merges.push({ s: { r: r, c: 0 }, e: { r: r, c: 3 } }); 
+            merges.push({ s: { r: legendStartIndex, c: 0 }, e: { r: legendStartIndex, c: 2 } }); 
+            
+            for (let r = legendStartIndex + 1; r <= legendEndIndex; r++) {                
+                merges.push({ s: { r: r, c: 2 }, e: { r: r, c: 4 } }); 
             }
         }
 
@@ -501,10 +539,23 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
                 // Styling Keterangan
                 if (isDailyReport && legendStartIndex !== -1 && R >= legendStartIndex && R <= legendEndIndex) {
-                    if (C === 0) {
+                    // Baris judul "Keterangan:"
+                    if (R === legendStartIndex && C === 0) {
+                        cell.s.font = { bold: true };
                         cell.s.alignment = { horizontal: "left", vertical: "center" };
-                        if (R === legendStartIndex) {
-                            cell.s.font = { bold: true };
+                    } 
+                    // Baris isi list keterangan
+                    else if (R > legendStartIndex) {
+                        if (C === 0) {
+                            // Angka nomor 
+                            cell.s.font = { bold: false };
+                            cell.s.alignment = { horizontal: "center", vertical: "center" };
+                        } else if (C === 1) {
+                            // Label 
+                            cell.s.alignment = { horizontal: "left", vertical: "center" };
+                        } else if (C === 2) {
+                            // Penjelasan 
+                            cell.s.alignment = { horizontal: "left", vertical: "center" };
                         }
                     }
                     continue;
@@ -520,8 +571,22 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
 
                 // Styling Data Tabel Utama (Baris 4 hingga sebelum Footer)
                 if (R >= 4 && R < footerStartRowIndex) {
-                    if (C === 0) cell.s.font = { bold: true };
-                    else if (baseHeaders[C] === "Name of students") cell.s.alignment = { vertical: "center", horizontal: "left" };
+                    if (C === 0) {
+                        cell.s.font = { bold: true };
+                    } else if (["Name of students", "Student's Name", "Full Name"].includes(baseHeaders[C])) {
+                        cell.s.alignment = { vertical: "center", horizontal: "left" };
+                    }
+
+                    // Text wrap alamat
+                    if (baseHeaders[C]) {
+                        const currentHeaderLower = String(baseHeaders[C]).toLowerCase();
+                        if (["student address", "father address", "mother address", "guardian address"].includes(currentHeaderLower)) {
+                            cell.s.alignment = cell.s.alignment || {};
+                            cell.s.alignment.wrapText = true; // Mengaktifkan text-wrap
+                            cell.s.alignment.vertical = "center"; 
+                            cell.s.alignment.horizontal = "left"; // Dibuat rata kiri agar mudah dibaca
+                        }
+                    }
                 }
 
                 // Styling Header Atas (2 & 3) dan Header Bawah
@@ -603,7 +668,9 @@ export const generateExcelReport = (tableData, contextTitle = "Data Ekspor", tot
                 worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 4, 12) };
             } else {
                 const criteriaLength = String(col.criteria).length;
-                worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 3, 6) };
+                const categoryLength = String(col.category).length;
+                
+                worksheet['!cols'][baseHeaders.length + i] = { wch: Math.max(criteriaLength + 3, categoryLength + 2, 6) };
             }
         });
         
