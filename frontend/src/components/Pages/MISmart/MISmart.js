@@ -1103,7 +1103,7 @@ const MISmart = () => {
                 </div>
               ))
             ) : (
-              <div className={styles.historyEmptyState}>No chat found</div>
+              <div className={styles.historyEmptyState}>Chat not found</div>
             )}
           </div>
 
@@ -1192,7 +1192,7 @@ const MISmart = () => {
                             ? styles.downloadButtonActive
                             : ""
                         }`}
-                        aria-label="Download File Exel"
+                        aria-label="Download File Excel"
                         onClick={() => handleDownloadClick(
                           message.id, 
                           message.tableData,  
@@ -1201,7 +1201,7 @@ const MISmart = () => {
                           message.isDailyReport
                         )}
                       >
-                        <span>Download Exel</span>
+                        <span>Download Excel</span>
                         <DownloadIcon className={styles.downloadIconSvg} />
                       </button>
                     ) : null}
