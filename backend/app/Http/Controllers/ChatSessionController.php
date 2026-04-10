@@ -16,38 +16,6 @@ class ChatSessionController extends Controller
         $this->chatSessionService = $chatSessionService;
     }
 
-    public function createChatSession(Request $request): JsonResponse
-    {
-        $validated = $request->validate([
-            'text' => 'required|string|max:1000',
-        ]);
-
-        try {
-            $text = trim($validated['text']);
-            $session = $this->chatSessionService->createSession(
-                $request->user()->user_id,
-                $text
-            );
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Chat session created successfully.',
-                'data' => [
-                    'id' => $session['id'],
-                    'title' => $session['title'],
-                    'created_at' => $session['created_at'],
-                    'updated_at' => $session['updated_at'],
-                ],
-            ], 201);
-        } catch (Throwable $error) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create chat session.',
-                'errors' => config('app.debug') ? $error->getMessage() : null,
-            ], 500);
-        }
-    }
-
     public function fetchChatDetails(Request $request, int $session_id): JsonResponse
     {
         try {
