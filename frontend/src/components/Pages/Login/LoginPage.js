@@ -121,7 +121,6 @@ const LoginPage = () => {
 
           <div className={styles["login-card"]}>
             <div className={styles["login-logo"]}>
-              <Logo />
             </div>
 
             <form

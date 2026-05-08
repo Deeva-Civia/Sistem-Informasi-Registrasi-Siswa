@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../../services/api";
-import Logo from "../../Atoms/Logo/Logo";
 import backIcon from "../../../assets/back.svg";
 import "./HeaderBar.css";
 
@@ -56,7 +55,6 @@ const HeaderBar = ({ onHamburgerClick, showBackButton, onBackClick }) => {
           </button>
         )}
         <div className="header-bar-logo">
-          <Logo />
         </div>
       </div>
 
